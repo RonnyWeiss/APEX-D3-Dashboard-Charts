@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>D3 Dashboard Charts</title>
+    <link href="build/d3dashboard.pkgd.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="data/data.js"></script>
+    <script src="build/d3dashboard.pkgd.min.js"></script>
+
+</head>
+
+<body onload="apexDashboardChart.initialize('chart',null,'No Data found.', {}, {},null,true,data);">
+    <div id="chart">
+        <div class="d3dc-root"></div>
+    </div>
+
+</body>
+
+</html>

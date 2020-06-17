@@ -1,0 +1,34 @@
+{
+    "name": "APEX D3 Dashboard Charts",
+    "version": "2.4.1",
+    "description": "Create with only one SQL statement one or more D3 charts with different configurations and different chart types. Possible are among other things: Bar, line, area, pie, gauge, donut, step and stack charts.\r\n\r\nAll things such as chart type, number of series, colors, size, data points and chart configurations can be adjusted at runtime by the SQL statement and reset again and again by refresh. Examples can be found in the Sample App:\r\n\r\nhttps:\/\/apex.oracle.com\/pls\/apex\/f?p=103428\r\n",
+    "keywords": ["oracle", "apex", "plugin", "charts", "region", "responsive", "d3"],
+    "homepage": "https://github.com/RonnyWeiss/APEX-D3-Dashboard-Charts",
+    "bugs": {
+        "url": "https://github.com/RonnyWeiss/APEX-D3-Dashboard-Charts/issues",
+        "email": "wronny@gmx.de"
+    },
+    "license": "MIT",
+    "author": {
+        "name": "Ronny Weiß",
+        "email": "wronny@gmx.de",
+        "twitter": "ronny_weiss_",
+        "donationUrl": "https://www.paypal.me/RonnyW1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/RonnyWeiss/APEX-D3-Dashboard-Charts.git"
+    },
+    "oracle": {
+        "versions": ["12.1.0.1", "12.2.0.1", "18.4.0.0", "19.0.0.0.0"],
+        "apex": {
+            "versions": ["5.1.3", "18.1.0.00.45", "18.2.0.00.12", "19.1.0.00.15", "19.2.0.00.18", "20.1.0.00.13"],
+            "plugin": {
+                "internalName": "APEX.D3.DASHBOARD.CHARTS",
+                "type": "region",
+                "demo": "https://apex.oracle.com/pls/apex/f?p=103428",
+                "previewImage": "https://github.com/RonnyWeiss/APEX-D3-Dashboard-Charts/raw/master/screenshot.gif"
+            }
+        }
+    }
+}

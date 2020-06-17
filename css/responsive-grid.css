@@ -1,0 +1,146 @@
+.d3dc-container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+}
+.d3dc-row {
+    position: relative;
+    width: 100%;
+}
+.d3dc-row [class^="d3dc-col"] {
+    float: left;
+    min-height: 0.125rem;
+}
+.d3dc-col-1,
+.d3dc-col-2,
+.d3dc-col-3,
+.d3dc-col-4,
+.d3dc-col-5,
+.d3dc-col-6,
+.d3dc-col-7,
+.d3dc-col-8,
+.d3dc-col-9,
+.d3dc-col-10,
+.d3dc-col-11,
+.d3dc-col-12 {
+    width: 100%;
+}
+.d3dc-col-1-sm {
+    width: 4.33%;
+}
+.d3dc-col-2-sm {
+    width: 12.66%;
+}
+.d3dc-col-3-sm {
+    width: 25%;
+}
+.d3dc-col-4-sm {
+    width: 33.33%;
+}
+.d3dc-col-5-sm {
+    width: 37.66%;
+}
+.d3dc-col-6-sm {
+    width: 50%;
+}
+.d3dc-col-7-sm {
+    width: 54.33%;
+}
+.d3dc-col-8-sm {
+    width: 62.66%;
+}
+.d3dc-col-9-sm {
+    width: 71%;
+}
+.d3dc-col-10-sm {
+    width: 79.33%;
+}
+.d3dc-col-11-sm {
+    width: 87.66%;
+}
+.d3dc-col-12-sm {
+    width: 100%;
+}
+.d3dc-row::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+.hidden-sm {
+    display: none;
+}
+@media only screen and (min-width: 33.75em) {
+    /* 540px */
+    .d3dc-container {
+        width: 100%;
+    }
+}
+@media only screen and (min-width: 60em) {
+    /* was 45em */
+    /* 720px */
+    .d3dc-col-1,
+    .d3dc-col-2,
+    .d3dc-col-3,
+    .d3dc-col-4,
+    .d3dc-col-5,
+    .d3dc-col-6 {
+        width: 50%;
+    }
+    .d3dc-col-7,
+    .d3dc-col-8,
+    .d3dc-col-9,
+    .d3dc-col-10,
+    .d3dc-col-11,
+    .d3dc-col-12 {
+        width: 100%;
+    }
+    .hidden-sm {
+        display: block;
+    }
+}
+@media only screen and (min-width: 66em) {
+    /* was 60em */
+    /* 960px */
+    .d3dc-container {
+        width: 100%;
+    }
+    .d3dc-col-1 {
+        width: 4.33%;
+    }
+    .d3dc-col-2 {
+        width: 12.66%;
+    }
+    .d3dc-col-3 {
+        width: 25%;
+    }
+    .d3dc-col-4 {
+        width: 33.33%;
+    }
+    .d3dc-col-5 {
+        width: 37.66%;
+    }
+    .d3dc-col-6 {
+        width: 50%;
+    }
+    .d3dc-col-7 {
+        width: 54.33%;
+    }
+    .d3dc-col-8 {
+        width: 62.66%;
+    }
+    .d3dc-col-9 {
+        width: 71%;
+    }
+    .d3dc-col-10 {
+        width: 79.33%;
+    }
+    .d3dc-col-11 {
+        width: 87.66%;
+    }
+    .d3dc-col-12 {
+        width: 100%;
+    }
+    .hidden-sm {
+        display: block;
+    }
+}
