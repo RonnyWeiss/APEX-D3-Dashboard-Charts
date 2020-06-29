@@ -1,10 +1,21 @@
 var apexDashboardChart = (function () {
     "use strict";
-    var scriptVersion = "2.4 .1";
     var util = {
-        version: "1.3",
+        /**********************************************************************************
+         ** required functions 
+         *********************************************************************************/
+        featureInfo: {
+            name: "APEX-D3Dashboard-Charts",
+            info: {
+                scriptVersion: "2.4.2",
+                utilVersion: "1.3.3",
+                url: "https://github.com/RonnyWeiss",
+                url2: "https://ronnyweiss.app",
+                license: "MIT"
+            }
+        },
         isDefinedAndNotNull: function (pInput) {
-            if (typeof pInput !== "undefined" && pInput !== null) {
+            if (typeof pInput !== "undefined" && pInput !== null && pInput != "") {
                 return true;
             } else {
                 return false;
@@ -17,20 +28,41 @@ var apexDashboardChart = (function () {
                 return false;
             }
         },
+        varType: function (pObj) {
+            if (typeof pObj === "object") {
+                var arrayConstructor = [].constructor;
+                var objectConstructor = ({}).constructor;
+                if (pObj.constructor === arrayConstructor) {
+                    return "array";
+                }
+                if (pObj.constructor === objectConstructor) {
+                    return "json";
+                }
+            } else {
+                return typeof pObj;
+            }
+        },
         debug: {
-            info: function (str) {
+            info: function () {
                 if (util.isAPEX()) {
-                    apex.debug.info(str);
+                    var arr = Array.from(arguments);
+                    arr.push(util.featureInfo);
+                    apex.debug.info.apply(this, arr);
                 }
             },
-            error: function (str) {
+            error: function () {
+                var arr = Array.from(arguments);
+                arr.push(util.featureInfo);
                 if (util.isAPEX()) {
-                    apex.debug.error(str);
+                    apex.debug.error.apply(this, arr);
                 } else {
-                    console.error(str);
+                    console.error.apply(this, arr);
                 }
             }
         },
+        /**********************************************************************************
+         ** optinal functions 
+         *********************************************************************************/
         groupObjectArray: function (objectArr, jSONKey) {
             if (objectArr && Array.isArray(objectArr)) {
                 return objectArr.reduce(function (retVal, x) {
@@ -119,21 +151,25 @@ var apexDashboardChart = (function () {
                 try {
                     tmpJSON = JSON.parse(targetConfig);
                 } catch (e) {
-                    console.error("Error while try to parse targetConfig. Please check your Config JSON. Standard Config will be used.");
-                    console.error(e);
-                    console.error(targetConfig);
+                    util.debug.error({
+                        "msg": "Error while try to parse targetConfig. Please check your Config JSON. Standard Config will be used.",
+                        "err": e,
+                        "targetConfig": targetConfig
+                    });
                 }
             } else {
-                tmpJSON = targetConfig;
+                tmpJSON = $.extend(true, {}, targetConfig);
             }
             /* try to merge with standard if any attribute is missing */
             try {
-                finalConfig = $.extend(true, srcConfig, tmpJSON);
+                finalConfig = $.extend(true, {}, srcConfig, tmpJSON);
             } catch (e) {
-                console.error('Error while try to merge 2 JSONs into standard JSON if any attribute is missing. Please check your Config JSON. Standard Config will be used.');
-                console.error(e);
-                finalConfig = srcConfig;
-                console.error(finalConfig);
+                finalConfig = $.extend(true, {}, srcConfig);
+                util.debug.error({
+                    "msg": "Error while try to merge 2 JSONs into standard JSON if any attribute is missing. Please check your Config JSON. Standard Config will be used.",
+                    "err": e,
+                    "finalConfig": finalConfig
+                });
             }
             return finalConfig;
         },
@@ -142,7 +178,7 @@ var apexDashboardChart = (function () {
                 var div = $("<div></div>")
                     .css("margin", "12px")
                     .css("text-align", "center")
-                    .css("padding", "64px 0")
+                    .css("padding", "35px 0")
                     .addClass("dominfomessagediv");
 
                 var subDiv = $("<div></div>");
@@ -207,7 +243,7 @@ var apexDashboardChart = (function () {
             }
         },
         isBetween: function (pValue, pValue2, pRange) {
-            var range = pRange || 0
+            var range = pRange || 0;
             var min = pValue2 - range;
             var max = pValue2 + range;
             return (pValue >= min && pValue <= max);
@@ -234,10 +270,7 @@ var apexDashboardChart = (function () {
             if (util.isDefinedAndNotNull(srcValue)) {
                 return srcValue
             } else {
-                if (cfgValue === 0) {
-                    return 0;
-                }
-                return cfgValue || "";
+                return cfgValue;
             }
         }
     }
@@ -293,10 +326,10 @@ var apexDashboardChart = (function () {
                 "refresh": 0
             };
 
-            /* this is default json for d3 billboard charts */
+            /* default d3 billboard charts options */
             var stdChartConfigJSON = {
                 "gauge": {
-                    "min": null,
+                    "min": 0,
                     "max": null,
                     "type": "single",
                     "width": null,
@@ -312,12 +345,12 @@ var apexDashboardChart = (function () {
                     "show": true
                 },
                 "padding": {
-                    "bottom": 40,
-                    "left": 40,
-                    "right": 120,
-                    "top": 10
+                    "bottom": null,
+                    "left": null,
+                    "right": null,
+                    "top": null
                 },
-                "shadows": false,
+                "shadows": true,
                 "rotateAxis": false,
                 "showDataLabels": false,
                 "showDataPoints": true,
@@ -328,7 +361,7 @@ var apexDashboardChart = (function () {
                 },
                 "transitionDuration": 200,
                 "x": {
-                    "axisHeight": 10,
+                    "axisHeight": null,
                     "label": "x Axis",
                     "timeFormat": "%Y-%m-%dT%H:%M:%S",
                     "type": "category",
@@ -364,6 +397,7 @@ var apexDashboardChart = (function () {
                     "rescale": false
                 }
             };
+
 
             /* get parent */
             var parentID = "#" + pRegionID;
@@ -560,11 +594,15 @@ var apexDashboardChart = (function () {
                 });
 
                 var aTypeCharts = ["pie", "donut", "gauge"];
+                var isGauge = false;
+                var isPie = false;
+                var isDonut = false;
 
                 /* search link from data and set window.location.href */
                 function executeLink(seriesID, valueIdx) {
                     util.debug.info({
                         "module": "drawChart",
+                        "submodule": "executeLink",
                         "seriesID": seriesID,
                         "valueIdx": valueIdx,
                         "pSeriesData": pSeriesData
@@ -572,6 +610,7 @@ var apexDashboardChart = (function () {
                     $.each(pSeriesData, function (idx, series) {
                         util.debug.info({
                             "module": "drawChart",
+                            "submodule": "executeLink",
                             "idx": idx,
                             "series": series
                         });
@@ -600,6 +639,7 @@ var apexDashboardChart = (function () {
                 try {
                     var ownTooltip = false;
 
+                    /* gauge */
                     var gaugeMin = setObjectParameter(pConfigData.gaugeMin, pDefaultConfig.d3chart.gauge.min);
                     var gaugeMax = setObjectParameter(pConfigData.gaugeMax, pDefaultConfig.d3chart.gauge.max);
                     var gaugeType = setObjectParameter(pConfigData.gaugeType, pDefaultConfig.d3chart.gauge.type);
@@ -641,25 +681,13 @@ var apexDashboardChart = (function () {
                     /* Axis */
                     var rotateAxis = setObjectParameter(pConfigData.rotateAxis, pDefaultConfig.d3chart.rotateAxis, true);
 
-                    /* Labels and Datapoints */
-                    var showDataLabels = setObjectParameter(pConfigData.showDataLabels, pDefaultConfig.d3chart.showDataLabels, true);
-                    var showDataPoints = setObjectParameter(pConfigData.showDataPoints, pDefaultConfig.d3chart.showDataPoints, true);
-
-                    var showAbsoluteValues = setObjectParameter(pConfigData.showAbsoluteValues, pDefaultConfig.d3chart.showAbsoluteValues);
-                    var absoluteFormatting;
-
-                    if (showAbsoluteValues) {
-                        absoluteFormatting = function (value, ratio, id) {
-                            return value + yUnit;
-                        }
-                    }
-
                     /* tooltip */
                     var tooltipShow = setObjectParameter(pConfigData.tooltipShow, pDefaultConfig.d3chart.tooltip.show, true);
                     var tooltipGrouped = setObjectParameter(pConfigData.tooltipGrouped, pDefaultConfig.d3chart.tooltip.grouped, true);
 
                     /* Transition duration */
                     var transitionDuration = setObjectParameter(pConfigData.transitionDuration || pDefaultConfig.d3chart.transitionDuration);
+
                     /* x Axis */
                     var xShow = setObjectParameter(pConfigData.xShow, pDefaultConfig.d3chart.x.show, true);
                     var xLabel = setObjectParameter(pConfigData.xLabel, pDefaultConfig.d3chart.x.label || "");
@@ -767,6 +795,18 @@ var apexDashboardChart = (function () {
                                     zoomEnabled = false;
                                 }
 
+                                if (series.type === "gauge") {
+                                    isGauge = true;
+                                }
+
+                                if (series.type === "pie") {
+                                    isPie = true;
+                                }
+
+                                if (series.type === "donut") {
+                                    isDonut = true;
+                                }
+
                                 if (util.isDefinedAndNotNull(series.tooltip)) {
                                     ownTooltip = true;
                                 }
@@ -839,6 +879,29 @@ var apexDashboardChart = (function () {
                             groupsArr.push(jsonObj);
                         });
 
+                        /* Labels and Datapoints */
+                        var dataLabels = setObjectParameter(pConfigData.showDataLabels, pDefaultConfig.d3chart.showDataLabels, true);
+
+                        if (isPie || isDonut) {
+                            dataLabels = {
+                                colors: "white"
+                            };
+                        } else if (isGauge) {
+                            dataLabels = {
+                                colors: (gaugeType === "single") ? "white" : "black"
+                            };
+                        }
+                        var showDataPoints = setObjectParameter(pConfigData.showDataPoints, pDefaultConfig.d3chart.showDataPoints, true);
+
+                        var showAbsoluteValues = setObjectParameter(pConfigData.showAbsoluteValues, pDefaultConfig.d3chart.showAbsoluteValues);
+                        var absoluteFormatting;
+
+                        if (showAbsoluteValues) {
+                            absoluteFormatting = function (value, ratio, id) {
+                                return value + yUnit;
+                            }
+                        }
+
                         var ttContent;
                         if (ownTooltip) {
                             ttContent = function (d) {
@@ -854,7 +917,6 @@ var apexDashboardChart = (function () {
                                             if (pRequireHTMLEscape !== false) {
                                                 ttS = util.escapeHTML(ttS);
                                             }
-
                                             div.append(ttS);
                                             div.append("<br>");
                                         }
@@ -886,7 +948,7 @@ var apexDashboardChart = (function () {
                                     types: typesJSON,
                                     groups: groupsArr,
                                     colors: colorsJSON,
-                                    labels: showDataLabels,
+                                    labels: dataLabels,
                                     axes: axesJSON,
                                     names: namesJSON,
                                     onclick: function (d) {
@@ -906,6 +968,11 @@ var apexDashboardChart = (function () {
                                 donut: {
                                     label: {
                                         format: absoluteFormatting,
+                                        threshold: 0.05
+                                    }
+                                },
+                                bar: {
+                                    label: {
                                         threshold: 0.05
                                     }
                                 },
@@ -1004,7 +1071,17 @@ var apexDashboardChart = (function () {
                                         }
                                     }
                                 },
-                                padding: chartPadding
+                                padding: chartPadding,
+                                onrendered: function () {
+                                    /* define shadows */
+                                    if (shadows) {
+                                        var svg = d3.select(chartContIDSel).select("svg");
+                                        defineSVGShadows(svg, shadowID, 0, 2, 2);
+                                        svg.selectAll(".bb-chart-bar").style("filter", "url(#" + shadowID + ")");
+                                        svg.selectAll(".bb-line").style("filter", "url(#" + shadowID + ")");
+                                        svg.selectAll(".bb-shape").style("filter", "url(#" + shadowID + ")");
+                                    }
+                                }
                             };
 
                             util.debug.info({
@@ -1031,15 +1108,6 @@ var apexDashboardChart = (function () {
                                 }
                             }
 
-                            /* define shadows */
-                            if (shadows) {
-                                var svg = d3.select(chartContIDSel).select("svg");
-                                defineSVGShadows(svg, shadowID, 0, 2, 2);
-                                svg.selectAll(".bb-chart-bar").style("filter", "url(#" + shadowID + ")");
-                                svg.selectAll(".bb-line").style("filter", "url(#" + shadowID + ")");
-                                svg.selectAll(".bb-shape").style("filter", "url(#" + shadowID + ")");
-                            }
-
                             if (util.isAPEX()) {
                                 $(window).on("apexwindowresized", function () {
                                     resize();
@@ -1059,14 +1127,15 @@ var apexDashboardChart = (function () {
 
                                 function startResizeWA() {
                                     timers.innerItemsIntervals[pItemSel] = setInterval(function () {
-                                        if (chartCont.is(":visible")) {
-                                            if ($(pItemSel).length === 0) {
-                                                clearInterval(timers.innerItemsIntervals[pItemSel]);
-                                            } else {
+                                        if ($(pItemSel).length === 0) {
+                                            clearInterval(timers.innerItemsIntervals[pItemSel]);
+                                        } else {
+                                            if (chartCont.is(":visible")) {
                                                 if (!util.isBetween(chartCont.width(), chartCont.find("svg").width(), resizeRange)) {
                                                     util.debug.info("Chart has resize problem");
                                                     resize();
                                                 }
+
                                             }
                                         }
                                     }, timers.defTime);
@@ -1089,6 +1158,7 @@ var apexDashboardChart = (function () {
                                 });
                             }
                         } catch (e) {
+                            $(pItemSel).empty();
                             util.errorMessage.show(pItemSel, pDefaultConfig.errorMessage);
                             util.debug.error({
                                 "msg": "Error while try to render chart",
@@ -1099,6 +1169,7 @@ var apexDashboardChart = (function () {
                         util.noDataMessage.show(pItemSel, pDefaultConfig.noDataMessage);
                     }
                 } catch (e) {
+                    $(pItemSel).empty();
                     util.errorMessage.show(pItemSel, pDefaultConfig.errorMessage);
                     util.debug.error({
                         "msg": "Error while prepare data for chart",
