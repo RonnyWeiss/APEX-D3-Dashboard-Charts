@@ -979,7 +979,7 @@ var apexDashboardChart = (function () {
                                 gauge: {
                                     label: {
                                         format: absoluteFormatting,
-                                        threshold: 0.05
+                                        threshold: (gaugeType === "single") ? 0.05 : null
                                     },
                                     fullCircle: gaugeFullCircle,
                                     min: gaugeMin,
