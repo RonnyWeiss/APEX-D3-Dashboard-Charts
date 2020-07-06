@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  * 
- * @version 2.0.0-next.7
+ * @version 2.0.0-next.8
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4620,7 +4620,8 @@ var TYPE_BY_CATEGORY = {
         scale = $$.scale,
         pfx = "axis_" + axisId;
     if ($$.isStackNormalized()) return [0, 100];
-    var targetsByAxisId = targets.filter(function (t) {
+    var isLog = scale && scale[axisId] && scale[axisId].type === "log",
+        targetsByAxisId = targets.filter(function (t) {
       return axis.getId(t.id) === axisId;
     }),
         yTargets = xDomain ? $$.filterByXDomain(targetsByAxisId, xDomain) : targetsByAxisId;
@@ -4677,7 +4678,9 @@ var TYPE_BY_CATEGORY = {
     notEmpty(p) && ["bottom", "top"].forEach(function (v) {
       padding[v] = axis.getPadding(p, v, padding[v], domainLength);
     }), isZeroBased && (isAllPositive && (padding.bottom = yDomainMin), isAllNegative && (padding.top = -yDomainMax));
-    var domain = [yDomainMin - padding.bottom, yDomainMax + padding.top];
+    var domain = isLog ? [yDomainMin, yDomainMax].map(function (v) {
+      return v <= 0 ? 1 : v;
+    }) : [yDomainMin - padding.bottom, yDomainMax + padding.top];
     return isInverted ? domain.reverse() : domain;
   },
   getXDomainMinMax: function getXDomainMinMax(targets, type) {
@@ -4715,16 +4718,20 @@ var TYPE_BY_CATEGORY = {
   },
   getXDomain: function getXDomain(targets) {
     var $$ = this,
-        isCategorized = $$.axis.isCategorized(),
-        isTimeSeries = $$.axis.isTimeSeries(),
+        isLog = $$.scale.x.type === "log",
         xDomain = [$$.getXDomainMin(targets), $$.getXDomainMax(targets)],
-        padding = $$.getXDomainPadding(xDomain),
-        _xDomain = xDomain,
-        firstX = _xDomain[0],
-        lastX = _xDomain[1],
         min = 0,
         max = 0;
-    return firstX - lastX !== 0 || isCategorized || (isTimeSeries ? (firstX = new Date(firstX.getTime() * .5), lastX = new Date(lastX.getTime() * 1.5)) : (firstX = firstX === 0 ? 1 : firstX * .5, lastX = lastX === 0 ? -1 : lastX * 1.5)), (firstX || firstX === 0) && (min = isTimeSeries ? new Date(firstX.getTime() - padding.left) : firstX - padding.left), (lastX || lastX === 0) && (max = isTimeSeries ? new Date(lastX.getTime() + padding.right) : lastX + padding.right), [min, max];
+    if (isLog) min = xDomain[0], max = xDomain[1];else {
+      var isCategorized = $$.axis.isCategorized(),
+          isTimeSeries = $$.axis.isTimeSeries(),
+          padding = $$.getXDomainPadding(xDomain),
+          _xDomain = xDomain,
+          firstX = _xDomain[0],
+          lastX = _xDomain[1];
+      firstX - lastX !== 0 || isCategorized || (isTimeSeries ? (firstX = new Date(firstX.getTime() * .5), lastX = new Date(lastX.getTime() * 1.5)) : (firstX = firstX === 0 ? 1 : firstX * .5, lastX = lastX === 0 ? -1 : lastX * 1.5)), (firstX || firstX === 0) && (min = isTimeSeries ? new Date(firstX.getTime() - padding.left) : firstX - padding.left), (lastX || lastX === 0) && (max = isTimeSeries ? new Date(lastX.getTime() + padding.right) : lastX + padding.right);
+    }
+    return [min, max];
   },
   updateXDomain: function updateXDomain(targets, withUpdateXDomain, withUpdateOrgXDomain, withTrim, domain) {
     var $$ = this,
@@ -5421,11 +5428,25 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
  */
 
 
-/* harmony default export */ var internals_scale = ({
-  getScale: function getScale(min, max, forTimeseries) {
-    return (forTimeseries ? Object(external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleTime"])() : Object(external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleLinear"])()).range([min, max]);
-  },
+/**
+ * Get scale
+ * @param {string} [type='linear'] Scale type
+ * @param {number} [min] Min range
+ * @param {number} [max] Max range
+ * @returns {d3.scaleLinear|d3.scaleTime} scale
+ * @private
+ */
 
+function getScale(type, min, max) {
+  type === void 0 && (type = "linear"), min === void 0 && (min = 0), max === void 0 && (max = 1);
+  var scale = {
+    linear: external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleLinear"],
+    log: external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleLog"],
+    time: external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleTime"]
+  }[type]();
+  return scale.type = type, type === "log" && scale.clamp(!0), scale.range([min, max]);
+}
+/* harmony default export */ var internals_scale = ({
   /**
    * Get x Axis scale function
    * @param {number} min Min value
@@ -5437,7 +5458,7 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
    */
   getXScale: function getXScale(min, max, domain, offset) {
     var $$ = this,
-        scale = $$.scale.zoom || $$.getScale(min, max, $$.axis.isTimeSeries());
+        scale = $$.scale.zoom || getScale($$.axis.getAxisType("x"), min, max);
     return $$.getCustomizedScale(domain ? scale.domain(domain) : scale, offset);
   },
 
@@ -5451,7 +5472,7 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
    */
   getYScale: function getYScale(min, max, domain) {
     var $$ = this,
-        scale = $$.getScale(min, max, $$.axis.isTimeSeriesY());
+        scale = getScale($$.axis.getAxisType("y"), min, max);
     return domain && scale.domain(domain), scale;
   },
 
@@ -5731,8 +5752,9 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
    */
   getShapeYMin: function getShapeYMin(id) {
     var $$ = this,
-        _$$$scale$$$$axis$get = $$.scale[$$.axis.getId(id)].domain(),
-        yMin = _$$$scale$$$$axis$get[0];
+        scale = $$.scale[$$.axis.getId(id)],
+        _scale$domain = scale.domain(),
+        yMin = _scale$domain[0];
 
     return !$$.isGrouped(id) && yMin > 0 ? yMin : 0;
   },
@@ -9404,7 +9426,7 @@ var external_commonjs_d3_axis_commonjs2_d3_axis_amd_d3_axis_root_d3_ = __webpack
 var AxisRendererHelper_AxisRendererHelper = /*#__PURE__*/function () {
   function AxisRendererHelper(owner) {
     _defineProperty(this, "owner", void 0), _defineProperty(this, "config", void 0), _defineProperty(this, "scale", void 0);
-    var scale = Object(external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleLinear"])(),
+    var scale = getScale(),
         config = owner.config,
         params = owner.params;
     this.owner = owner, this.config = config, this.scale = scale, (config.noTransition || !params.config.transition_duration) && (config.withoutTransition = !0), config.range = this.scaleExtent((params.orgXScale || scale).range());
@@ -9464,21 +9486,34 @@ var AxisRendererHelper_AxisRendererHelper = /*#__PURE__*/function () {
     return start < stop ? [start, stop] : [stop, start];
   }, _proto.generateTicks = function generateTicks(scale, isYAxes) {
     var tickStepSize = this.owner.params.tickStepSize,
+        _scale$domain = scale.domain(),
+        start = _scale$domain[0],
+        end = _scale$domain[1],
         ticks = [];
+
     // When 'axis[y|y2].tick.stepSize' option is set
-    if (isYAxes && tickStepSize) for (var _scale$domain = scale.domain(), start = _scale$domain[0], end = _scale$domain[1], interval = start; interval <= end;) ticks.push(interval), interval += tickStepSize;else if (scale.ticks) ticks = scale.ticks.apply(scale, this.config.tickArguments || []).map(function (v) {
-      return (// round the tick value if is number
-        isString(v) && isNumber(v) && !isNaN(v) && Math.round(v * 10) / 10 || v
-      );
-    });else {
-      for (var domain = scale.domain(), i = Math.ceil(domain[0]); i < domain[1]; i++) ticks.push(i);
+    if (isYAxes && tickStepSize) for (var interval = start; interval <= end;) ticks.push(interval), interval += tickStepSize;else if (scale.ticks) {
+      // adjust excessive tick count show
+      if (ticks = scale.ticks.apply(scale, this.config.tickArguments || []), scale.type === "log") {
+        for (var t = scale.ticks(), _ref = [t[0], t[t.length - 1]], head = _ref[0], tail = _ref[1], cnt = end.toFixed().length; ticks.length > 15; cnt--) ticks = scale.ticks(cnt);
+
+        ticks[0] !== head && ticks.unshift(head), ticks[ticks.length - 1] !== tail && ticks.push(tail);
+      }
+
+      ticks = ticks.map(function (v) {
+        // round the tick value if is number
+        var r = isString(v) && isNumber(v) && !isNaN(v) && Math.round(v * 10) / 10 || v;
+        return r;
+      });
+    } else {
+      for (var i = Math.ceil(start); i < end; i++) ticks.push(i);
 
       ticks.length > 0 && ticks[0] > 0 && ticks.unshift(ticks[0] - (ticks[1] - ticks[0]));
     }
     return ticks;
   }, _proto.copyScale = function copyScale() {
     var newScale = this.scale.copy();
-    return newScale.domain().length || newScale.domain(this.scale.domain()), newScale;
+    return newScale.domain().length || newScale.domain(this.scale.domain()), newScale.type = this.scale.type, newScale;
   }, _proto.textFormatted = function textFormatted(v) {
     var tickFormat = this.config.tickFormat,
         value = /\d+\.\d+0{5,}\d$/.test(v) ? +(v + "").replace(/0+\d$/, "") : v,
@@ -9811,11 +9846,15 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
     var config = this.owner.config;
     return !this.isTimeSeries() && (config.data_x || notEmpty(config.data_xs));
   }, _proto.isTimeSeries = function isTimeSeries(id) {
-    id === void 0 && (id = "x");
-    var config = this.owner.config;
-    return config["axis_" + id + "_type"] === "timeseries";
+    return id === void 0 && (id = "x"), this.owner.config["axis_" + id + "_type"] === "timeseries";
+  }, _proto.isLog = function isLog(id) {
+    return id === void 0 && (id = "x"), this.owner.config["axis_" + id + "_type"] === "log";
   }, _proto.isTimeSeriesY = function isTimeSeriesY() {
     return this.isTimeSeries("y");
+  }, _proto.getAxisType = function getAxisType(id) {
+    id === void 0 && (id = "x");
+    var type = "linear";
+    return this.isTimeSeries(id) ? type = "time" : this.isLog(id) && (type = "log"), type;
   }, _proto.init = function init() {
     var _this = this,
         $$ = this.owner,
@@ -10129,7 +10168,7 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
     var tickOffset = 0;
 
     if (!isTimeSeries) {
-      var scale = Object(external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleLinear"])().domain([left * -1, $$.getXDomainMax($$.data.targets) + 1 + right]).range([0, widthWithoutCurrentPaddingLeft - maxOverflow]);
+      var scale = getScale($$.axis.getAxisType("x"), 0, widthWithoutCurrentPaddingLeft - maxOverflow).domain([left * -1, $$.getXDomainMax($$.data.targets) + 1 + right]);
       tickOffset = Math.ceil((scale(1) - scale(0)) / 2);
     }
 
@@ -11369,7 +11408,7 @@ var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack
         left = Math.max(30, margin.left) - (isRotated ? 20 : 0),
         isInner = config.axis_y_inner,
         x = isInner ? -1 : isRotated ? -(1 + left) : -(left - 1),
-        y = -(isRotated ? 20 : margin.top),
+        y = -(isRotated ? -20 : margin.top),
         w = (isRotated ? width + 15 + left : margin.left + 20) + (isInner ? 20 : 0),
         h = (isRotated ? margin.bottom : margin.top + height) + 10;
     node.attr("x", x).attr("y", y).attr("width", w).attr("height", h);
@@ -12233,6 +12272,13 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
    * - timeseries
    * - category
    * - indexed
+   * - log
+   *
+   * **NOTE:**<br>
+   * - **log** type:
+   *   - the x values specified by [`data.x`](#.data%25E2%2580%25A4x)(or by any equivalent option), must be exclusively-positive.
+   *   - x axis min value should be > 0, otherwise will be set `1`.
+   *
    * @name axis․x․type
    * @memberof Options
    * @type {string}
@@ -12240,6 +12286,7 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
    * @see [Demo: indexed](https://naver.github.io/billboard.js/demo/#Chart.AreaChart)
    * @see [Demo: timeseries](https://naver.github.io/billboard.js/demo/#Chart.TimeseriesChart)
    * @see [Demo: category](https://naver.github.io/billboard.js/demo/#Data.CategoryData)
+   * @see [Demo: log](https://naver.github.io/billboard.js/demo/#Axis.LogScales)
    * @example
    * axis: {
    *   x: {
@@ -12878,12 +12925,21 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
   /**
    * Set type of y axis.<br><br>
    * **Available Values:**
-   *   - timeseries
-   *   - indexed
+   *  - timeseries
+   *  - indexed
+   *  - log
+   *
+   * **NOTE:**<br>
+   * - **log** type:
+   *   - the bound data values must be exclusively-positive.
+   *   - y axis min value should be > 0, otherwise will be set `1`.
+   *   - [`data.groups`](#.data%25E2%2580%25A4groups)(stacked data) option aren't supported.
+   *
    * @name axis․y․type
    * @memberof Options
    * @type {string}
    * @default "indexed"
+   * @see [Demo: log](https://naver.github.io/billboard.js/demo/#Axis.LogScales)
    * @example
    * axis: {
    *   y: {
@@ -14648,22 +14704,26 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
     return [(withTransition ? bar.transition(getRandom()) : bar).attr("d", drawBar).style("fill", this.color).style("opacity", "1")];
   },
   getBarW: function getBarW(axis, barTargetsNum) {
-    var result,
-        $$ = this,
+    var $$ = this,
         config = $$.config,
         scale = $$.scale,
         maxDataCount = $$.getMaxDataCount(),
         isGrouped = config.data_groups.length,
-        tickInterval = (scale.zoom || $$) && !$$.axis.isCategorized() ? $$.xx(scale.subX.domain()[1]) / maxDataCount : axis.tickInterval(maxDataCount),
+        tickInterval = scale.zoom && !$$.axis.isCategorized() ? scale.subX.domain().map(function (v) {
+      return scale.zoom(v);
+    }).reduce(function (a, c) {
+      return Math.abs(a) + c;
+    }) / maxDataCount : axis.tickInterval(maxDataCount),
         getWidth = function (id) {
       var width = id ? config.bar_width[id] : config.bar_width,
           ratio = id ? width.ratio : config.bar_width_ratio,
           max = id ? width.max : config.bar_width_max,
           w = isNumber(width) ? width : barTargetsNum ? tickInterval * ratio / barTargetsNum : 0;
       return max && w > max ? max : w;
-    };
+    },
+        result = getWidth();
 
-    return result = getWidth(), !isGrouped && isObjectType(config.bar_width) && (result = {
+    return !isGrouped && isObjectType(config.bar_width) && (result = {
       width: result,
       total: []
     }, $$.filterTargetsToShow($$.data.targets).forEach(function (v) {
@@ -14891,6 +14951,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
 
 
 
+
 /* harmony default export */ var shape_line = ({
   initLine: function initLine() {
     var $el = this.$el;
@@ -15052,6 +15113,10 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
       var points = isRotated ? [[y(yp(k), !0), x(xp(k))], [y(yp(k + otherDiff), !0), x(xp(k + otherDiff))]] : [[x(xp(k), !0), y(yp(k))], [x(xp(k + otherDiff), !0), y(yp(k + otherDiff))]];
       return generateM(points);
     },
+        axisType = {
+      x: $$.axis.getAxisType("x"),
+      y: $$.axis.getAxisType("y")
+    },
         path = "";
 
     for (var data, _i = 0; data = d[_i]; _i++) {
@@ -15068,7 +15133,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
           } // Draw with region // TODO: Fix for horizotal charts
 
 
-          xp = $$.getScale(prevData.x + xOffset, data.x + xOffset, isTimeSeries), yp = $$.getScale(prevData.value, data.value);
+          xp = getScale(axisType.x, prevData.x + xOffset, data.x + xOffset), yp = getScale(axisType.y, prevData.value, data.value);
           var dx = x(data.x) - x(prevData.x),
               dy = y(data.value) - y(prevData.value),
               dd = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2));
@@ -16537,7 +16602,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.0.0-next.7",
+  version: "2.0.0-next.8",
 
   /**
    * Generate chart
@@ -16665,7 +16730,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.0.0-next.7
+ * @version 2.0.0-next.8
  */
 // CONCATENATED MODULE: ./src/index.ts
 /**

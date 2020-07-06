@@ -7,8 +7,8 @@ var apexDashboardChart = (function () {
         featureInfo: {
             name: "APEX-D3Dashboard-Charts",
             info: {
-                scriptVersion: "2.4.2",
-                utilVersion: "1.3.3",
+                scriptVersion: "2.5",
+                utilVersion: "1.3.4",
                 url: "https://github.com/RonnyWeiss",
                 url2: "https://ronnyweiss.app",
                 license: "MIT"
@@ -79,7 +79,7 @@ var apexDashboardChart = (function () {
             if (tabbed) {
                 window.open(link, "_blank");
             } else {
-                return window.location = link;
+                return window.parent.location.href = link;
             }
         },
         escapeHTML: function (str) {
@@ -375,6 +375,7 @@ var apexDashboardChart = (function () {
                 },
                 "y": {
                     "label": "y Axis 1",
+                    "log": false,
                     "max": null,
                     "min": null,
                     "unit": null,
@@ -384,6 +385,7 @@ var apexDashboardChart = (function () {
                 },
                 "y2": {
                     "label": "y Axis 2",
+                    "log": false,
                     "max": null,
                     "min": null,
                     "unit": null,
@@ -720,6 +722,11 @@ var apexDashboardChart = (function () {
 
                     /* y Axis */
                     var yLabel = pConfigData.yLabel || pDefaultConfig.d3chart.y.label || "";
+                    var yLog = setObjectParameter(pConfigData.yLog, pDefaultConfig.d3chart.y.log, true);
+                    var yType = null;
+                    if (yLog) {
+                        yType = "log";
+                    }
                     var yMin = pConfigData.yMin || pDefaultConfig.d3chart.y.min;
                     var yMax = pConfigData.yMax || pDefaultConfig.d3chart.y.max;
                     var yCulling = pConfigData.yTickMaxNumber || pDefaultConfig.d3chart.y.tick.maxNumber;
@@ -728,6 +735,11 @@ var apexDashboardChart = (function () {
                     /* y2 Axis */
                     var y2Show = false;
                     var y2Label = setObjectParameter(pConfigData.y2Label, pDefaultConfig.d3chart.y2.label || "");
+                    var y2Log = setObjectParameter(pConfigData.y2Log, pDefaultConfig.d3chart.y2.log, true);
+                    var y2Type = null;
+                    if (y2Log) {
+                        y2Type = "log";
+                    }
                     var y2Min = setObjectParameter(pConfigData.y2Min, pDefaultConfig.d3chart.y2.min);
                     var y2Max = setObjectParameter(pConfigData.y2Max, pDefaultConfig.d3chart.y2.max);
                     var y2Culling = setObjectParameter(pConfigData.y2TickMaxNumber, pDefaultConfig.d3chart.y2.tick.maxNumber);
@@ -1045,6 +1057,7 @@ var apexDashboardChart = (function () {
                                     },
                                     y: {
                                         label: yLabel,
+                                        type: yType,
                                         max: yMax,
                                         min: yMin,
                                         tick: {
@@ -1059,6 +1072,7 @@ var apexDashboardChart = (function () {
                                     y2: {
                                         show: y2Show,
                                         label: y2Label,
+                                        type: y2Type,
                                         max: y2Max,
                                         min: y2Min,
                                         tick: {
