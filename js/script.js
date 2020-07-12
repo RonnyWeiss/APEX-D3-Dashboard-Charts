@@ -7,7 +7,7 @@ var apexDashboardChart = (function () {
         featureInfo: {
             name: "APEX-D3Dashboard-Charts",
             info: {
-                scriptVersion: "2.5",
+                scriptVersion: "2.5.1",
                 utilVersion: "1.3.4",
                 url: "https://github.com/RonnyWeiss",
                 url2: "https://ronnyweiss.app",
@@ -45,13 +45,23 @@ var apexDashboardChart = (function () {
         debug: {
             info: function () {
                 if (util.isAPEX()) {
-                    var arr = Array.from(arguments);
+                    var i = 0;
+                    var arr = [];
+                    for (prop in arguments) {
+                        arr[i] = arguments[prop];
+                        i++;
+                    }
                     arr.push(util.featureInfo);
                     apex.debug.info.apply(this, arr);
                 }
             },
             error: function () {
-                var arr = Array.from(arguments);
+                var i = 0;
+                var arr = [];
+                for (prop in arguments) {
+                    arr[i] = arguments[prop];
+                    i++;
+                }
                 arr.push(util.featureInfo);
                 if (util.isAPEX()) {
                     apex.debug.error.apply(this, arr);

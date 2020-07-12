@@ -5,15 +5,15 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  * 
- * @version 2.0.0-next.8
+ * @version 2.0.0-next.9
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory(require("d3-time-format"), require("d3-selection"), require("d3-brush"), require("d3-dsv"), require("d3-drag"), require("d3-scale"), require("d3-transition"), require("d3-shape"), require("d3-zoom"), require("d3-axis"), require("d3-ease"), require("d3-color"), require("d3-interpolate"));
+		module.exports = factory(require("d3-time-format"), require("d3-selection"), require("d3-brush"), require("d3-dsv"), require("d3-drag"), require("d3-scale"), require("d3-transition"), require("d3-shape"), require("d3-axis"), require("d3-ease"), require("d3-interpolate"), require("d3-zoom"), require("d3-color"));
 	else if(typeof define === 'function' && define.amd)
-		define(["d3-time-format", "d3-selection", "d3-brush", "d3-dsv", "d3-drag", "d3-scale", "d3-transition", "d3-shape", "d3-zoom", "d3-axis", "d3-ease", "d3-color", "d3-interpolate"], factory);
+		define(["d3-time-format", "d3-selection", "d3-brush", "d3-dsv", "d3-drag", "d3-scale", "d3-transition", "d3-shape", "d3-axis", "d3-ease", "d3-interpolate", "d3-zoom", "d3-color"], factory);
 	else {
-		var a = typeof exports === 'object' ? factory(require("d3-time-format"), require("d3-selection"), require("d3-brush"), require("d3-dsv"), require("d3-drag"), require("d3-scale"), require("d3-transition"), require("d3-shape"), require("d3-zoom"), require("d3-axis"), require("d3-ease"), require("d3-color"), require("d3-interpolate")) : factory(root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"]);
+		var a = typeof exports === 'object' ? factory(require("d3-time-format"), require("d3-selection"), require("d3-brush"), require("d3-dsv"), require("d3-drag"), require("d3-scale"), require("d3-transition"), require("d3-shape"), require("d3-axis"), require("d3-ease"), require("d3-interpolate"), require("d3-zoom"), require("d3-color")) : factory(root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"], root["d3"]);
 		for(var i in a) (typeof exports === 'object' ? exports : root)[i] = a[i];
 	}
 })(this, function(__WEBPACK_EXTERNAL_MODULE__2__, __WEBPACK_EXTERNAL_MODULE__3__, __WEBPACK_EXTERNAL_MODULE__4__, __WEBPACK_EXTERNAL_MODULE__5__, __WEBPACK_EXTERNAL_MODULE__6__, __WEBPACK_EXTERNAL_MODULE__7__, __WEBPACK_EXTERNAL_MODULE__8__, __WEBPACK_EXTERNAL_MODULE__9__, __WEBPACK_EXTERNAL_MODULE__10__, __WEBPACK_EXTERNAL_MODULE__11__, __WEBPACK_EXTERNAL_MODULE__12__, __WEBPACK_EXTERNAL_MODULE__13__, __WEBPACK_EXTERNAL_MODULE__14__) {
@@ -207,31 +207,31 @@ __webpack_require__.r(__webpack_exports__);
 __webpack_require__.d(__webpack_exports__, "default", function() { return /* reexport */ bb; });
 __webpack_require__.d(__webpack_exports__, "bb", function() { return /* reexport */ bb; });
 
-// NAMESPACE OBJECT: ./src/config/resolver/index.ts
-var resolver_namespaceObject = {};
-__webpack_require__.r(resolver_namespaceObject);
-__webpack_require__.d(resolver_namespaceObject, "axisAPI", function() { return axis_api; });
-__webpack_require__.d(resolver_namespaceObject, "axisInternal", function() { return internal; });
-__webpack_require__.d(resolver_namespaceObject, "axisOptions", function() { return axis_options; });
-__webpack_require__.d(resolver_namespaceObject, "shapeArc", function() { return shape_arc; });
-__webpack_require__.d(resolver_namespaceObject, "shapeArea", function() { return shape_area; });
-__webpack_require__.d(resolver_namespaceObject, "shapeBar", function() { return shape_bar; });
-__webpack_require__.d(resolver_namespaceObject, "shapeGauge", function() { return gauge; });
-__webpack_require__.d(resolver_namespaceObject, "shapeBubble", function() { return bubble; });
-__webpack_require__.d(resolver_namespaceObject, "shapeLine", function() { return shape_line; });
-__webpack_require__.d(resolver_namespaceObject, "shapePoint", function() { return shape_point; });
-__webpack_require__.d(resolver_namespaceObject, "shapeRadar", function() { return shape_radar; });
-__webpack_require__.d(resolver_namespaceObject, "optPoint", function() { return common_point; });
-__webpack_require__.d(resolver_namespaceObject, "optArea", function() { return Options_shape_area; });
-__webpack_require__.d(resolver_namespaceObject, "optBar", function() { return Options_shape_bar; });
-__webpack_require__.d(resolver_namespaceObject, "optBubble", function() { return shape_bubble; });
-__webpack_require__.d(resolver_namespaceObject, "optLine", function() { return Options_shape_line; });
-__webpack_require__.d(resolver_namespaceObject, "optScatter", function() { return scatter; });
-__webpack_require__.d(resolver_namespaceObject, "optSpline", function() { return spline; });
-__webpack_require__.d(resolver_namespaceObject, "optDonut", function() { return donut; });
-__webpack_require__.d(resolver_namespaceObject, "optGauge", function() { return shape_gauge; });
-__webpack_require__.d(resolver_namespaceObject, "optPie", function() { return pie; });
-__webpack_require__.d(resolver_namespaceObject, "optRadar", function() { return Options_shape_radar; });
+// NAMESPACE OBJECT: ./src/config/resolver/shape.ts
+var resolver_shape_namespaceObject = {};
+__webpack_require__.r(resolver_shape_namespaceObject);
+__webpack_require__.d(resolver_shape_namespaceObject, "area", function() { return _area; });
+__webpack_require__.d(resolver_shape_namespaceObject, "areaLineRange", function() { return areaLineRange; });
+__webpack_require__.d(resolver_shape_namespaceObject, "areaSpline", function() { return areaSpline; });
+__webpack_require__.d(resolver_shape_namespaceObject, "areaSplineRange", function() { return areaSplineRange; });
+__webpack_require__.d(resolver_shape_namespaceObject, "areaStep", function() { return areaStep; });
+__webpack_require__.d(resolver_shape_namespaceObject, "bar", function() { return resolver_shape_bar; });
+__webpack_require__.d(resolver_shape_namespaceObject, "bubble", function() { return resolver_shape_bubble; });
+__webpack_require__.d(resolver_shape_namespaceObject, "donut", function() { return shape_donut; });
+__webpack_require__.d(resolver_shape_namespaceObject, "gauge", function() { return resolver_shape_gauge; });
+__webpack_require__.d(resolver_shape_namespaceObject, "line", function() { return resolver_shape_line; });
+__webpack_require__.d(resolver_shape_namespaceObject, "pie", function() { return shape_pie; });
+__webpack_require__.d(resolver_shape_namespaceObject, "radar", function() { return resolver_shape_radar; });
+__webpack_require__.d(resolver_shape_namespaceObject, "scatter", function() { return shape_scatter; });
+__webpack_require__.d(resolver_shape_namespaceObject, "spline", function() { return shape_spline; });
+__webpack_require__.d(resolver_shape_namespaceObject, "step", function() { return shape_step; });
+
+// NAMESPACE OBJECT: ./src/config/resolver/interaction.ts
+var resolver_interaction_namespaceObject = {};
+__webpack_require__.r(resolver_interaction_namespaceObject);
+__webpack_require__.d(resolver_interaction_namespaceObject, "selection", function() { return _selectionModule; });
+__webpack_require__.d(resolver_interaction_namespaceObject, "subchart", function() { return subchartModule; });
+__webpack_require__.d(resolver_interaction_namespaceObject, "zoom", function() { return zoomModule; });
 
 // CONCATENATED MODULE: ./node_modules/@babel/runtime/helpers/esm/defineProperty.js
 function _defineProperty(obj, key, value) {
@@ -1659,134 +1659,6 @@ var Store = /*#__PURE__*/function () {
    */
   data_empty_label_text: ""
 });
-// CONCATENATED MODULE: ./src/config/Options/data/selection.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-/**
- * data.selection config options
- */
-/* harmony default export */ var data_selection = ({
-  /**
-   * Set data selection enabled<br><br>
-   * If this option is set true, we can select the data points and get/set its state of selection by API (e.g. select, unselect, selected).
-   * @name data․selection․enabled
-   * @memberof Options
-   * @type {boolean}
-   * @default false
-   * @see [Demo](https://naver.github.io/billboard.js/demo/#Data.DataSelection)
-   * @example
-   * data: {
-   *    selection: {
-   *       enabled: true
-   *    }
-   * }
-   */
-  data_selection_enabled: !1,
-
-  /**
-   * Set grouped selection enabled.<br><br>
-   * If this option set true, multiple data points that have same x value will be selected by one selection.
-   * @name data․selection․grouped
-   * @memberof Options
-   * @type {boolean}
-   * @default false
-   * @example
-   * data: {
-   *    selection: {
-   *       grouped: true
-   *    }
-   * }
-   */
-  data_selection_grouped: !1,
-
-  /**
-   * Set a callback for each data point to determine if it's selectable or not.<br><br>
-   * The callback will receive d as an argument and it has some parameters like id, value, index. This callback should return boolean.
-   * @name data․selection․isselectable
-   * @memberof Options
-   * @type {Function}
-   * @default function() { return true; }
-   * @example
-   * data: {
-   *    selection: {
-   *       isselectable: function(d) { ... }
-   *    }
-   * }
-   */
-  data_selection_isselectable: function data_selection_isselectable() {
-    return !0;
-  },
-
-  /**
-   * Set multiple data points selection enabled.<br><br>
-   * If this option set true, multile data points can have the selected state at the same time. If false set, only one data point can have the selected state and the others will be unselected when the new data point is selected.
-   * @name data․selection․multiple
-   * @memberof Options
-   * @type {boolean}
-   * @default true
-   * @example
-   * data: {
-   *    selection: {
-   *       multiple: false
-   *    }
-   * }
-   */
-  data_selection_multiple: !0,
-
-  /**
-   * Enable to select data points by dragging.
-   * If this option set true, data points can be selected by dragging.
-   * - **NOTE:** If this option set true, scrolling on the chart will be disabled because dragging event will handle the event.
-   * @name data․selection․draggable
-   * @memberof Options
-   * @type {boolean}
-   * @default false
-   * @example
-   * data: {
-   *    selection: {
-   *       draggable: true
-   *   }
-   * }
-   */
-  data_selection_draggable: !1,
-
-  /**
-   * Set a callback for on data selection.
-   * @name data․onselected
-   * @memberof Options
-   * @type {Function}
-   * @default function() {}
-   * @example
-   * data: {
-   *     onselected: function(d, element) {
-   *        // d - ex) {x: 4, value: 150, id: "data1", index: 4, name: "data1"}
-   *        // element - <circle>
-   *        ...
-   *    }
-   * }
-   */
-  data_onselected: function data_onselected() {},
-
-  /**
-   * Set a callback for on data un-selection.
-   * @name data․onunselected
-   * @memberof Options
-   * @type {Function}
-   * @default function() {}
-   * @example
-   * data: {
-   *     onunselected: function(d, element) {
-   *        // d - ex) {x: 4, value: 150, id: "data1", index: 4, name: "data1"}
-   *        // element - <circle>
-   *        ...
-   *    }
-   * }
-   */
-  data_onunselected: function data_onunselected() {}
-});
 // CONCATENATED MODULE: ./src/config/Options/common/color.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -1876,7 +1748,7 @@ var Store = /*#__PURE__*/function () {
   color_threshold: {},
   color_onover: undefined
 });
-// CONCATENATED MODULE: ./src/config/Options/common/interaction.ts
+// CONCATENATED MODULE: ./src/config/Options/interaction/interaction.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
  * billboard.js project is licensed under the MIT license
@@ -2630,7 +2502,7 @@ function deepClone() {
 /**
  * Extend target from source object
  * @param {object} target Target object
- * @param {object} source Source object
+ * @param {object|Array} source Source object
  * @returns {object}
  * @private
  */
@@ -2942,7 +2814,6 @@ function Options_objectSpread(target) { for (var source, i = 1; i < arguments.le
 
 
 
-
 /**
  * Class to set options on generating chart.
  * - It's instantiated internally, not exposed for public.
@@ -2952,7 +2823,7 @@ function Options_objectSpread(target) { for (var source, i = 1; i < arguments.le
 
 var Options_Options = /*#__PURE__*/function () {
   function Options() {
-    return deepClone(common_main, data_data, data_selection, common_color, interaction, common_legend, common_title, common_tooltip, Options.data);
+    return deepClone(common_main, data_data, common_color, interaction, common_legend, common_title, common_tooltip, Options.data);
   }
 
   return Options.setOptions = function setOptions(options) {
@@ -4100,6 +3971,102 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
         return t.id !== id;
       });
     }), $$.updateTypesElements()) : void done();
+  }
+});
+// CONCATENATED MODULE: ./src/ChartInternal/interactions/drag.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+/**
+ * Module used for data.selection.draggable option
+ */
+
+/* harmony default export */ var interactions_drag = ({
+  /**
+   * Called when dragging.
+   * Data points can be selected.
+   * @private
+   * @param {object} mouse Object
+   */
+  drag: function drag(mouse) {
+    var $$ = this,
+        config = $$.config,
+        state = $$.state,
+        main = $$.$el.main;
+
+    if (!$$.hasArcType() && config.data_selection_enabled && ( // do nothing if not selectable
+    !config.zoom_enabled || $$.zoom.altDomain) && config.data_selection_multiple // skip when single selection because drag is used for multiple selection
+    ) {
+        var _state$dragStart = state.dragStart,
+            sx = _state$dragStart[0],
+            sy = _state$dragStart[1],
+            mx = mouse[0],
+            my = mouse[1],
+            minX = Math.min(sx, mx),
+            maxX = Math.max(sx, mx),
+            minY = config.data_selection_grouped ? state.margin.top : Math.min(sy, my),
+            maxY = config.data_selection_grouped ? state.height : Math.max(sy, my);
+        main.select("." + config_classes.dragarea).attr("x", minX).attr("y", minY).attr("width", maxX - minX).attr("height", maxY - minY), main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).filter(function (d) {
+          return config.data_selection_isselectable.bind($$.api)(d);
+        }).each(function (d, i) {
+          var toggle,
+              shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
+              isSelected = shape.classed(config_classes.SELECTED),
+              isIncluded = shape.classed(config_classes.INCLUDED),
+              isWithin = !1;
+
+          if (shape.classed(config_classes.circle)) {
+            var x = +shape.attr("cx") * 1,
+                y = +shape.attr("cy") * 1;
+            toggle = $$.togglePoint, isWithin = minX < x && x < maxX && minY < y && y < maxY;
+          } else if (shape.classed(config_classes.bar)) {
+            var _getPathBox = getPathBox(this),
+                _x = _getPathBox.x,
+                y = _getPathBox.y,
+                width = _getPathBox.width,
+                height = _getPathBox.height;
+
+            toggle = $$.togglePath, isWithin = !(maxX < _x || _x + width < minX) && !(maxY < y || y + height < minY);
+          } else // line/area selection not supported yet
+            return; // @ts-ignore
+
+
+          isWithin ^ isIncluded && (shape.classed(config_classes.INCLUDED, !isIncluded), shape.classed(config_classes.SELECTED, !isSelected), toggle.call($$, !isSelected, shape, d, i));
+        });
+      }
+  },
+
+  /**
+   * Called when the drag starts.
+   * Adds and Shows the drag area.
+   * @private
+   * @param {object} mouse Object
+   */
+  dragstart: function dragstart(mouse) {
+    var $$ = this,
+        config = $$.config,
+        state = $$.state,
+        main = $$.$el.main;
+    $$.hasArcType() || !config.data_selection_enabled || (state.dragStart = mouse, main.select("." + config_classes.chart).append("rect").attr("class", config_classes.dragarea).style("opacity", "0.1"), $$.setDragStatus(!0));
+  },
+
+  /**
+   * Called when the drag finishes.
+   * Removes the drag area.
+   * @private
+   */
+  dragend: function dragend() {
+    var $$ = this,
+        config = $$.config,
+        main = $$.$el.main;
+    $$.hasArcType() || !config.data_selection_enabled || (main.select("." + config_classes.dragarea).transition().duration(100).style("opacity", "0").remove(), main.selectAll("." + config_classes.shape).classed(config_classes.INCLUDED, !1), $$.setDragStatus(!1));
+  },
+  setDragStatus: function setDragStatus(isDragging) {
+    this.state.dragging = isDragging;
   }
 });
 // EXTERNAL MODULE: external {"commonjs":"d3-drag","commonjs2":"d3-drag","amd":"d3-drag","root":"d3"}
@@ -7041,6 +7008,7 @@ function getTextPos(pos, width) {
 
  // interactions
 
+
  // internals
 
 
@@ -7166,7 +7134,7 @@ var ChartInternal_ChartInternal = /*#__PURE__*/function () {
 
     if (state.datetimeId = "bb-" + +new Date(), $$.color = $$.generateColor(), $$.levelColor = $$.generateLevelColor(), $$.hasPointType() && ($$.point = $$.generatePoint()), state.hasAxis) {
       $$.initClip(), format.extraLineClasses = $$.generateExtraLineClass(), format.dataTime = config.data_xLocaltime ? external_commonjs_d3_time_format_commonjs2_d3_time_format_amd_d3_time_format_root_d3_["timeParse"] : external_commonjs_d3_time_format_commonjs2_d3_time_format_amd_d3_time_format_root_d3_["utcParse"], format.axisTime = config.axis_x_localtime ? external_commonjs_d3_time_format_commonjs2_d3_time_format_amd_d3_time_format_root_d3_["timeFormat"] : external_commonjs_d3_time_format_commonjs2_d3_time_format_amd_d3_time_format_root_d3_["utcFormat"];
-      var isDragZoom = $$.config.zoom_enabled && $$.config.zoom_enabled.type === "drag";
+      var isDragZoom = $$.config.zoom_enabled && $$.config.zoom_type === "drag";
 
       format.defaultAxisTime = function (d) {
         var _$$$scale = $$.scale,
@@ -7378,7 +7346,7 @@ var ChartInternal_ChartInternal = /*#__PURE__*/function () {
 
 
 extend(ChartInternal_ChartInternal.prototype, [// common
-convert, ChartInternal_data_data, load, category, internals_class, internals_color, internals_domain, interactions_interaction, internals_format, internals_legend, internals_redraw, internals_scale, shape_shape, internals_size, internals_text, internals_title, internals_tooltip, internals_transform, internals_type]);
+convert, ChartInternal_data_data, load, category, internals_class, internals_color, internals_domain, interactions_drag, interactions_interaction, internals_format, internals_legend, internals_redraw, internals_scale, shape_shape, internals_size, internals_text, internals_title, internals_tooltip, internals_transform, internals_type]);
 // CONCATENATED MODULE: ./src/config/config.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -8634,133 +8602,6 @@ var axis_axis = {
     return arguments.length ? (config.axis_x_categories = _categories, $$.redraw(), config.axis_x_categories) : config.axis_x_categories;
   }
 });
-// CONCATENATED MODULE: ./src/Chart/api/flow.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-/* harmony default export */ var api_flow = ({
-  /**
-   * Flow data to the chart.<br><br>
-   * By this API, you can append new data points to the chart.
-   * @function flow
-   * @instance
-   * @memberof Chart
-   * @param {object} args The object can consist with following members:<br>
-   *
-   *    | Key | Type | Description |
-   *    | --- | --- | --- |
-   *    | json | Object | Data as JSON format (@see [data․json](Options.html#.data%25E2%2580%25A4json)) |
-   *    | rows | Array | Data in array as row format (@see [data․rows](Options.html#.data%25E2%2580%25A4json)) |
-   *    | columns | Array | Data in array as column format (@see [data․columns](Options.html#.data%25E2%2580%25A4columns)) |
-   *    | to | String | The lower x edge will move to that point. If not given, the lower x edge will move by the number of given data points |
-   *    | length | Number | The lower x edge will move by the number of this argument |
-   *    | duration | Number | The duration of the transition will be specified value. If not given, transition.duration will be used as default |
-   *    | done | Function | The specified function will be called when flow ends |
-   *
-   * - **NOTE:**
-   *   - If json, rows and columns given, the data will be loaded.
-   *   - If data that has the same target id is given, the chart will be appended.
-   *   - Otherwise, new target will be added. One of these is required when calling.
-   *   - If json specified, keys is required as well as data.json.
-   * 	 - If tab isn't visible(by evaluating `document.hidden`), will not be executed to prevent unnecessary work.
-   * @example
-   * // 2 data points will be apprended to the tail and popped from the head.
-   * // After that, 4 data points will be appended and no data points will be poppoed.
-   * chart.flow({
-   *  columns: [
-   *    ["x", "2018-01-11", "2018-01-21"],
-   *    ["data1", 500, 200],
-   *    ["data2", 100, 300],
-   *    ["data3", 200, 120]
-   *  ],
-   *  to: "2013-01-11",
-   *  done: function () {
-   *    chart.flow({
-   *      columns: [
-   *        ["x", "2018-02-11", "2018-02-12", "2018-02-13", "2018-02-14"],
-   *        ["data1", 200, 300, 100, 250],
-   *        ["data2", 100, 90, 40, 120],
-   *        ["data3", 100, 100, 300, 500]
-   *      ],
-   *      length: 2,
-   *      duration: 1500
-   *    });
-   *  }
-   * });
-   */
-  flow: function flow(args) {
-    var data,
-        domain,
-        diff,
-        to,
-        $$ = this.internal,
-        length = 0,
-        tail = 0;
-
-    if ((args.json || args.rows || args.columns) && (data = $$.convertData(args)), data && isTabVisible()) {
-      var notfoundIds = [],
-          orgDataCount = $$.getMaxDataCount(),
-          targets = $$.convertDataToTargets(data, !0),
-          isTimeSeries = $$.axis.isTimeSeries();
-      $$.data.targets.forEach(function (t) {
-        for (var found = !1, i = 0; i < targets.length; i++) if (t.id === targets[i].id) {
-          found = !0, t.values[t.values.length - 1] && (tail = t.values[t.values.length - 1].index + 1), length = targets[i].values.length;
-
-          for (var _j3 = 0; _j3 < length; _j3++) targets[i].values[_j3].index = tail + _j3, isTimeSeries || (targets[i].values[_j3].x = tail + _j3);
-
-          t.values = t.values.concat(targets[i].values), targets.splice(i, 1);
-          break;
-        }
-
-        found || notfoundIds.push(t.id);
-      }), $$.data.targets.forEach(function (t) {
-        for (var _i = 0; _i < notfoundIds.length; _i++) if (t.id === notfoundIds[_i]) {
-          tail = t.values[t.values.length - 1].index + 1;
-
-          for (var _j4 = 0; _j4 < length; _j4++) t.values.push({
-            id: t.id,
-            index: tail + _j4,
-            x: isTimeSeries ? $$.getOtherTargetX(tail + _j4) : tail + _j4,
-            value: null
-          });
-        }
-      }), $$.data.targets.length && targets.forEach(function (t) {
-        for (var missing = [], i = $$.data.targets[0].values[0].index; i < tail; i++) missing.push({
-          id: t.id,
-          index: i,
-          x: isTimeSeries ? $$.getOtherTargetX(i) : i,
-          value: null
-        });
-
-        t.values.forEach(function (v) {
-          v.index += tail, isTimeSeries || (v.x += tail);
-        }), t.values = missing.concat(t.values);
-      }), $$.data.targets = $$.data.targets.concat(targets);
-      // add remained
-      // check data count because behavior needs to change when it"s only one
-      // const dataCount = $$.getMaxDataCount();
-      var baseTarget = $$.data.targets[0],
-          baseValue = baseTarget.values[0];
-      isDefined(args.to) ? (length = 0, to = isTimeSeries ? parseDate.call($$, args.to) : args.to, baseTarget.values.forEach(function (v) {
-        v.x < to && length++;
-      })) : isDefined(args.length) && (length = args.length), orgDataCount ? orgDataCount === 1 && isTimeSeries && (diff = (baseTarget.values[baseTarget.values.length - 1].x - baseValue.x) / 2, domain = [new Date(+baseValue.x - diff), new Date(+baseValue.x + diff)]) : (diff = isTimeSeries ? baseTarget.values.length > 1 ? baseTarget.values[baseTarget.values.length - 1].x - baseValue.x : baseValue.x - $$.getXDomain($$.data.targets)[0] : 1, domain = [baseValue.x - diff, baseValue.x]), domain && $$.updateXDomain(null, !0, !0, !1, domain), $$.updateTargets($$.data.targets), $$.redraw({
-        flow: {
-          index: baseValue.index,
-          length: length,
-          duration: isValue(args.duration) ? args.duration : $$.config.transition_duration,
-          done: args.done,
-          orgDataCount: orgDataCount
-        },
-        withLegend: !0,
-        withTransition: orgDataCount > 1,
-        withTrimXDomain: !1,
-        withUpdateXAxis: !0
-      });
-    }
-  }
-});
 // CONCATENATED MODULE: ./src/Chart/api/grid.x.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -9043,114 +8884,6 @@ extend(regions_regions, {
 /* harmony default export */ var api_regions = ({
   regions: regions_regions
 });
-// CONCATENATED MODULE: ./src/Chart/api/selection.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-
-
-/* harmony default export */ var api_selection = ({
-  /**
-   * Get selected data points.<br><br>
-   * By this API, you can get selected data points information. To use this API, data.selection.enabled needs to be set true.
-   * @function selected
-   * @instance
-   * @memberof Chart
-   * @param {string} [targetId] You can filter the result by giving target id that you want to get. If not given, all of data points will be returned.
-   * @returns {Array} dataPoint Array of the data points.<br>ex.) `[{x: 1, value: 200, id: "data1", index: 1, name: "data1"}, ...]`
-   * @example
-   *  // all selected data points will be returned.
-   *  chart.selected();
-   *  // --> ex.) [{x: 1, value: 200, id: "data1", index: 1, name: "data1"}, ... ]
-   *
-   *  // all selected data points of data1 will be returned.
-   *  chart.selected("data1");
-   */
-  selected: function selected(targetId) {
-    var $$ = this.internal,
-        dataPoint = [];
-    return $$.$el.main.selectAll("." + (config_classes.shapes + $$.getTargetSelectorSuffix(targetId))).selectAll("." + config_classes.shape).filter(function () {
-      return Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this).classed(config_classes.SELECTED);
-    }).each(function (d) {
-      return dataPoint.push(d);
-    }), dataPoint;
-  },
-
-  /**
-   * Set data points to be selected. (`[data.selection.enabled](Options.html#.data%25E2%2580%25A4selection%25E2%2580%25A4enabled) option should be set true to use this method)`
-   * @function select
-   * @instance
-   * @memberof Chart
-   * @param {string|Array} [ids] id value to get selected.
-   * @param {Array} [indices] The index array of data points. If falsy value given, will select all data points.
-   * @param {boolean} [resetOther] Unselect already selected.
-   * @example
-   *  // select all data points
-   *  chart.select();
-   *
-   *  // select all from 'data2'
-   *  chart.select("data2");
-   *
-   *  // select all from 'data1' and 'data2'
-   *  chart.select(["data1", "data2"]);
-   *
-   *  // select from 'data1', indices 2 and unselect others selected
-   *  chart.select("data1", [2], true);
-   *
-   *  // select from 'data1', indices 0, 3 and 5
-   *  chart.select("data1", [0, 3, 5]);
-   */
-  select: function select(ids, indices, resetOther) {
-    var $$ = this.internal,
-        config = $$.config,
-        $el = $$.$el;
-    config.data_selection_enabled && $el.main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).each(function (d, i) {
-      var shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
-          id = d.data ? d.data.id : d.id,
-          toggle = $$.getToggle(this, d).bind($$),
-          isTargetId = config.data_selection_grouped || !ids || ids.indexOf(id) >= 0,
-          isTargetIndex = !indices || indices.indexOf(i) >= 0,
-          isSelected = shape.classed(config_classes.SELECTED);
-      // line/area selection not supported yet
-      shape.classed(config_classes.line) || shape.classed(config_classes.area) || (isTargetId && isTargetIndex ? config.data_selection_isselectable.bind($$.api)(d) && !isSelected && toggle(!0, shape.classed(config_classes.SELECTED, !0), d, i) : isDefined(resetOther) && resetOther && isSelected && toggle(!1, shape.classed(config_classes.SELECTED, !1), d, i));
-    });
-  },
-
-  /**
-   * Set data points to be un-selected.
-   * @function unselect
-   * @instance
-   * @memberof Chart
-   * @param {string|Array} [ids] id value to be unselected.
-   * @param {Array} [indices] The index array of data points. If falsy value given, will select all data points.
-   * @example
-   *  // unselect all data points
-   *  chart.unselect();
-   *
-   *  // unselect all from 'data1'
-   *  chart.unselect("data1");
-   *
-   *  // unselect from 'data1', indices 2
-   *  chart.unselect("data1", [2]);
-   */
-  unselect: function unselect(ids, indices) {
-    var $$ = this.internal,
-        config = $$.config,
-        $el = $$.$el;
-    config.data_selection_enabled && $el.main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).each(function (d, i) {
-      var shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
-          id = d.data ? d.data.id : d.id,
-          toggle = $$.getToggle(this, d).bind($$),
-          isTargetId = config.data_selection_grouped || !ids || ids.indexOf(id) >= 0,
-          isTargetIndex = !indices || indices.indexOf(i) >= 0,
-          isSelected = shape.classed(config_classes.SELECTED);
-      // line/area selection not supported yet
-      shape.classed(config_classes.line) || shape.classed(config_classes.area) || isTargetId && isTargetIndex && config.data_selection_isselectable.bind($$.api)(d) && isSelected && toggle(!1, shape.classed(config_classes.SELECTED, !1), d, i);
-    });
-  }
-});
 // CONCATENATED MODULE: ./src/Chart/api/x.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -9208,209 +8941,135 @@ extend(regions_regions, {
     })), $$.data.xs;
   }
 });
-// EXTERNAL MODULE: external {"commonjs":"d3-zoom","commonjs2":"d3-zoom","amd":"d3-zoom","root":"d3"}
-var external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_ = __webpack_require__(10);
-
-// CONCATENATED MODULE: ./src/Chart/api/zoom.ts
+// CONCATENATED MODULE: ./src/Chart/api/flow.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
  * billboard.js project is licensed under the MIT license
  */
 
-
-
-/**
- * Check if the given domain is within zoom range
- * @param {Array} domain domain value
- * @param {Array} range zoom range value
- * @returns {boolean}
- * @private
- */
-
-function withinRange(domain, range) {
-  var min = range[0],
-      max = range[1];
-  return domain.every(function (v, i) {
-    return i === 0 ? v >= min : v <= max;
-  });
-}
-/**
- * Zoom by giving x domain.
- * - **NOTE:**
- *  - For `wheel` type zoom, the minimum zoom range will be set as the given domain. To get the initial state, [.unzoom()](#unzoom) should be called.
- *  - To be used [zoom.enabled](Options.html#.zoom) option should be set as `truthy`.
- * @function zoom
- * @instance
- * @memberof Chart
- * @param {Array} domainValue If domain is given, the chart will be zoomed to the given domain. If no argument is given, the current zoomed domain will be returned.
- * @returns {Array} domain value in array
- * @example
- *  // Zoom to specified domain
- *  chart.zoom([10, 20]);
- *
- *  // Get the current zoomed domain
- *  chart.zoom();
- */
-
-
-var zoom_zoom = function (domainValue) {
-  var resultDomain,
-      $$ = this.internal,
-      config = $$.config,
-      scale = $$.scale,
-      domain = domainValue;
-
-  if (config.zoom_enabled && domain && withinRange(domain, $$.getZoomDomain())) {
-    var isTimeSeries = $$.axis.isTimeSeries();
-
-    if (isTimeSeries) {
-      var fn = parseDate.bind($$);
-      domain = domain.map(function (x) {
-        return fn(x);
-      });
-    }
-
-    if (config.subchart_show) {
-      var xScale = scale.zoom || scale.x;
-      $$.brush.getSelection().call($$.brush.move, [xScale(domain[0]), xScale(domain[1])]), resultDomain = domain;
-    } else scale.x.domain(domain), scale.zoom = scale.x, $$.axis.x.scale(scale.zoom), resultDomain = scale.zoom.orgDomain();
-
-    $$.redraw({
-      withTransition: !0,
-      withY: config.zoom_rescale,
-      withDimension: !1
-    }), $$.setZoomResetButton(), callFn(config.zoom_onzoom, $$.api, resultDomain);
-  } else resultDomain = scale.zoom ? scale.zoom.domain() : scale.x.orgDomain();
-
-  return resultDomain;
-};
-
-extend(zoom_zoom, {
+/* harmony default export */ var api_flow = ({
   /**
-   * Enable and disable zooming.
-   * @function zoom․enable
+   * Flow data to the chart.<br><br>
+   * By this API, you can append new data points to the chart.
+   * @function flow
    * @instance
    * @memberof Chart
-   * @param {string|boolean} enabled Possible string values are "wheel" or "drag". If enabled is true, "wheel" will be used. If false is given, zooming will be disabled.<br>When set to false, the current zooming status will be reset.
-   * @example
-   *  // Enable zooming using the mouse wheel
-   *  chart.zoom.enable(true);
-   *  // Or
-   *  chart.zoom.enable("wheel");
+   * @param {object} args The object can consist with following members:<br>
    *
-   *  // Enable zooming by dragging
-   *  chart.zoom.enable("drag");
+   *    | Key | Type | Description |
+   *    | --- | --- | --- |
+   *    | json | Object | Data as JSON format (@see [data․json](Options.html#.data%25E2%2580%25A4json)) |
+   *    | rows | Array | Data in array as row format (@see [data․rows](Options.html#.data%25E2%2580%25A4json)) |
+   *    | columns | Array | Data in array as column format (@see [data․columns](Options.html#.data%25E2%2580%25A4columns)) |
+   *    | to | String | The lower x edge will move to that point. If not given, the lower x edge will move by the number of given data points |
+   *    | length | Number | The lower x edge will move by the number of this argument |
+   *    | duration | Number | The duration of the transition will be specified value. If not given, transition.duration will be used as default |
+   *    | done | Function | The specified function will be called when flow ends |
    *
-   *  // Disable zooming
-   *  chart.zoom.enable(false);
-   */
-  enable: function enable(enabled) {
-    var $$ = this.internal,
-        config = $$.config,
-        enableType = enabled;
-    enabled && (enableType = isString(enabled) && /^(drag|wheel)$/.test(enabled) ? {
-      type: enabled
-    } : enabled), config.zoom_enabled = enableType, $$.zoom ? enabled === !1 && $$.bindZoomEvent(!1) : ($$.initZoom(), $$.bindZoomEvent()), $$.updateAndRedraw();
-  },
-
-  /**
-   * Set or get x Axis maximum zoom range value
-   * @function zoom․max
-   * @instance
-   * @memberof Chart
-   * @param {number} [max] maximum value to set for zoom
-   * @returns {number} zoom max value
+   * - **NOTE:**
+   *   - If json, rows and columns given, the data will be loaded.
+   *   - If data that has the same target id is given, the chart will be appended.
+   *   - Otherwise, new target will be added. One of these is required when calling.
+   *   - If json specified, keys is required as well as data.json.
+   * 	 - If tab isn't visible(by evaluating `document.hidden`), will not be executed to prevent unnecessary work.
    * @example
-   *  // Set maximum range value
-   *  chart.zoom.max(20);
+   * // 2 data points will be apprended to the tail and popped from the head.
+   * // After that, 4 data points will be appended and no data points will be poppoed.
+   * chart.flow({
+   *  columns: [
+   *    ["x", "2018-01-11", "2018-01-21"],
+   *    ["data1", 500, 200],
+   *    ["data2", 100, 300],
+   *    ["data3", 200, 120]
+   *  ],
+   *  to: "2013-01-11",
+   *  done: function () {
+   *    chart.flow({
+   *      columns: [
+   *        ["x", "2018-02-11", "2018-02-12", "2018-02-13", "2018-02-14"],
+   *        ["data1", 200, 300, 100, 250],
+   *        ["data2", 100, 90, 40, 120],
+   *        ["data3", 100, 100, 300, 500]
+   *      ],
+   *      length: 2,
+   *      duration: 1500
+   *    });
+   *  }
+   * });
    */
-  max: function max(_max) {
-    var $$ = this.internal,
-        config = $$.config,
-        xDomain = $$.org.xDomain;
-    return (_max === 0 || _max) && (config.zoom_x_max = getMinMax("max", [xDomain[1], _max])), config.zoom_x_max;
-  },
+  flow: function flow(args) {
+    var data,
+        domain,
+        diff,
+        to,
+        $$ = this.internal,
+        length = 0,
+        tail = 0;
 
-  /**
-   * Set or get x Axis minimum zoom range value
-   * @function zoom․min
-   * @instance
-   * @memberof Chart
-   * @param {number} [min] minimum value to set for zoom
-   * @returns {number} zoom min value
-   * @example
-   *  // Set minimum range value
-   *  chart.zoom.min(-1);
-   */
-  min: function min(_min) {
-    var $$ = this.internal,
-        config = $$.config,
-        xDomain = $$.org.xDomain;
-    return (_min === 0 || _min) && (config.zoom_x_min = getMinMax("min", [xDomain[0], _min])), config.zoom_x_min;
-  },
+    if ((args.json || args.rows || args.columns) && (data = $$.convertData(args)), data && isTabVisible()) {
+      var notfoundIds = [],
+          orgDataCount = $$.getMaxDataCount(),
+          targets = $$.convertDataToTargets(data, !0),
+          isTimeSeries = $$.axis.isTimeSeries();
+      $$.data.targets.forEach(function (t) {
+        for (var found = !1, i = 0; i < targets.length; i++) if (t.id === targets[i].id) {
+          found = !0, t.values[t.values.length - 1] && (tail = t.values[t.values.length - 1].index + 1), length = targets[i].values.length;
 
-  /**
-   * Set zoom range
-   * @function zoom․range
-   * @instance
-   * @memberof Chart
-   * @param {object} [range] zoom range
-   * @returns {object} zoom range value
-   * {
-   *   min: 0,
-   *   max: 100
-   * }
-   * @example
-   *  chart.zoom.range({
-   *      min: 10,
-   *      max: 100
-   *  });
-   */
-  range: function range(_range) {
-    var zoom = this.zoom;
+          for (var _j3 = 0; _j3 < length; _j3++) targets[i].values[_j3].index = tail + _j3, isTimeSeries || (targets[i].values[_j3].x = tail + _j3);
 
-    if (isObject(_range)) {
-      var min = _range.min,
-          max = _range.max;
-      isDefined(min) && zoom.min(min), isDefined(max) && zoom.max(max);
-    }
+          t.values = t.values.concat(targets[i].values), targets.splice(i, 1);
+          break;
+        }
 
-    return {
-      min: zoom.min(),
-      max: zoom.max()
-    };
-  }
-});
-/* harmony default export */ var api_zoom = ({
-  zoom: zoom_zoom,
+        found || notfoundIds.push(t.id);
+      }), $$.data.targets.forEach(function (t) {
+        for (var _i = 0; _i < notfoundIds.length; _i++) if (t.id === notfoundIds[_i]) {
+          tail = t.values[t.values.length - 1].index + 1;
 
-  /**
-   * Unzoom zoomed area
-   * @function unzoom
-   * @instance
-   * @memberof Chart
-   * @example
-   *  chart.unzoom();
-   */
-  unzoom: function unzoom() {
-    var $$ = this.internal,
-        config = $$.config;
+          for (var _j4 = 0; _j4 < length; _j4++) t.values.push({
+            id: t.id,
+            index: tail + _j4,
+            x: isTimeSeries ? $$.getOtherTargetX(tail + _j4) : tail + _j4,
+            value: null
+          });
+        }
+      }), $$.data.targets.length && targets.forEach(function (t) {
+        for (var missing = [], i = $$.data.targets[0].values[0].index; i < tail; i++) missing.push({
+          id: t.id,
+          index: i,
+          x: isTimeSeries ? $$.getOtherTargetX(i) : i,
+          value: null
+        });
 
-    if ($$.scale.zoom) {
-      config.subchart_show ? $$.brush.getSelection().call($$.brush.move, null) : $$.zoom.updateTransformScale(external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoomIdentity"]), $$.updateZoom(!0), $$.zoom.resetBtn && $$.zoom.resetBtn.style("display", "none");
-      // reset transform
-      var eventRects = $$.$el.main.select("." + config_classes.eventRects);
-      Object(external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoomTransform"])(eventRects.node()) !== external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoomIdentity"] && $$.zoom.transform(eventRects, external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoomIdentity"]), $$.redraw({
-        withTransition: !0,
-        withUpdateXDomain: !0,
-        withUpdateOrgXDomain: !0,
-        withY: config.zoom_rescale
+        t.values.forEach(function (v) {
+          v.index += tail, isTimeSeries || (v.x += tail);
+        }), t.values = missing.concat(t.values);
+      }), $$.data.targets = $$.data.targets.concat(targets);
+      // add remained
+      // check data count because behavior needs to change when it"s only one
+      // const dataCount = $$.getMaxDataCount();
+      var baseTarget = $$.data.targets[0],
+          baseValue = baseTarget.values[0];
+      isDefined(args.to) ? (length = 0, to = isTimeSeries ? parseDate.call($$, args.to) : args.to, baseTarget.values.forEach(function (v) {
+        v.x < to && length++;
+      })) : isDefined(args.length) && (length = args.length), orgDataCount ? orgDataCount === 1 && isTimeSeries && (diff = (baseTarget.values[baseTarget.values.length - 1].x - baseValue.x) / 2, domain = [new Date(+baseValue.x - diff), new Date(+baseValue.x + diff)]) : (diff = isTimeSeries ? baseTarget.values.length > 1 ? baseTarget.values[baseTarget.values.length - 1].x - baseValue.x : baseValue.x - $$.getXDomain($$.data.targets)[0] : 1, domain = [baseValue.x - diff, baseValue.x]), domain && $$.updateXDomain(null, !0, !0, !1, domain), $$.updateTargets($$.data.targets), $$.redraw({
+        flow: {
+          index: baseValue.index,
+          length: length,
+          duration: isValue(args.duration) ? args.duration : $$.config.transition_duration,
+          done: args.done,
+          orgDataCount: orgDataCount
+        },
+        withLegend: !0,
+        withTransition: orgDataCount > 1,
+        withTrimXDomain: !1,
+        withUpdateXAxis: !0
       });
     }
   }
 });
 // EXTERNAL MODULE: external {"commonjs":"d3-axis","commonjs2":"d3-axis","amd":"d3-axis","root":"d3"}
-var external_commonjs_d3_axis_commonjs2_d3_axis_amd_d3_axis_root_d3_ = __webpack_require__(11);
+var external_commonjs_d3_axis_commonjs2_d3_axis_amd_d3_axis_root_d3_ = __webpack_require__(10);
 
 // CONCATENATED MODULE: ./src/ChartInternal/Axis/AxisRendererHelper.ts
 
@@ -10371,245 +10030,6 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
     });
   }, Axis;
 }();
-// CONCATENATED MODULE: ./src/ChartInternal/interactions/drag.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-
-
-/**
- * Module used for data.selection.draggable option
- */
-
-/* harmony default export */ var interactions_drag = ({
-  /**
-   * Called when dragging.
-   * Data points can be selected.
-   * @private
-   * @param {object} mouse Object
-   */
-  drag: function drag(mouse) {
-    var $$ = this,
-        config = $$.config,
-        state = $$.state,
-        main = $$.$el.main;
-
-    if (!$$.hasArcType() && config.data_selection_enabled && ( // do nothing if not selectable
-    !config.zoom_enabled || $$.zoom.altDomain) && config.data_selection_multiple // skip when single selection because drag is used for multiple selection
-    ) {
-        var _state$dragStart = state.dragStart,
-            sx = _state$dragStart[0],
-            sy = _state$dragStart[1],
-            mx = mouse[0],
-            my = mouse[1],
-            minX = Math.min(sx, mx),
-            maxX = Math.max(sx, mx),
-            minY = config.data_selection_grouped ? state.margin.top : Math.min(sy, my),
-            maxY = config.data_selection_grouped ? state.height : Math.max(sy, my);
-        main.select("." + config_classes.dragarea).attr("x", minX).attr("y", minY).attr("width", maxX - minX).attr("height", maxY - minY), main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).filter(function (d) {
-          return config.data_selection_isselectable.bind($$.api)(d);
-        }).each(function (d, i) {
-          var toggle,
-              shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
-              isSelected = shape.classed(config_classes.SELECTED),
-              isIncluded = shape.classed(config_classes.INCLUDED),
-              isWithin = !1;
-
-          if (shape.classed(config_classes.circle)) {
-            var x = +shape.attr("cx") * 1,
-                y = +shape.attr("cy") * 1;
-            toggle = $$.togglePoint, isWithin = minX < x && x < maxX && minY < y && y < maxY;
-          } else if (shape.classed(config_classes.bar)) {
-            var _getPathBox = getPathBox(this),
-                _x = _getPathBox.x,
-                y = _getPathBox.y,
-                width = _getPathBox.width,
-                height = _getPathBox.height;
-
-            toggle = $$.togglePath, isWithin = !(maxX < _x || _x + width < minX) && !(maxY < y || y + height < minY);
-          } else // line/area selection not supported yet
-            return; // @ts-ignore
-
-
-          isWithin ^ isIncluded && (shape.classed(config_classes.INCLUDED, !isIncluded), shape.classed(config_classes.SELECTED, !isSelected), toggle.call($$, !isSelected, shape, d, i));
-        });
-      }
-  },
-
-  /**
-   * Called when the drag starts.
-   * Adds and Shows the drag area.
-   * @private
-   * @param {object} mouse Object
-   */
-  dragstart: function dragstart(mouse) {
-    var $$ = this,
-        config = $$.config,
-        state = $$.state,
-        main = $$.$el.main;
-    $$.hasArcType() || !config.data_selection_enabled || (state.dragStart = mouse, main.select("." + config_classes.chart).append("rect").attr("class", config_classes.dragarea).style("opacity", "0.1"), $$.setDragStatus(!0));
-  },
-
-  /**
-   * Called when the drag finishes.
-   * Removes the drag area.
-   * @private
-   */
-  dragend: function dragend() {
-    var $$ = this,
-        config = $$.config,
-        main = $$.$el.main;
-    $$.hasArcType() || !config.data_selection_enabled || (main.select("." + config_classes.dragarea).transition().duration(100).style("opacity", "0").remove(), main.selectAll("." + config_classes.shape).classed(config_classes.INCLUDED, !1), $$.setDragStatus(!1));
-  },
-  setDragStatus: function setDragStatus(isDragging) {
-    this.state.dragging = isDragging;
-  }
-});
-// EXTERNAL MODULE: external {"commonjs":"d3-ease","commonjs2":"d3-ease","amd":"d3-ease","root":"d3"}
-var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack_require__(12);
-
-// CONCATENATED MODULE: ./src/ChartInternal/interactions/flow.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-
-
-
-
-/* harmony default export */ var interactions_flow = ({
-  /**
-   * Generate flow
-   * @param {object} args option object
-   * @returns {Function}
-   * @private
-   */
-  generateFlow: function generateFlow(args) {
-    var $$ = this,
-        data = $$.data,
-        state = $$.state,
-        $el = $$.$el;
-    return function () {
-      var flowLength = args.flow.length; // set flag
-
-      state.flowing = !0, data.targets.forEach(function (d) {
-        d.values.splice(0, flowLength);
-      }), $$.updateXGrid && $$.updateXGrid(!0);
-      // target elements
-      var elements = {};
-      ["axis.x", "grid.x", "gridLines.x", "region.list", "text", "bar", "line", "area", "circle"].forEach(function (v) {
-        var name = v.split("."),
-            node = $el[name[0]];
-        node && name.length > 1 && (node = node[name[1]]), node && node.size() && (elements[v] = node);
-      }), $$.hideGridFocus(), $$.setFlowList(elements, args);
-    };
-  },
-
-  /**
-   * Set flow list
-   * @param {object} elements Target elements
-   * @param {object} args option object
-   * @private
-   */
-  setFlowList: function setFlowList(elements, args) {
-    var $$ = this,
-        flow = args.flow,
-        targets = args.targets,
-        _flow = flow,
-        _flow$duration = _flow.duration,
-        duration = _flow$duration === void 0 ? args.duration : _flow$duration,
-        flowIndex = _flow.index,
-        flowLength = _flow.length,
-        orgDataCount = _flow.orgDataCount,
-        transform = $$.getFlowTransform(targets, orgDataCount, flowIndex, flowLength),
-        wait = generateWait(),
-        gt = Object(external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_root_d3_["transition"])().ease(external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_["easeLinear"]).duration(duration);
-    wait.add(Object.keys(elements).map(function (v) {
-      var n = elements[v];
-      return n = v === "axis.x" ? n.transition(gt).call(function (g) {
-        return $$.axis.x.setTransition(gt).create(g);
-      }) : v === "region.list" ? n.filter($$.isRegionOnX).transition(gt).attr("transform", transform) : n.transition(gt).attr("transform", transform), n;
-    })), gt.call(wait, function () {
-      $$.cleanUpFlow(elements, args);
-    });
-  },
-
-  /**
-   * Clean up flow
-   * @param {object} elements Target elements
-   * @param {object} args option object
-   * @private
-   */
-  cleanUpFlow: function cleanUpFlow(elements, args) {
-    var $$ = this,
-        config = $$.config,
-        state = $$.state,
-        svg = $$.$el.svg,
-        isRotated = config.axis_rotated,
-        flow = args.flow,
-        shape = args.shape,
-        xv = args.xv,
-        _shape$pos = shape.pos,
-        cx = _shape$pos.cx,
-        cy = _shape$pos.cy,
-        xForText = _shape$pos.xForText,
-        yForText = _shape$pos.yForText,
-        _flow2 = flow,
-        _flow2$done = _flow2.done,
-        done = _flow2$done === void 0 ? function () {} : _flow2$done,
-        flowLength = _flow2.length;
-    // draw again for removing flowed elements and reverting attr
-    // callback for end of flow
-    flowLength && (["circle", "text", "shape", "eventRect"].forEach(function (v) {
-      var target = [];
-
-      for (var i = 0; i < flowLength; i++) target.push("." + config_classes[v] + "-" + i);
-
-      svg.selectAll("." + config_classes[v + "s"]) // circles, shapes, texts, eventRects
-      .selectAll(target).remove();
-    }), svg.select("." + config_classes.xgrid).remove()), Object.keys(elements).forEach(function (v) {
-      var n = elements[v];
-      if (v !== "axis.x" && n.attr("transform", null), v === "grid.x") n.attr(state.xgridAttr);else if (v === "gridLines.x") n.attr("x1", isRotated ? 0 : xv).attr("x2", isRotated ? state.width : xv);else if (v === "gridLines.x") n.select("line").attr("x1", isRotated ? 0 : xv).attr("x2", isRotated ? state.width : xv), n.select("text").attr("x", isRotated ? state.width : 0).attr("y", xv);else if (/^(area|bar|line)$/.test(v)) n.attr("d", shape.type[v]);else if (v === "text") n.attr("x", xForText).attr("y", yForText).style("fill-opacity", $$.opacityForText.bind($$));else if (v !== "circle") v === "region.list" && n.select("rect").filter($$.isRegionOnX).attr("x", $$.regionX.bind($$)).attr("width", $$.regionWidth.bind($$));else if ($$.isCirclePoint()) n.attr("cx", cx).attr("cy", cy);else {
-        var xFunc = function (d) {
-          return cx(d) - config.point_r;
-        },
-            yFunc = function (d) {
-          return cy(d) - config.point_r;
-        };
-
-        n.attr("x", xFunc).attr("y", yFunc).attr("cx", cx) // when pattern is used, it possibly contain 'circle' also.
-        .attr("cy", cy);
-      }
-    }), config.interaction_enabled && $$.redrawEventRect(), done.call($$.api), state.flowing = !1;
-  },
-
-  /**
-   * Get flow transform value
-   * @param {object} targets target
-   * @param {number} orgDataCount original data count
-   * @param {number} flowIndex flow index
-   * @param {number} flowLength flow length
-   * @returns {string}
-   * @private
-   */
-  getFlowTransform: function getFlowTransform(targets, orgDataCount, flowIndex, flowLength) {
-    var translateX,
-        $$ = this,
-        data = $$.data,
-        x = $$.scale.x,
-        dataValues = data.targets[0].values,
-        flowStart = $$.getValueOnIndex(dataValues, flowIndex),
-        flowEnd = $$.getValueOnIndex(dataValues, flowIndex + flowLength),
-        orgDomain = x.domain(),
-        domain = $$.updateXDomain(targets, !0, !0);
-    orgDataCount ? orgDataCount === 1 || (flowStart && flowStart.x) === (flowEnd && flowEnd.x) ? translateX = x(orgDomain[0]) - x(domain[0]) : translateX = $$.axis.isTimeSeries() ? x(orgDomain[0]) - x(domain[0]) : x(flowStart.x) - x(flowEnd.x) : dataValues.length === 1 ? $$.axis.isTimeSeries() ? (flowStart = $$.getValueOnIndex(dataValues, 0), flowEnd = $$.getValueOnIndex(dataValues, dataValues.length - 1), translateX = x(flowStart.x) - x(flowEnd.x)) : translateX = diffDomain(domain) / 2 : translateX = x(orgDomain[0]) - x(domain[0]);
-    var scaleX = diffDomain(orgDomain) / diffDomain(domain);
-    return "translate(" + translateX + ",0) scale(" + scaleX + ",1)";
-  }
-});
 // CONCATENATED MODULE: ./src/ChartInternal/interactions/eventrect.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -10640,8 +10060,7 @@ var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack
         config = $$.config,
         $el = $$.$el,
         isMultipleX = $$.isMultipleX(),
-        zoomEnabled = config.zoom_enabled,
-        eventRects = $$.$el.main.select("." + config_classes.eventRects).style("cursor", zoomEnabled && zoomEnabled.type !== "drag" ? config.axis_rotated ? "ns-resize" : "ew-resize" : null).classed(config_classes.eventRectsMultiple, isMultipleX).classed(config_classes.eventRectsSingle, !isMultipleX);
+        eventRects = $$.$el.main.select("." + config_classes.eventRects).style("cursor", config.zoom_enabled && config.zoom_type !== "drag" ? config.axis_rotated ? "ns-resize" : "ew-resize" : null).classed(config_classes.eventRectsMultiple, isMultipleX).classed(config_classes.eventRectsSingle, !isMultipleX);
     if (eventRects.selectAll("." + config_classes.eventRect).remove(), $el.eventRect = eventRects.selectAll("." + config_classes.eventRect), isMultipleX) eventRectUpdate = $el.eventRect.data([0]), eventRectUpdate = $$.generateEventRectsForMultipleXs(eventRectUpdate.enter()).merge(eventRectUpdate);else {
       // Set data and update $el.eventRect
       var xAxisTickValues = $$.getMaxDataCountTarget(); // update data's index value to be alinged with the x Axis
@@ -10855,275 +10274,10 @@ var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack
 
   }
 });
-// CONCATENATED MODULE: ./src/ChartInternal/interactions/subchart.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
+// EXTERNAL MODULE: external {"commonjs":"d3-ease","commonjs2":"d3-ease","amd":"d3-ease","root":"d3"}
+var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack_require__(11);
 
-
-
-
-/* harmony default export */ var interactions_subchart = ({
-  /**
-   * Initialize the brush.
-   * @private
-   */
-  initBrush: function initBrush() {
-    var $$ = this,
-        config = $$.config,
-        scale = $$.scale,
-        subchart = $$.$el.subchart,
-        isRotated = config.axis_rotated;
-    $$.brush = isRotated ? Object(external_commonjs_d3_brush_commonjs2_d3_brush_amd_d3_brush_root_d3_["brushY"])() : Object(external_commonjs_d3_brush_commonjs2_d3_brush_amd_d3_brush_root_d3_["brushX"])();
-
-    // set "brush" event
-    var lastDomain,
-        timeout,
-        brushHandler = function () {
-      $$.redrawForBrush();
-    },
-        getBrushSize = function () {
-      var brush = $$.$el.svg.select("." + config_classes.brush + " .overlay"),
-          brushSize = {
-        width: 0,
-        height: 0
-      };
-      return brush.size() && (brushSize.width = +brush.attr("width"), brushSize.height = +brush.attr("height")), brushSize[isRotated ? "width" : "height"];
-    };
-
-    // set the brush extent
-    $$.brush.on("start", function () {
-      $$.state.inputType === "touch" && $$.hideTooltip(), brushHandler();
-    }).on("brush", brushHandler).on("end", function () {
-      lastDomain = scale.x.orgDomain();
-    }), $$.brush.updateResize = function () {
-      var _this = this;
-
-      timeout && clearTimeout(timeout), timeout = setTimeout(function () {
-        var selection = _this.getSelection();
-
-        lastDomain && Object(external_commonjs_d3_brush_commonjs2_d3_brush_amd_d3_brush_root_d3_["brushSelection"])(selection.node()) && _this.move(selection, lastDomain.map(scale.subX.orgScale()));
-      }, 0);
-    }, $$.brush.update = function () {
-      var extent = this.extent()();
-      return extent[1].filter(function (v) {
-        return isNaN(v);
-      }).length === 0 && subchart.main && subchart.main.select("." + config_classes.brush).call(this), this;
-    }, $$.brush.scale = function (scale) {
-      var h = config.subchart_size_height || getBrushSize(),
-          extent = $$.getExtent();
-      // [[x0, y0], [x1, y1]], where [x0, y0] is the top-left corner and [x1, y1] is the bottom-right corner
-      // when extent updates, brush selection also be re-applied
-      // https://github.com/d3/d3/issues/2918
-      !extent && scale.range ? extent = [[0, 0], [scale.range()[1], h]] : isArray(extent) && (extent = extent.map(function (v, i) {
-        return [v, i > 0 ? h : i];
-      })), isRotated && extent[1].reverse(), this.extent(extent), this.update();
-    }, $$.brush.getSelection = function () {
-      return (// @ts-ignore
-        subchart.main ? subchart.main.select("." + config_classes.brush) : Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])([])
-      );
-    };
-  },
-
-  /**
-   * Initialize the subchart.
-   * @private
-   */
-  initSubchart: function initSubchart() {
-    var $$ = this,
-        config = $$.config,
-        _$$$state = $$.state,
-        clip = _$$$state.clip,
-        hasAxis = _$$$state.hasAxis,
-        _$$$$el = $$.$el,
-        defs = _$$$$el.defs,
-        svg = _$$$$el.svg,
-        subchart = _$$$$el.subchart,
-        axis = _$$$$el.axis;
-
-    if (hasAxis) {
-      var visibility = config.subchart_show ? "visible" : "hidden",
-          clipId = clip.id + "-subchart",
-          clipPath = $$.getClipPath(clipId);
-      clip.idSubchart = clipId, $$.appendClip(defs, clipId), $$.initBrush(), subchart.main = svg.append("g").classed(config_classes.subchart, !0).attr("transform", $$.getTranslate("context"));
-      var main = subchart.main;
-      main.style("visibility", visibility), main.append("g").attr("clip-path", clipPath).attr("class", config_classes.chart), $$.hasType("bar") && main.select("." + config_classes.chart).append("g").attr("class", config_classes.chartBars), main.select("." + config_classes.chart).append("g").attr("class", config_classes.chartLines), main.append("g").attr("clip-path", clipPath).attr("class", config_classes.brush).call($$.brush), axis.subX = main.append("g").attr("class", config_classes.axisX).attr("transform", $$.getTranslate("subX")).attr("clip-path", config.axis_rotated ? "" : clip.pathXAxis).style("visibility", config.subchart_axis_x_show ? visibility : "hidden");
-    }
-  },
-
-  /**
-   * Update sub chart
-   * @param {object} targets $$.data.targets
-   * @private
-   */
-  updateTargetsForSubchart: function updateTargetsForSubchart(targets) {
-    var $$ = this,
-        config = $$.config,
-        state = $$.state,
-        main = $$.$el.subchart.main,
-        classChartBar = $$.classChartBar.bind($$),
-        classBars = $$.classBars.bind($$),
-        classChartLine = $$.classChartLine.bind($$),
-        classLines = $$.classLines.bind($$),
-        classAreas = $$.classAreas.bind($$);
-
-    if (config.subchart_show) {
-      // -- Bar --//
-      var barUpdate = main.select("." + config_classes.chartBars).selectAll("." + config_classes.chartBar).data(targets).attr("class", classChartBar),
-          barEnter = barUpdate.enter().append("g").style("opacity", "0").attr("class", classChartBar).merge(barUpdate);
-      barEnter.append("g").attr("class", classBars);
-      // -- Line --//
-      var lineUpdate = main.select("." + config_classes.chartLines).selectAll("." + config_classes.chartLine).data(targets).attr("class", classChartLine),
-          lineEnter = lineUpdate.enter().append("g").style("opacity", "0").attr("class", classChartLine).merge(lineUpdate);
-      // Lines for each data
-      // Area
-      // -- Brush --//
-      lineEnter.append("g").attr("class", classLines), $$.hasTypeOf("Area") && lineEnter.append("g").attr("class", classAreas), main.selectAll("." + config_classes.brush + " rect").attr(config.axis_rotated ? "width" : "height", config.axis_rotated ? state.width2 : state.height2);
-    }
-  },
-
-  /**
-   * Update the bar of the sub chart
-   * @param {object} durationForExit Transition duration
-   * @private
-   */
-  updateBarForSubchart: function updateBarForSubchart(durationForExit) {
-    var $$ = this,
-        subchart = $$.$el.subchart;
-    subchart.bar = subchart.main.selectAll("." + config_classes.bars).selectAll("." + config_classes.bar).data($$.barData.bind($$)), subchart.bar.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.bar = subchart.bar.enter().append("path").attr("class", $$.classBar.bind($$)).style("stroke", "none").style("fill", $$.color).merge(subchart.bar).style("opacity", $$.initialOpacity.bind($$));
-  },
-
-  /**
-   * Redraw the bar of the subchart
-   * @param {string} drawBarOnSub path in subchart line
-   * @param {boolean} withTransition whether or not to transition
-   * @param {number} duration transition duration
-   * @private
-   */
-  redrawBarForSubchart: function redrawBarForSubchart(drawBarOnSub, withTransition, duration) {
-    var bar = this.$el.subchart.bar;
-    (withTransition ? bar.transition(getRandom()).duration(duration) : bar).attr("d", drawBarOnSub).style("opacity", "1");
-  },
-
-  /**
-   * Update the line of the sub chart
-   * @param {number} durationForExit Fade-out transition duration
-   * @private
-   */
-  updateLineForSubchart: function updateLineForSubchart(durationForExit) {
-    var $$ = this,
-        subchart = $$.$el.subchart;
-    subchart.line = subchart.main.selectAll("." + config_classes.lines).selectAll("." + config_classes.line).data($$.lineData.bind($$)), subchart.line.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.line = subchart.line.enter().append("path").attr("class", $$.classLine.bind($$)).style("stroke", $$.color).merge(subchart.line).style("opacity", $$.initialOpacity.bind($$));
-  },
-
-  /**
-   * Redraw the line of the subchart
-   * @private
-   * @param {string} drawLineOnSub path in subchart line
-   * @param {boolean} withTransition whether or not to transition
-   * @param {number} duration transition duration
-   */
-  redrawLineForSubchart: function redrawLineForSubchart(drawLineOnSub, withTransition, duration) {
-    var line = this.$el.subchart.line;
-    (withTransition ? line.transition(getRandom()).duration(duration) : line).attr("d", drawLineOnSub).style("opacity", "1");
-  },
-
-  /**
-   * Update the area of the sub chart
-   * @param {number} durationForExit Fade-out transition duration
-   * @private
-   */
-  updateAreaForSubchart: function updateAreaForSubchart(durationForExit) {
-    var $$ = this,
-        subchart = $$.$el.subchart;
-    subchart.area = subchart.main.selectAll("." + config_classes.areas).selectAll("." + config_classes.area).data($$.lineData.bind($$)), subchart.area.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.area = subchart.area.enter().append("path").attr("class", $$.classArea.bind($$)).style("fill", $$.color).style("opacity", function () {
-      return $$.state.orgAreaOpacity = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this).style("opacity"), "0";
-    }).merge(subchart.area).style("opacity", "0");
-  },
-
-  /**
-   * Redraw the area of the subchart
-   * @private
-   * @param {string} drawAreaOnSub path in subchart line
-   * @param {boolean} withTransition whether or not to transition
-   * @param {number} duration transition duration
-   */
-  redrawAreaForSubchart: function redrawAreaForSubchart(drawAreaOnSub, withTransition, duration) {
-    var area = this.$el.subchart.area;
-    (withTransition ? area.transition(getRandom()).duration(duration) : area).attr("d", drawAreaOnSub).style("fill", this.color).style("opacity", this.state.orgAreaOpacity);
-  },
-
-  /**
-   * Redraw subchart.
-   * @private
-   * @param {boolean} withSubchart whether or not to show subchart
-   * @param {number} duration duration
-   * @param {object} shape Shape's info
-   */
-  redrawSubchart: function redrawSubchart(withSubchart, duration, shape) {
-    var $$ = this,
-        config = $$.config,
-        main = $$.$el.subchart.main;
-    main.style("visibility", config.subchart_show ? "visible" : "hidden"), config.subchart_show && (external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"] && external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].type === "zoom" && $$.brush.update(), withSubchart && (!brushEmpty($$) && $$.brush.update(), Object.keys(shape.type).forEach(function (v) {
-      var name = capitalize(v),
-          draw = $$["generateDraw" + name](shape.indices[v], !0);
-      $$["update" + name + "ForSubchart"](duration), $$["redraw" + name + "ForSubchart"](draw, duration, duration);
-    })));
-  },
-
-  /**
-   * Redraw the brush.
-   * @private
-   */
-  redrawForBrush: function redrawForBrush() {
-    var $$ = this,
-        _$$$config = $$.config,
-        onBrush = _$$$config.subchart_onbrush,
-        withY = _$$$config.zoom_rescale,
-        scale = $$.scale;
-    $$.redraw({
-      withTransition: !1,
-      withY: withY,
-      withSubchart: !1,
-      withUpdateXDomain: !0,
-      withDimension: !1
-    }), onBrush.bind($$.api)(scale.x.orgDomain());
-  },
-
-  /**
-   * Transform context
-   * @param {boolean} withTransition indicates transition is enabled
-   * @param {object} transitions The return value of the generateTransitions method of Axis.
-   * @private
-   */
-  transformContext: function transformContext(withTransition, transitions) {
-    var subXAxis,
-        $$ = this,
-        main = $$.$el.subchart.main;
-    transitions && transitions.axisSubX ? subXAxis = transitions.axisSubX : (subXAxis = main.select("." + config_classes.axisX), withTransition && (subXAxis = subXAxis.transition())), main.attr("transform", $$.getTranslate("context")), subXAxis.attr("transform", $$.getTranslate("subX"));
-  },
-
-  /**
-   * Get extent value
-   * @returns {Array} default extent
-   * @private
-   */
-  getExtent: function getExtent() {
-    var $$ = this,
-        config = $$.config,
-        scale = $$.scale,
-        extent = config.axis_x_extent;
-    if (extent) if (isFunction(extent)) extent = extent.bind($$.api)($$.getXDomain($$.data.targets), scale.subX);else if ($$.axis.isTimeSeries() && extent.every(isNaN)) {
-      var fn = parseDate.bind($$);
-      extent = extent.map(function (v) {
-        return scale.subX(fn(v));
-      });
-    }
-    return extent;
-  }
-});
-// CONCATENATED MODULE: ./src/ChartInternal/interactions/zoom.ts
+// CONCATENATED MODULE: ./src/ChartInternal/interactions/flow.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
  * billboard.js project is licensed under the MIT license
@@ -11133,217 +10287,134 @@ var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack
 
 
 
-
-/* harmony default export */ var interactions_zoom = ({
+/* harmony default export */ var interactions_flow = ({
   /**
-   * Initialize zoom.
+   * Generate flow
+   * @param {object} args option object
+   * @returns {Function}
    * @private
    */
-  initZoom: function initZoom() {
-    var $$ = this;
-    $$.scale.zoom = null, $$.generateZoom(), $$.initZoomBehaviour();
-  },
-
-  /**
-   * Bind zoom event
-   * @param {boolean} bind Weather bind or unbound
-   * @private
-   */
-  bindZoomEvent: function bindZoomEvent(bind) {
-    bind === void 0 && (bind = !0);
+  generateFlow: function generateFlow(args) {
     var $$ = this,
-        config = $$.config,
-        main = $$.$el.main,
-        zoomEnabled = config.zoom_enabled,
-        eventRects = main.select("." + config_classes.eventRects);
-    zoomEnabled && bind ? !config.subchart_show && $$.bindZoomOnEventRect(eventRects, zoomEnabled.type) : bind === !1 && ($$.api.unzoom(), eventRects.on(".zoom", null).on(".drag", null));
-  },
-
-  /**
-   * Generate zoom
-   * @private
-   */
-  generateZoom: function generateZoom() {
-    var $$ = this,
-        config = $$.config,
-        org = $$.org,
-        scale = $$.scale,
-        zoom = Object(external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoom"])().duration(0).on("start", $$.onZoomStart.bind($$)).on("zoom", $$.onZoom.bind($$)).on("end", $$.onZoomEnd.bind($$));
-    // get zoom extent
-    // @ts-ignore
-    // @ts-ignore
-
-    /**
-     * Update scale according zoom transform value
-     * @param {object} transform transform object
-     * @private
-     */
-    // @ts-ignore
-    zoom.orgScaleExtent = function () {
-      var extent = config.zoom_extent || [1, 10];
-      return [extent[0], Math.max($$.getMaxDataCount() / extent[1], extent[1])];
-    }, zoom.updateScaleExtent = function () {
-      var ratio = diffDomain($$.scale.x.orgDomain()) / diffDomain($$.getZoomDomain()),
-          extent = this.orgScaleExtent();
-      return this.scaleExtent([extent[0] * ratio, extent[1] * ratio]), this;
-    }, zoom.updateTransformScale = function (transform) {
-      org.xScale && org.xScale.range(scale.x.range());
-      // rescale from the original scale
-      var newScale = transform[config.axis_rotated ? "rescaleY" : "rescaleX"](org.xScale || scale.x),
-          domain = $$.trimXDomain(newScale.domain()),
-          rescale = config.zoom_rescale;
-      newScale.domain(domain, org.xDomain), scale.zoom = $$.getCustomizedScale(newScale), $$.axis.x.scale(scale.zoom), rescale && (!org.xScale && (org.xScale = scale.x.copy()), scale.x.domain(domain));
-    }, $$.zoom = zoom;
-  },
-
-  /**
-   * 'start' event listener
-   * @private
-   */
-  onZoomStart: function onZoomStart() {
-    var $$ = this,
-        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].sourceEvent;
-    event && ($$.zoom.startEvent = event, callFn($$.config.zoom_onzoomstart, $$.api, event));
-  },
-
-  /**
-   * 'zoom' event listener
-   * @private
-   */
-  onZoom: function onZoom() {
-    var $$ = this,
-        config = $$.config,
-        scale = $$.scale,
-        org = $$.org,
-        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"],
-        sourceEvent = event.sourceEvent;
-
-    if (config.zoom_enabled && event.sourceEvent && $$.filterTargetsToShow($$.data.targets).length !== 0 && (scale.zoom || !(sourceEvent.type.indexOf("touch") > -1) || sourceEvent.touches.length !== 1)) {
-      var isMousemove = sourceEvent.type === "mousemove",
-          isZoomOut = sourceEvent.wheelDelta < 0,
-          transform = event.transform;
-      !isMousemove && isZoomOut && scale.x.domain().every(function (v, i) {
-        return v !== org.xDomain[i];
-      }) && scale.x.domain(org.xDomain), $$.zoom.updateTransformScale(transform), $$.axis.isCategorized() && scale.x.orgDomain()[0] === org.xDomain[0] && scale.x.domain([org.xDomain[0] - 1e-10, scale.x.orgDomain()[1]]), $$.redraw({
-        withTransition: !1,
-        withY: config.zoom_rescale,
-        withSubchart: !1,
-        withEventRect: !1,
-        withDimension: !1
-      }), $$.state.cancelClick = isMousemove, callFn(config.zoom_onzoom, $$.api, scale.zoom.domain());
-    }
-  },
-
-  /**
-   * 'end' event listener
-   * @private
-   */
-  onZoomEnd: function onZoomEnd() {
-    var $$ = this,
-        config = $$.config,
-        scale = $$.scale,
-        startEvent = $$.zoom.startEvent,
-        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"] && external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].sourceEvent;
-    startEvent && startEvent.type.indexOf("touch") > -1 && (startEvent = startEvent.changedTouches[0], event = event.changedTouches[0]);
-    // if click, do nothing. otherwise, click interaction will be canceled.
-    !startEvent || event && startEvent.clientX === event.clientX && startEvent.clientY === event.clientY || ($$.redrawEventRect(), $$.updateZoom(), callFn(config.zoom_onzoomend, $$.api, scale[scale.zoom ? "zoom" : "subX"].domain()));
-  },
-
-  /**
-   * Get zoom domain
-   * @returns {Array} zoom domain
-   * @private
-   */
-  getZoomDomain: function getZoomDomain() {
-    var $$ = this,
-        config = $$.config,
-        org = $$.org,
-        _org$xDomain = org.xDomain,
-        min = _org$xDomain[0],
-        max = _org$xDomain[1];
-    return isDefined(config.zoom_x_min) && (min = getMinMax("min", [min, config.zoom_x_min])), isDefined(config.zoom_x_max) && (max = getMinMax("max", [max, config.zoom_x_max])), [min, max];
-  },
-
-  /**
-   * Update zoom
-   * @param {boolean} force Force unzoom
-   * @private
-   */
-  updateZoom: function updateZoom(force) {
-    var $$ = this,
-        _$$$scale = $$.scale,
-        subX = _$$$scale.subX,
-        x = _$$$scale.x,
-        zoom = _$$$scale.zoom;
-
-    if (zoom) {
-      var zoomDomain = zoom.domain(),
-          xDomain = subX.domain(),
-          delta = .015,
-          isfullyShown = (zoomDomain[0] <= xDomain[0] || zoomDomain[0] - delta <= xDomain[0]) && (xDomain[1] <= zoomDomain[1] || xDomain[1] <= zoomDomain[1] - delta);
-      (force || isfullyShown) && ($$.axis.x.scale(subX), x.domain(subX.orgDomain()), $$.scale.zoom = null);
-    }
-  },
-
-  /**
-   * Attach zoom event on <rect>
-   * @param {d3.selection} eventRects evemt <rect> element
-   * @param {string} type zoom type
-   * @private
-   */
-  bindZoomOnEventRect: function bindZoomOnEventRect(eventRects, type) {
-    var $$ = this,
-        behaviour = type === "drag" ? $$.zoomBehaviour : $$.zoom;
-    eventRects.call(behaviour).on("dblclick.zoom", null);
-  },
-
-  /**
-   * Initialize the drag behaviour used for zooming.
-   * @private
-   */
-  initZoomBehaviour: function initZoomBehaviour() {
-    var zoomRect,
-        $$ = this,
-        config = $$.config,
+        data = $$.data,
         state = $$.state,
-        isRotated = config.axis_rotated,
-        start = 0,
-        end = 0,
-        prop = {
-      axis: isRotated ? "y" : "x",
-      attr: isRotated ? "height" : "width",
-      index: isRotated ? 1 : 0
+        $el = $$.$el;
+    return function () {
+      var flowLength = args.flow.length; // set flag
+
+      state.flowing = !0, data.targets.forEach(function (d) {
+        d.values.splice(0, flowLength);
+      }), $$.updateXGrid && $$.updateXGrid(!0);
+      // target elements
+      var elements = {};
+      ["axis.x", "grid.x", "gridLines.x", "region.list", "text", "bar", "line", "area", "circle"].forEach(function (v) {
+        var name = v.split("."),
+            node = $el[name[0]];
+        node && name.length > 1 && (node = node[name[1]]), node && node.size() && (elements[v] = node);
+      }), $$.hideGridFocus(), $$.setFlowList(elements, args);
     };
-    $$.zoomBehaviour = Object(external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_["drag"])().clickDistance(4).on("start", function () {
-      // @ts-ignore
-      $$.setDragStatus(!0), zoomRect || (zoomRect = $$.$el.main.append("rect").attr("clip-path", state.clip.path).attr("class", config_classes.zoomBrush).attr("width", isRotated ? state.width : 0).attr("height", isRotated ? 0 : state.height)), start = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[prop.index], end = start, zoomRect.attr(prop.axis, start).attr(prop.attr, 0), $$.onZoomStart();
-    }).on("drag", function () {
-      // @ts-ignore
-      end = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[prop.index], zoomRect.attr(prop.axis, Math.min(start, end)).attr(prop.attr, Math.abs(end - start));
-    }).on("end", function () {
-      var _ref,
-          scale = $$.scale.zoom || $$.scale.x;
+  },
 
-      if ($$.setDragStatus(!1), zoomRect.attr(prop.axis, 0).attr(prop.attr, 0), start > end && (_ref = [end, start], start = _ref[0], end = _ref[1], _ref), start < 0 && (end += Math.abs(start), start = 0), start !== end) $$.api.zoom([start, end].map(function (v) {
-        return scale.invert(v);
-      })), $$.onZoomEnd();else if ($$.isMultipleX()) $$.clickHandlerForMultipleXS.bind(this)($$);else {
-        var _event3 = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].sourceEvent || external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"],
-            _ref2 = "clientX" in _event3 ? [_event3.clientX, _event3.clientY] : [_event3.x, _event3.y],
-            x = _ref2[0],
-            y = _ref2[1],
-            target = browser_doc.elementFromPoint(x, y);
-
-        $$.clickHandlerForSingleX.bind(target)(Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(target).datum(), $$);
-      }
+  /**
+   * Set flow list
+   * @param {object} elements Target elements
+   * @param {object} args option object
+   * @private
+   */
+  setFlowList: function setFlowList(elements, args) {
+    var $$ = this,
+        flow = args.flow,
+        targets = args.targets,
+        _flow = flow,
+        _flow$duration = _flow.duration,
+        duration = _flow$duration === void 0 ? args.duration : _flow$duration,
+        flowIndex = _flow.index,
+        flowLength = _flow.length,
+        orgDataCount = _flow.orgDataCount,
+        transform = $$.getFlowTransform(targets, orgDataCount, flowIndex, flowLength),
+        wait = generateWait(),
+        gt = Object(external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_root_d3_["transition"])().ease(external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_["easeLinear"]).duration(duration);
+    wait.add(Object.keys(elements).map(function (v) {
+      var n = elements[v];
+      return n = v === "axis.x" ? n.transition(gt).call(function (g) {
+        return $$.axis.x.setTransition(gt).create(g);
+      }) : v === "region.list" ? n.filter($$.isRegionOnX).transition(gt).attr("transform", transform) : n.transition(gt).attr("transform", transform), n;
+    })), gt.call(wait, function () {
+      $$.cleanUpFlow(elements, args);
     });
   },
-  setZoomResetButton: function setZoomResetButton() {
+
+  /**
+   * Clean up flow
+   * @param {object} elements Target elements
+   * @param {object} args option object
+   * @private
+   */
+  cleanUpFlow: function cleanUpFlow(elements, args) {
     var $$ = this,
         config = $$.config,
-        resetButton = config.zoom_resetButton;
-    resetButton && config.zoom_enabled.type === "drag" && ($$.zoom.resetBtn ? $$.zoom.resetBtn.style("display", null) : $$.zoom.resetBtn = $$.$el.chart.append("div").classed(config_classes.button, !0).append("span").on("click", function () {
-      isFunction(resetButton.onclick) && resetButton.onclick.bind($$.api)(this), $$.api.unzoom();
-    }).classed(config_classes.buttonZoomReset, !0).text(resetButton.text || "Reset Zoom"));
+        state = $$.state,
+        svg = $$.$el.svg,
+        isRotated = config.axis_rotated,
+        flow = args.flow,
+        shape = args.shape,
+        xv = args.xv,
+        _shape$pos = shape.pos,
+        cx = _shape$pos.cx,
+        cy = _shape$pos.cy,
+        xForText = _shape$pos.xForText,
+        yForText = _shape$pos.yForText,
+        _flow2 = flow,
+        _flow2$done = _flow2.done,
+        done = _flow2$done === void 0 ? function () {} : _flow2$done,
+        flowLength = _flow2.length;
+    // draw again for removing flowed elements and reverting attr
+    // callback for end of flow
+    flowLength && (["circle", "text", "shape", "eventRect"].forEach(function (v) {
+      var target = [];
+
+      for (var i = 0; i < flowLength; i++) target.push("." + config_classes[v] + "-" + i);
+
+      svg.selectAll("." + config_classes[v + "s"]) // circles, shapes, texts, eventRects
+      .selectAll(target).remove();
+    }), svg.select("." + config_classes.xgrid).remove()), Object.keys(elements).forEach(function (v) {
+      var n = elements[v];
+      if (v !== "axis.x" && n.attr("transform", null), v === "grid.x") n.attr(state.xgridAttr);else if (v === "gridLines.x") n.attr("x1", isRotated ? 0 : xv).attr("x2", isRotated ? state.width : xv);else if (v === "gridLines.x") n.select("line").attr("x1", isRotated ? 0 : xv).attr("x2", isRotated ? state.width : xv), n.select("text").attr("x", isRotated ? state.width : 0).attr("y", xv);else if (/^(area|bar|line)$/.test(v)) n.attr("d", shape.type[v]);else if (v === "text") n.attr("x", xForText).attr("y", yForText).style("fill-opacity", $$.opacityForText.bind($$));else if (v !== "circle") v === "region.list" && n.select("rect").filter($$.isRegionOnX).attr("x", $$.regionX.bind($$)).attr("width", $$.regionWidth.bind($$));else if ($$.isCirclePoint()) n.attr("cx", cx).attr("cy", cy);else {
+        var xFunc = function (d) {
+          return cx(d) - config.point_r;
+        },
+            yFunc = function (d) {
+          return cy(d) - config.point_r;
+        };
+
+        n.attr("x", xFunc).attr("y", yFunc).attr("cx", cx) // when pattern is used, it possibly contain 'circle' also.
+        .attr("cy", cy);
+      }
+    }), config.interaction_enabled && $$.redrawEventRect(), done.call($$.api), state.flowing = !1;
+  },
+
+  /**
+   * Get flow transform value
+   * @param {object} targets target
+   * @param {number} orgDataCount original data count
+   * @param {number} flowIndex flow index
+   * @param {number} flowLength flow length
+   * @returns {string}
+   * @private
+   */
+  getFlowTransform: function getFlowTransform(targets, orgDataCount, flowIndex, flowLength) {
+    var translateX,
+        $$ = this,
+        data = $$.data,
+        x = $$.scale.x,
+        dataValues = data.targets[0].values,
+        flowStart = $$.getValueOnIndex(dataValues, flowIndex),
+        flowEnd = $$.getValueOnIndex(dataValues, flowIndex + flowLength),
+        orgDomain = x.domain(),
+        domain = $$.updateXDomain(targets, !0, !0);
+    orgDataCount ? orgDataCount === 1 || (flowStart && flowStart.x) === (flowEnd && flowEnd.x) ? translateX = x(orgDomain[0]) - x(domain[0]) : translateX = $$.axis.isTimeSeries() ? x(orgDomain[0]) - x(domain[0]) : x(flowStart.x) - x(flowEnd.x) : dataValues.length === 1 ? $$.axis.isTimeSeries() ? (flowStart = $$.getValueOnIndex(dataValues, 0), flowEnd = $$.getValueOnIndex(dataValues, dataValues.length - 1), translateX = x(flowStart.x) - x(flowEnd.x)) : translateX = diffDomain(domain) / 2 : translateX = x(orgDomain[0]) - x(domain[0]);
+    var scaleX = diffDomain(orgDomain) / diffDomain(domain);
+    return "translate(" + translateX + ",0) scale(" + scaleX + ",1)";
   }
 });
 // CONCATENATED MODULE: ./src/ChartInternal/internals/clip.ts
@@ -11830,152 +10901,6 @@ function smoothLines(el, type) {
   },
   isRegionOnX: function isRegionOnX(d) {
     return !d.axis || d.axis === "x";
-  }
-});
-// EXTERNAL MODULE: external {"commonjs":"d3-color","commonjs2":"d3-color","amd":"d3-color","root":"d3"}
-var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webpack_require__(13);
-
-// CONCATENATED MODULE: ./src/ChartInternal/internals/selection.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-
-
-
-/* harmony default export */ var internals_selection = ({
-  /**
-   * Select a point
-   * @param {object} target Target point
-   * @param {object} d Data object
-   * @param {number} i Index number
-   * @private
-   */
-  selectPoint: function selectPoint(target, d, i) {
-    var $$ = this,
-        config = $$.config,
-        main = $$.$el.main,
-        isRotated = config.axis_rotated,
-        cx = (isRotated ? $$.circleY : $$.circleX).bind($$),
-        cy = (isRotated ? $$.circleX : $$.circleY).bind($$),
-        r = $$.pointSelectR.bind($$);
-    // add selected-circle on low layer g
-    callFn(config.data_onselected, $$.api, d, target.node()), main.select("." + config_classes.selectedCircles + $$.getTargetSelectorSuffix(d.id)).selectAll("." + config_classes.selectedCircle + "-" + i).data([d]).enter().append("circle").attr("class", function () {
-      return $$.generateClass(config_classes.selectedCircle, i);
-    }).attr("cx", cx).attr("cy", cy).attr("stroke", $$.color).attr("r", function (d2) {
-      return $$.pointSelectR(d2) * 1.4;
-    }).transition().duration(100).attr("r", r);
-  },
-
-  /**
-   * Unelect a point
-   * @param {object} target Target point
-   * @param {object} d Data object
-   * @param {number} i Index number
-   * @private
-   */
-  unselectPoint: function unselectPoint(target, d, i) {
-    var $$ = this,
-        config = $$.config,
-        $el = $$.$el;
-    // remove selected-circle from low layer g
-    callFn(config.data_onunselected, $$.api, d, target.node()), $el.main.select("." + config_classes.selectedCircles + $$.getTargetSelectorSuffix(d.id)).selectAll("." + config_classes.selectedCircle + "-" + i).transition().duration(100).attr("r", 0).remove();
-  },
-
-  /**
-   * Toggles the selection of points
-   * @param {boolean} selected whether or not to select.
-   * @param {object} target Target object
-   * @param {object} d Data object
-   * @param {number} i Index number
-   * @private
-   */
-  togglePoint: function togglePoint(selected, target, d, i) {
-    var method = (selected ? "" : "un") + "selectPoint";
-    this[method](target, d, i);
-  },
-
-  /**
-   * Select a path
-   * @param {object} target Target path
-   * @param {object} d Data object
-   * @private
-   */
-  selectPath: function selectPath(target, d) {
-    var $$ = this,
-        config = $$.config;
-    callFn(config.data_onselected, $$.api, d, target.node()), config.interaction_brighten && target.transition().duration(100).style("fill", function () {
-      return Object(external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_["rgb"])($$.color(d)).brighter(.75);
-    });
-  },
-
-  /**
-   * Unelect a path
-   * @private
-   * @param {object} target Target path
-   * @param {object} d Data object
-   */
-  unselectPath: function unselectPath(target, d) {
-    var $$ = this,
-        config = $$.config;
-    callFn(config.data_onunselected, $$.api, d, target.node()), config.interaction_brighten && target.transition().duration(100).style("fill", function () {
-      return $$.color(d);
-    });
-  },
-
-  /**
-   * Toggles the selection of lines
-   * @param {boolean} selected whether or not to select.
-   * @param {object} target Target object
-   * @param {object} d Data object
-   * @param {number} i Index number
-   * @private
-   */
-  togglePath: function togglePath(selected, target, d, i) {
-    this[(selected ? "" : "un") + "selectPath"](target, d, i);
-  },
-
-  /**
-   * Returns the toggle method of the target
-   * @param {object} that shape
-   * @param {object} d Data object
-   * @returns {Function} toggle method
-   * @private
-   */
-  getToggle: function getToggle(that, d) {
-    var $$ = this;
-    return that.nodeName === "path" ? $$.togglePath : $$.isStepType(d) ? function () {} : // circle is hidden in step chart, so treat as within the click area
-    $$.togglePoint;
-  },
-
-  /**
-   * Toggles the selection of shapes
-   * @param {object} that shape
-   * @param {object} d Data object
-   * @param {number} i Index number
-   * @private
-   */
-  toggleShape: function toggleShape(that, d, i) {
-    var toggledShape,
-        $$ = this,
-        config = $$.config,
-        main = $$.$el.main,
-        shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(that),
-        isSelected = shape.classed(config_classes.SELECTED),
-        toggle = $$.getToggle(that, d).bind($$);
-
-    if (config.data_selection_enabled && config.data_selection_isselectable.bind($$.api)(d)) {
-      if (!config.data_selection_multiple) {
-        var selector = "." + config_classes.shapes;
-        config.data_selection_grouped && (selector += $$.getTargetSelectorSuffix(d.id)), main.selectAll(selector).selectAll("." + config_classes.shape).each(function (d, i) {
-          var shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this);
-          shape.classed(config_classes.SELECTED) && (toggledShape = shape, toggle(!1, shape.classed(config_classes.SELECTED, !1), d, i));
-        });
-      }
-
-      toggledShape && toggledShape.node() === shape.node() || (shape.classed(config_classes.SELECTED, !isSelected), toggle(!isSelected, shape, d, i));
-    }
   }
 });
 // CONCATENATED MODULE: ./src/ChartInternal/internals/size.axis.ts
@@ -13917,136 +12842,6 @@ function axis_objectSpread(target) { for (var source, i = 1; i < arguments.lengt
   grid_front: !1,
   grid_lines_front: !0
 });
-// CONCATENATED MODULE: ./src/config/Options/common/subchart.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-/**
- * x Axis config options
- */
-/* harmony default export */ var common_subchart = ({
-  /**
-   * Set subchart options.
-   * - **NOTE:** Not supported for `bubble`, `scatter` and non-Axis based(pie, donut, gauge, radar) types.
-   * @name subchart
-   * @memberof Options
-   * @type {object}
-   * @property {object} subchart Subchart object
-   * @property {boolean} [subchart.show=false] Show sub chart on the bottom of the chart.
-   * @property {boolean} [subchart.axis.x.show=true] Show or hide x axis.
-   * @property {boolean} [subchart.axis.x.tick.show=true] Show or hide x axis tick line.
-   * @property {boolean} [subchart.axis.x.tick.text.show=true] Show or hide x axis tick text.
-   * @property {number} [subchart.size.height] Change the height of the subchart.
-   * @property {Function} [subchart.onbrush] Set callback for brush event.<br>
-   *  Specified function receives the current zoomed x domain.
-   * @see [Demo](https://naver.github.io/billboard.js/demo/#Interaction.SubChart)
-   * @example
-   *  subchart: {
-   *      axis: {
-   *      	x: {
-   *      	  show: true,
-   *      	    tick: {
-   *      	      show: true,
-   *      	      text: {
-   *      	        show: false
-   *      	      }
-   *      	    }
-   *      	}
-   *      },
-   *      show: true,
-   *      size: {
-   *          height: 20
-   *      },
-   *      onbrush: function(domain) { ... }
-   *  }
-   */
-  subchart_show: !1,
-  subchart_size_height: 60,
-  subchart_axis_x_show: !0,
-  subchart_axis_x_tick_show: !0,
-  subchart_axis_x_tick_text_show: !0,
-  subchart_onbrush: function subchart_onbrush() {}
-});
-// CONCATENATED MODULE: ./src/config/Options/common/zoom.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-/**
- * zoom config options
- */
-/* harmony default export */ var common_zoom = ({
-  /**
-   * Set zoom options
-   * @name zoom
-   * @memberof Options
-   * @type {object}
-   * @property {object} zoom Zoom object
-   * @property {boolean} [zoom.enabled=false] Enable zooming.
-   * @property {string} [zoom.enabled.type='wheel'] Set zoom interaction type.
-   *  - **Available types:**
-   *    - wheel
-   *    - drag
-   * @property {boolean} [zoom.rescale=false] Enable to rescale after zooming.<br>
-   *  If true set, y domain will be updated according to the zoomed region.
-   * @property {Array} [zoom.extent=[1, 10]] Change zoom extent.
-   * @property {number|Date} [zoom.x.min] Set x Axis minimum zoom range
-   * @property {number|Date} [zoom.x.max] Set x Axis maximum zoom range
-   * @property {Function} [zoom.onzoomstart=undefined] Set callback that is called when zooming starts.<br>
-   *  Specified function receives the zoom event.
-   * @property {Function} [zoom.onzoom=undefined] Set callback that is called when the chart is zooming.<br>
-   *  Specified function receives the zoomed domain.
-   * @property {Function} [zoom.onzoomend=undefined] Set callback that is called when zooming ends.<br>
-   *  Specified function receives the zoomed domain.
-   * @property {boolean|object} [zoom.resetButton=true] Set to display zoom reset button for 'drag' type zoom
-   * @property {Function} [zoom.resetButton.onclick] Set callback when clicks the reset button. The callback will receive reset button element reference as argument.
-   * @property {string} [zoom.resetButton.text='Reset Zoom'] Text value for zoom reset button.
-   * @see [Demo:zoom](https://naver.github.io/billboard.js/demo/#Interaction.Zoom)
-   * @see [Demo:drag zoom](https://naver.github.io/billboard.js/demo/#Interaction.DragZoom)
-   * @example
-   *  zoom: {
-   *      enabled: {
-   *          type: "drag"
-   *      },
-   *      rescale: true,
-   *      extent: [1, 100]  // enable more zooming
-   *      x: {
-   *          min: -1,  // set min range
-   *          max: 10  // set max range
-   *      },
-   *      onzoomstart: function(event) { ... },
-   *      onzoom: function(domain) { ... },
-   *      onzoomend: function(domain) { ... },
-   *
-   *      // show reset button when is zoomed-in
-   *      resetButton: true,
-   *
-   *      resetButton: {
-   *          // onclick callback when reset button is clicked
-   *          onclick: function(button) {
-   *            button; // Reset button element reference
-   *            ...
-   *          },
-   *
-   *          // customized text value for reset zoom button
-   *          text: "Unzoom"
-   *      }
-   *  }
-   */
-  zoom_enabled: undefined,
-  zoom_extent: undefined,
-  zoom_privileged: !1,
-  zoom_rescale: !1,
-  zoom_onzoom: undefined,
-  zoom_onzoomstart: undefined,
-  zoom_onzoomend: undefined,
-  zoom_resetButton: !0,
-  zoom_x_min: undefined,
-  zoom_x_max: undefined
-});
 // CONCATENATED MODULE: ./src/config/resolver/axis.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -14064,13 +12859,7 @@ function axis_objectSpread(target) { for (var source, i = 1; i < arguments.lengt
 
 
 
-
-
  // ChartInternal
-
-
-
-
 
 
 
@@ -14083,13 +12872,11 @@ function axis_objectSpread(target) { for (var source, i = 1; i < arguments.lengt
 
 
 
-
-
-var axis_api = [api_axis, api_category, api_flow, grid_x, grid_y, group, api_regions, api_selection, api_x, api_zoom];
-var internal = [Axis_Axis, interactions_drag, interactions_flow, interactions_subchart, interactions_zoom, internals_clip, eventrect, internals_grid, region, internals_selection, size_axis];
-var axis_options = [data_axis, Options_axis_axis, common_grid, common_subchart, common_zoom];
+var axis_api = [api_axis, api_category, grid_x, grid_y, api_flow, group, api_regions, api_x];
+var internal = [Axis_Axis, internals_clip, eventrect, interactions_flow, internals_grid, region, size_axis];
+var axis_options = [data_axis, Options_axis_axis, common_grid];
 // EXTERNAL MODULE: external {"commonjs":"d3-interpolate","commonjs2":"d3-interpolate","amd":"d3-interpolate","root":"d3"}
-var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate_root_d3_ = __webpack_require__(14);
+var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate_root_d3_ = __webpack_require__(12);
 
 // CONCATENATED MODULE: ./src/ChartInternal/shape/arc.ts
 /**
@@ -15196,6 +13983,7 @@ var getTransitionName = function () {
         data = $$.data,
         $el = $$.$el,
         selectionEnabled = config.data_selection_enabled,
+        isSelectable = config.data_selection_isselectable,
         classCircles = $$.classCircles.bind($$);
 
     if (config.point_show) {
@@ -15216,7 +14004,7 @@ var getTransitionName = function () {
       selectionEnabled && enterNode.append("g").attr("class", function (d) {
         return $$.generateClass(config_classes.selectedCircles, d.id);
       }), enterNode.append("g").attr("class", classCircles).style("cursor", function (d) {
-        return config.data_selection_isselectable(d) ? "pointer" : null;
+        return isSelectable && isSelectable(d) ? "pointer" : null;
       }), selectionEnabled && targets.forEach(function (t) {
         $el.main.selectAll("." + config_classes.selectedCircles + $$.getTargetSelectorSuffix(t.id)).selectAll("" + config_classes.selectedCircle).each(function (d) {
           d.value = t.values[d.index].value;
@@ -16551,16 +15339,17 @@ var radar_cacheKey = KEY.radarPoints;
   radar_size_ratio: .87,
   radar_direction_clockwise: !1
 });
-// CONCATENATED MODULE: ./src/config/resolver/index.ts
+// CONCATENATED MODULE: ./src/config/resolver/shape.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
  * billboard.js project is licensed under the MIT license
  */
 
-/**
- * Modules exports
- */
-// Axis
+
+
+
+ // Axis
+
  // Shape
 
 
@@ -16584,6 +15373,1354 @@ var radar_cacheKey = KEY.radarPoints;
 
 
 
+
+/**
+ * Extend Axis
+ * @param {Array} module Module to be extended
+ * @param {Array} option Option object to be extended
+ * @private
+ */
+
+function extendAxis(module, option) {
+  extend(ChartInternal_ChartInternal.prototype, internal.concat(module)), extend(Chart_Chart.prototype, axis_api), Options_Options.setOptions(axis_options.concat(option || []));
+}
+/**
+ * Extend Line type modules
+ * @param {object} module Module to be extended
+ * @param {Array} option Option object to be extended
+ * @private
+ */
+
+
+function extendLine(module, option) {
+  extendAxis([shape_point, shape_line].concat(module || [])), Options_Options.setOptions([common_point, Options_shape_line].concat(option || []));
+}
+/**
+ * Extend Arc type modules
+ * @param {Array} module Module to be extended
+ * @param {Array} option Option object to be extended
+ * @private
+ */
+
+
+function extendArc(module, option) {
+  extend(ChartInternal_ChartInternal.prototype, [shape_arc].concat(module || [])), Options_Options.setOptions(option);
+} // Area types
+
+
+var _area = function area() {
+  return extendLine(shape_area, [Options_shape_area]), (_area = function area() {
+    return TYPE.AREA;
+  })();
+},
+    areaLineRange = function () {
+  return extendLine(shape_area, [Options_shape_area]), (areaLineRange = function () {
+    return TYPE.AREA_LINE_RANGE;
+  })();
+},
+    areaSpline = function () {
+  return extendLine(shape_area, [Options_shape_area, spline]), (areaSpline = function () {
+    return TYPE.AREA_SPLINE;
+  })();
+},
+    areaSplineRange = function () {
+  return extendLine(shape_area, [Options_shape_area, spline]), (areaSplineRange = function () {
+    return TYPE.AREA_SPLINE_RANGE;
+  })();
+},
+    areaStep = function () {
+  return extendLine(shape_area, [Options_shape_area]), (areaStep = function () {
+    return TYPE.AREA_STEP;
+  })();
+},
+    resolver_shape_line = function () {
+  return extendLine(), (resolver_shape_line = function () {
+    return TYPE.LINE;
+  })();
+},
+    shape_spline = function () {
+  return extendLine(undefined, [spline]), (shape_spline = function () {
+    return TYPE.SPLINE;
+  })();
+},
+    shape_step = function () {
+  return extendLine(), (shape_step = function () {
+    return TYPE.STEP;
+  })();
+},
+    shape_donut = function () {
+  return extendArc(undefined, [donut]), (shape_donut = function () {
+    return TYPE.DONUT;
+  })();
+},
+    resolver_shape_gauge = function () {
+  return extendArc([gauge], [shape_gauge]), (resolver_shape_gauge = function () {
+    return TYPE.GAUGE;
+  })();
+},
+    shape_pie = function () {
+  return extendArc(undefined, [pie]), (shape_pie = function () {
+    return TYPE.PIE;
+  })();
+},
+    resolver_shape_radar = function () {
+  return extendArc([shape_point, shape_radar], [common_point, Options_shape_radar]), (resolver_shape_radar = function () {
+    return TYPE.RADAR;
+  })();
+},
+    resolver_shape_bar = function () {
+  return extendAxis([shape_bar], Options_shape_bar), (resolver_shape_bar = function () {
+    return TYPE.BAR;
+  })();
+},
+    resolver_shape_bubble = function () {
+  return extendAxis([shape_point, bubble], [shape_bubble, common_point]), (resolver_shape_bubble = function () {
+    return TYPE.BUBBLE;
+  })();
+},
+    shape_scatter = function () {
+  return extendAxis([shape_point], [common_point, scatter]), (shape_scatter = function () {
+    return TYPE.SCATTER;
+  })();
+};
+// CONCATENATED MODULE: ./src/Chart/api/selection.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+/* harmony default export */ var api_selection = ({
+  /**
+   * Get selected data points.<br><br>
+   * By this API, you can get selected data points information. To use this API, data.selection.enabled needs to be set true.
+   * @function selected
+   * @instance
+   * @memberof Chart
+   * @param {string} [targetId] You can filter the result by giving target id that you want to get. If not given, all of data points will be returned.
+   * @returns {Array} dataPoint Array of the data points.<br>ex.) `[{x: 1, value: 200, id: "data1", index: 1, name: "data1"}, ...]`
+   * @example
+   *  // all selected data points will be returned.
+   *  chart.selected();
+   *  // --> ex.) [{x: 1, value: 200, id: "data1", index: 1, name: "data1"}, ... ]
+   *
+   *  // all selected data points of data1 will be returned.
+   *  chart.selected("data1");
+   */
+  selected: function selected(targetId) {
+    var $$ = this.internal,
+        dataPoint = [];
+    return $$.$el.main.selectAll("." + (config_classes.shapes + $$.getTargetSelectorSuffix(targetId))).selectAll("." + config_classes.shape).filter(function () {
+      return Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this).classed(config_classes.SELECTED);
+    }).each(function (d) {
+      return dataPoint.push(d);
+    }), dataPoint;
+  },
+
+  /**
+   * Set data points to be selected. ([`data.selection.enabled`](Options.html#.data%25E2%2580%25A4selection%25E2%2580%25A4enabled) option should be set true to use this method)
+   * @function select
+   * @instance
+   * @memberof Chart
+   * @param {string|Array} [ids] id value to get selected.
+   * @param {Array} [indices] The index array of data points. If falsy value given, will select all data points.
+   * @param {boolean} [resetOther] Unselect already selected.
+   * @example
+   *  // select all data points
+   *  chart.select();
+   *
+   *  // select all from 'data2'
+   *  chart.select("data2");
+   *
+   *  // select all from 'data1' and 'data2'
+   *  chart.select(["data1", "data2"]);
+   *
+   *  // select from 'data1', indices 2 and unselect others selected
+   *  chart.select("data1", [2], true);
+   *
+   *  // select from 'data1', indices 0, 3 and 5
+   *  chart.select("data1", [0, 3, 5]);
+   */
+  select: function select(ids, indices, resetOther) {
+    var $$ = this.internal,
+        config = $$.config,
+        $el = $$.$el;
+    config.data_selection_enabled && $el.main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).each(function (d, i) {
+      var shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
+          id = d.data ? d.data.id : d.id,
+          toggle = $$.getToggle(this, d).bind($$),
+          isTargetId = config.data_selection_grouped || !ids || ids.indexOf(id) >= 0,
+          isTargetIndex = !indices || indices.indexOf(i) >= 0,
+          isSelected = shape.classed(config_classes.SELECTED);
+      // line/area selection not supported yet
+      shape.classed(config_classes.line) || shape.classed(config_classes.area) || (isTargetId && isTargetIndex ? config.data_selection_isselectable.bind($$.api)(d) && !isSelected && toggle(!0, shape.classed(config_classes.SELECTED, !0), d, i) : isDefined(resetOther) && resetOther && isSelected && toggle(!1, shape.classed(config_classes.SELECTED, !1), d, i));
+    });
+  },
+
+  /**
+   * Set data points to be un-selected.
+   * @function unselect
+   * @instance
+   * @memberof Chart
+   * @param {string|Array} [ids] id value to be unselected.
+   * @param {Array} [indices] The index array of data points. If falsy value given, will select all data points.
+   * @example
+   *  // unselect all data points
+   *  chart.unselect();
+   *
+   *  // unselect all from 'data1'
+   *  chart.unselect("data1");
+   *
+   *  // unselect from 'data1', indices 2
+   *  chart.unselect("data1", [2]);
+   */
+  unselect: function unselect(ids, indices) {
+    var $$ = this.internal,
+        config = $$.config,
+        $el = $$.$el;
+    config.data_selection_enabled && $el.main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).each(function (d, i) {
+      var shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
+          id = d.data ? d.data.id : d.id,
+          toggle = $$.getToggle(this, d).bind($$),
+          isTargetId = config.data_selection_grouped || !ids || ids.indexOf(id) >= 0,
+          isTargetIndex = !indices || indices.indexOf(i) >= 0,
+          isSelected = shape.classed(config_classes.SELECTED);
+      // line/area selection not supported yet
+      shape.classed(config_classes.line) || shape.classed(config_classes.area) || isTargetId && isTargetIndex && config.data_selection_isselectable.bind($$.api)(d) && isSelected && toggle(!1, shape.classed(config_classes.SELECTED, !1), d, i);
+    });
+  }
+});
+// EXTERNAL MODULE: external {"commonjs":"d3-zoom","commonjs2":"d3-zoom","amd":"d3-zoom","root":"d3"}
+var external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_ = __webpack_require__(13);
+
+// CONCATENATED MODULE: ./src/Chart/api/zoom.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+/**
+ * Check if the given domain is within zoom range
+ * @param {Array} domain domain value
+ * @param {Array} range zoom range value
+ * @returns {boolean}
+ * @private
+ */
+
+function withinRange(domain, range) {
+  var min = range[0],
+      max = range[1];
+  return domain.every(function (v, i) {
+    return i === 0 ? v >= min : v <= max;
+  });
+}
+/**
+ * Zoom by giving x domain.
+ * - **NOTE:**
+ *  - For `wheel` type zoom, the minimum zoom range will be set as the given domain. To get the initial state, [.unzoom()](#unzoom) should be called.
+ *  - To be used [zoom.enabled](Options.html#.zoom) option should be set as `truthy`.
+ * @function zoom
+ * @instance
+ * @memberof Chart
+ * @param {Array} domainValue If domain is given, the chart will be zoomed to the given domain. If no argument is given, the current zoomed domain will be returned.
+ * @returns {Array} domain value in array
+ * @example
+ *  // Zoom to specified domain
+ *  chart.zoom([10, 20]);
+ *
+ *  // Get the current zoomed domain
+ *  chart.zoom();
+ */
+
+
+var zoom_zoom = function (domainValue) {
+  var resultDomain,
+      $$ = this.internal,
+      config = $$.config,
+      scale = $$.scale,
+      domain = domainValue;
+
+  if (config.zoom_enabled && domain && withinRange(domain, $$.getZoomDomain())) {
+    var isTimeSeries = $$.axis.isTimeSeries();
+
+    if (isTimeSeries) {
+      var fn = parseDate.bind($$);
+      domain = domain.map(function (x) {
+        return fn(x);
+      });
+    }
+
+    if (config.subchart_show) {
+      var xScale = scale.zoom || scale.x;
+      $$.brush.getSelection().call($$.brush.move, [xScale(domain[0]), xScale(domain[1])]), resultDomain = domain;
+    } else scale.x.domain(domain), scale.zoom = scale.x, $$.axis.x.scale(scale.zoom), resultDomain = scale.zoom.orgDomain();
+
+    $$.redraw({
+      withTransition: !0,
+      withY: config.zoom_rescale,
+      withDimension: !1
+    }), $$.setZoomResetButton(), callFn(config.zoom_onzoom, $$.api, resultDomain);
+  } else resultDomain = scale.zoom ? scale.zoom.domain() : scale.x.orgDomain();
+
+  return resultDomain;
+};
+
+extend(zoom_zoom, {
+  /**
+   * Enable and disable zooming.
+   * @function zoom․enable
+   * @instance
+   * @memberof Chart
+   * @param {string|boolean} enabled Possible string values are "wheel" or "drag". If enabled is true, "wheel" will be used. If false is given, zooming will be disabled.<br>When set to false, the current zooming status will be reset.
+   * @example
+   *  // Enable zooming using the mouse wheel
+   *  chart.zoom.enable(true);
+   *  // Or
+   *  chart.zoom.enable("wheel");
+   *
+   *  // Enable zooming by dragging
+   *  chart.zoom.enable("drag");
+   *
+   *  // Disable zooming
+   *  chart.zoom.enable(false);
+   */
+  enable: function enable(enabled) {
+    var $$ = this.internal,
+        config = $$.config;
+    /^(drag|wheel)$/.test(enabled) && (config.zoom_type = enabled), config.zoom_enabled = !!enabled, $$.zoom ? enabled === !1 && $$.bindZoomEvent(!1) : ($$.initZoom(), $$.bindZoomEvent()), $$.updateAndRedraw();
+  },
+
+  /**
+   * Set or get x Axis maximum zoom range value
+   * @function zoom․max
+   * @instance
+   * @memberof Chart
+   * @param {number} [max] maximum value to set for zoom
+   * @returns {number} zoom max value
+   * @example
+   *  // Set maximum range value
+   *  chart.zoom.max(20);
+   */
+  max: function max(_max) {
+    var $$ = this.internal,
+        config = $$.config,
+        xDomain = $$.org.xDomain;
+    return (_max === 0 || _max) && (config.zoom_x_max = getMinMax("max", [xDomain[1], _max])), config.zoom_x_max;
+  },
+
+  /**
+   * Set or get x Axis minimum zoom range value
+   * @function zoom․min
+   * @instance
+   * @memberof Chart
+   * @param {number} [min] minimum value to set for zoom
+   * @returns {number} zoom min value
+   * @example
+   *  // Set minimum range value
+   *  chart.zoom.min(-1);
+   */
+  min: function min(_min) {
+    var $$ = this.internal,
+        config = $$.config,
+        xDomain = $$.org.xDomain;
+    return (_min === 0 || _min) && (config.zoom_x_min = getMinMax("min", [xDomain[0], _min])), config.zoom_x_min;
+  },
+
+  /**
+   * Set zoom range
+   * @function zoom․range
+   * @instance
+   * @memberof Chart
+   * @param {object} [range] zoom range
+   * @returns {object} zoom range value
+   * {
+   *   min: 0,
+   *   max: 100
+   * }
+   * @example
+   *  chart.zoom.range({
+   *      min: 10,
+   *      max: 100
+   *  });
+   */
+  range: function range(_range) {
+    var zoom = this.zoom;
+
+    if (isObject(_range)) {
+      var min = _range.min,
+          max = _range.max;
+      isDefined(min) && zoom.min(min), isDefined(max) && zoom.max(max);
+    }
+
+    return {
+      min: zoom.min(),
+      max: zoom.max()
+    };
+  }
+});
+/* harmony default export */ var api_zoom = ({
+  zoom: zoom_zoom,
+
+  /**
+   * Unzoom zoomed area
+   * @function unzoom
+   * @instance
+   * @memberof Chart
+   * @example
+   *  chart.unzoom();
+   */
+  unzoom: function unzoom() {
+    var $$ = this.internal,
+        config = $$.config;
+
+    if ($$.scale.zoom) {
+      config.subchart_show ? $$.brush.getSelection().call($$.brush.move, null) : $$.zoom.updateTransformScale(external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoomIdentity"]), $$.updateZoom(!0), $$.zoom.resetBtn && $$.zoom.resetBtn.style("display", "none");
+      // reset transform
+      var eventRects = $$.$el.main.select("." + config_classes.eventRects);
+      Object(external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoomTransform"])(eventRects.node()) !== external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoomIdentity"] && $$.zoom.transform(eventRects, external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoomIdentity"]), $$.redraw({
+        withTransition: !0,
+        withUpdateXDomain: !0,
+        withUpdateOrgXDomain: !0,
+        withY: config.zoom_rescale
+      });
+    }
+  }
+});
+// EXTERNAL MODULE: external {"commonjs":"d3-color","commonjs2":"d3-color","amd":"d3-color","root":"d3"}
+var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webpack_require__(14);
+
+// CONCATENATED MODULE: ./src/ChartInternal/internals/selection.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+
+/* harmony default export */ var internals_selection = ({
+  /**
+   * Select a point
+   * @param {object} target Target point
+   * @param {object} d Data object
+   * @param {number} i Index number
+   * @private
+   */
+  selectPoint: function selectPoint(target, d, i) {
+    var $$ = this,
+        config = $$.config,
+        main = $$.$el.main,
+        isRotated = config.axis_rotated,
+        cx = (isRotated ? $$.circleY : $$.circleX).bind($$),
+        cy = (isRotated ? $$.circleX : $$.circleY).bind($$),
+        r = $$.pointSelectR.bind($$);
+    // add selected-circle on low layer g
+    callFn(config.data_onselected, $$.api, d, target.node()), main.select("." + config_classes.selectedCircles + $$.getTargetSelectorSuffix(d.id)).selectAll("." + config_classes.selectedCircle + "-" + i).data([d]).enter().append("circle").attr("class", function () {
+      return $$.generateClass(config_classes.selectedCircle, i);
+    }).attr("cx", cx).attr("cy", cy).attr("stroke", $$.color).attr("r", function (d2) {
+      return $$.pointSelectR(d2) * 1.4;
+    }).transition().duration(100).attr("r", r);
+  },
+
+  /**
+   * Unelect a point
+   * @param {object} target Target point
+   * @param {object} d Data object
+   * @param {number} i Index number
+   * @private
+   */
+  unselectPoint: function unselectPoint(target, d, i) {
+    var $$ = this,
+        config = $$.config,
+        $el = $$.$el;
+    // remove selected-circle from low layer g
+    callFn(config.data_onunselected, $$.api, d, target.node()), $el.main.select("." + config_classes.selectedCircles + $$.getTargetSelectorSuffix(d.id)).selectAll("." + config_classes.selectedCircle + "-" + i).transition().duration(100).attr("r", 0).remove();
+  },
+
+  /**
+   * Toggles the selection of points
+   * @param {boolean} selected whether or not to select.
+   * @param {object} target Target object
+   * @param {object} d Data object
+   * @param {number} i Index number
+   * @private
+   */
+  togglePoint: function togglePoint(selected, target, d, i) {
+    var method = (selected ? "" : "un") + "selectPoint";
+    this[method](target, d, i);
+  },
+
+  /**
+   * Select a path
+   * @param {object} target Target path
+   * @param {object} d Data object
+   * @private
+   */
+  selectPath: function selectPath(target, d) {
+    var $$ = this,
+        config = $$.config;
+    callFn(config.data_onselected, $$.api, d, target.node()), config.interaction_brighten && target.transition().duration(100).style("fill", function () {
+      return Object(external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_["rgb"])($$.color(d)).brighter(.75);
+    });
+  },
+
+  /**
+   * Unelect a path
+   * @private
+   * @param {object} target Target path
+   * @param {object} d Data object
+   */
+  unselectPath: function unselectPath(target, d) {
+    var $$ = this,
+        config = $$.config;
+    callFn(config.data_onunselected, $$.api, d, target.node()), config.interaction_brighten && target.transition().duration(100).style("fill", function () {
+      return $$.color(d);
+    });
+  },
+
+  /**
+   * Toggles the selection of lines
+   * @param {boolean} selected whether or not to select.
+   * @param {object} target Target object
+   * @param {object} d Data object
+   * @param {number} i Index number
+   * @private
+   */
+  togglePath: function togglePath(selected, target, d, i) {
+    this[(selected ? "" : "un") + "selectPath"](target, d, i);
+  },
+
+  /**
+   * Returns the toggle method of the target
+   * @param {object} that shape
+   * @param {object} d Data object
+   * @returns {Function} toggle method
+   * @private
+   */
+  getToggle: function getToggle(that, d) {
+    var $$ = this;
+    return that.nodeName === "path" ? $$.togglePath : $$.isStepType(d) ? function () {} : // circle is hidden in step chart, so treat as within the click area
+    $$.togglePoint;
+  },
+
+  /**
+   * Toggles the selection of shapes
+   * @param {object} that shape
+   * @param {object} d Data object
+   * @param {number} i Index number
+   * @private
+   */
+  toggleShape: function toggleShape(that, d, i) {
+    var toggledShape,
+        $$ = this,
+        config = $$.config,
+        main = $$.$el.main,
+        shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(that),
+        isSelected = shape.classed(config_classes.SELECTED),
+        toggle = $$.getToggle(that, d).bind($$);
+
+    if (config.data_selection_enabled && config.data_selection_isselectable.bind($$.api)(d)) {
+      if (!config.data_selection_multiple) {
+        var selector = "." + config_classes.shapes;
+        config.data_selection_grouped && (selector += $$.getTargetSelectorSuffix(d.id)), main.selectAll(selector).selectAll("." + config_classes.shape).each(function (d, i) {
+          var shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this);
+          shape.classed(config_classes.SELECTED) && (toggledShape = shape, toggle(!1, shape.classed(config_classes.SELECTED, !1), d, i));
+        });
+      }
+
+      toggledShape && toggledShape.node() === shape.node() || (shape.classed(config_classes.SELECTED, !isSelected), toggle(!isSelected, shape, d, i));
+    }
+  }
+});
+// CONCATENATED MODULE: ./src/ChartInternal/interactions/subchart.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+
+/* harmony default export */ var interactions_subchart = ({
+  /**
+   * Initialize the brush.
+   * @private
+   */
+  initBrush: function initBrush() {
+    var $$ = this,
+        config = $$.config,
+        scale = $$.scale,
+        subchart = $$.$el.subchart,
+        isRotated = config.axis_rotated;
+    $$.brush = isRotated ? Object(external_commonjs_d3_brush_commonjs2_d3_brush_amd_d3_brush_root_d3_["brushY"])() : Object(external_commonjs_d3_brush_commonjs2_d3_brush_amd_d3_brush_root_d3_["brushX"])();
+
+    // set "brush" event
+    var lastDomain,
+        timeout,
+        brushHandler = function () {
+      $$.redrawForBrush();
+    },
+        getBrushSize = function () {
+      var brush = $$.$el.svg.select("." + config_classes.brush + " .overlay"),
+          brushSize = {
+        width: 0,
+        height: 0
+      };
+      return brush.size() && (brushSize.width = +brush.attr("width"), brushSize.height = +brush.attr("height")), brushSize[isRotated ? "width" : "height"];
+    };
+
+    // set the brush extent
+    $$.brush.on("start", function () {
+      $$.state.inputType === "touch" && $$.hideTooltip(), brushHandler();
+    }).on("brush", brushHandler).on("end", function () {
+      lastDomain = scale.x.orgDomain();
+    }), $$.brush.updateResize = function () {
+      var _this = this;
+
+      timeout && clearTimeout(timeout), timeout = setTimeout(function () {
+        var selection = _this.getSelection();
+
+        lastDomain && Object(external_commonjs_d3_brush_commonjs2_d3_brush_amd_d3_brush_root_d3_["brushSelection"])(selection.node()) && _this.move(selection, lastDomain.map(scale.subX.orgScale()));
+      }, 0);
+    }, $$.brush.update = function () {
+      var extent = this.extent()();
+      return extent[1].filter(function (v) {
+        return isNaN(v);
+      }).length === 0 && subchart.main && subchart.main.select("." + config_classes.brush).call(this), this;
+    }, $$.brush.scale = function (scale) {
+      var h = config.subchart_size_height || getBrushSize(),
+          extent = $$.getExtent();
+      // [[x0, y0], [x1, y1]], where [x0, y0] is the top-left corner and [x1, y1] is the bottom-right corner
+      // when extent updates, brush selection also be re-applied
+      // https://github.com/d3/d3/issues/2918
+      !extent && scale.range ? extent = [[0, 0], [scale.range()[1], h]] : isArray(extent) && (extent = extent.map(function (v, i) {
+        return [v, i > 0 ? h : i];
+      })), isRotated && extent[1].reverse(), this.extent(extent), this.update();
+    }, $$.brush.getSelection = function () {
+      return (// @ts-ignore
+        subchart.main ? subchart.main.select("." + config_classes.brush) : Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])([])
+      );
+    };
+  },
+
+  /**
+   * Initialize the subchart.
+   * @private
+   */
+  initSubchart: function initSubchart() {
+    var $$ = this,
+        config = $$.config,
+        _$$$state = $$.state,
+        clip = _$$$state.clip,
+        hasAxis = _$$$state.hasAxis,
+        _$$$$el = $$.$el,
+        defs = _$$$$el.defs,
+        svg = _$$$$el.svg,
+        subchart = _$$$$el.subchart,
+        axis = _$$$$el.axis;
+
+    if (hasAxis) {
+      var visibility = config.subchart_show ? "visible" : "hidden",
+          clipId = clip.id + "-subchart",
+          clipPath = $$.getClipPath(clipId);
+      clip.idSubchart = clipId, $$.appendClip(defs, clipId), $$.initBrush(), subchart.main = svg.append("g").classed(config_classes.subchart, !0).attr("transform", $$.getTranslate("context"));
+      var main = subchart.main;
+      main.style("visibility", visibility), main.append("g").attr("clip-path", clipPath).attr("class", config_classes.chart), $$.hasType("bar") && main.select("." + config_classes.chart).append("g").attr("class", config_classes.chartBars), main.select("." + config_classes.chart).append("g").attr("class", config_classes.chartLines), main.append("g").attr("clip-path", clipPath).attr("class", config_classes.brush).call($$.brush), axis.subX = main.append("g").attr("class", config_classes.axisX).attr("transform", $$.getTranslate("subX")).attr("clip-path", config.axis_rotated ? "" : clip.pathXAxis).style("visibility", config.subchart_axis_x_show ? visibility : "hidden");
+    }
+  },
+
+  /**
+   * Update sub chart
+   * @param {object} targets $$.data.targets
+   * @private
+   */
+  updateTargetsForSubchart: function updateTargetsForSubchart(targets) {
+    var $$ = this,
+        config = $$.config,
+        state = $$.state,
+        main = $$.$el.subchart.main,
+        classChartBar = $$.classChartBar.bind($$),
+        classBars = $$.classBars.bind($$),
+        classChartLine = $$.classChartLine.bind($$),
+        classLines = $$.classLines.bind($$),
+        classAreas = $$.classAreas.bind($$);
+
+    if (config.subchart_show) {
+      // -- Bar --//
+      var barUpdate = main.select("." + config_classes.chartBars).selectAll("." + config_classes.chartBar).data(targets).attr("class", classChartBar),
+          barEnter = barUpdate.enter().append("g").style("opacity", "0").attr("class", classChartBar).merge(barUpdate);
+      barEnter.append("g").attr("class", classBars);
+      // -- Line --//
+      var lineUpdate = main.select("." + config_classes.chartLines).selectAll("." + config_classes.chartLine).data(targets).attr("class", classChartLine),
+          lineEnter = lineUpdate.enter().append("g").style("opacity", "0").attr("class", classChartLine).merge(lineUpdate);
+      // Lines for each data
+      // Area
+      // -- Brush --//
+      lineEnter.append("g").attr("class", classLines), $$.hasTypeOf("Area") && lineEnter.append("g").attr("class", classAreas), main.selectAll("." + config_classes.brush + " rect").attr(config.axis_rotated ? "width" : "height", config.axis_rotated ? state.width2 : state.height2);
+    }
+  },
+
+  /**
+   * Update the bar of the sub chart
+   * @param {object} durationForExit Transition duration
+   * @private
+   */
+  updateBarForSubchart: function updateBarForSubchart(durationForExit) {
+    var $$ = this,
+        subchart = $$.$el.subchart;
+    subchart.bar = subchart.main.selectAll("." + config_classes.bars).selectAll("." + config_classes.bar).data($$.barData.bind($$)), subchart.bar.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.bar = subchart.bar.enter().append("path").attr("class", $$.classBar.bind($$)).style("stroke", "none").style("fill", $$.color).merge(subchart.bar).style("opacity", $$.initialOpacity.bind($$));
+  },
+
+  /**
+   * Redraw the bar of the subchart
+   * @param {string} drawBarOnSub path in subchart line
+   * @param {boolean} withTransition whether or not to transition
+   * @param {number} duration transition duration
+   * @private
+   */
+  redrawBarForSubchart: function redrawBarForSubchart(drawBarOnSub, withTransition, duration) {
+    var bar = this.$el.subchart.bar;
+    (withTransition ? bar.transition(getRandom()).duration(duration) : bar).attr("d", drawBarOnSub).style("opacity", "1");
+  },
+
+  /**
+   * Update the line of the sub chart
+   * @param {number} durationForExit Fade-out transition duration
+   * @private
+   */
+  updateLineForSubchart: function updateLineForSubchart(durationForExit) {
+    var $$ = this,
+        subchart = $$.$el.subchart;
+    subchart.line = subchart.main.selectAll("." + config_classes.lines).selectAll("." + config_classes.line).data($$.lineData.bind($$)), subchart.line.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.line = subchart.line.enter().append("path").attr("class", $$.classLine.bind($$)).style("stroke", $$.color).merge(subchart.line).style("opacity", $$.initialOpacity.bind($$));
+  },
+
+  /**
+   * Redraw the line of the subchart
+   * @private
+   * @param {string} drawLineOnSub path in subchart line
+   * @param {boolean} withTransition whether or not to transition
+   * @param {number} duration transition duration
+   */
+  redrawLineForSubchart: function redrawLineForSubchart(drawLineOnSub, withTransition, duration) {
+    var line = this.$el.subchart.line;
+    (withTransition ? line.transition(getRandom()).duration(duration) : line).attr("d", drawLineOnSub).style("opacity", "1");
+  },
+
+  /**
+   * Update the area of the sub chart
+   * @param {number} durationForExit Fade-out transition duration
+   * @private
+   */
+  updateAreaForSubchart: function updateAreaForSubchart(durationForExit) {
+    var $$ = this,
+        subchart = $$.$el.subchart;
+    subchart.area = subchart.main.selectAll("." + config_classes.areas).selectAll("." + config_classes.area).data($$.lineData.bind($$)), subchart.area.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.area = subchart.area.enter().append("path").attr("class", $$.classArea.bind($$)).style("fill", $$.color).style("opacity", function () {
+      return $$.state.orgAreaOpacity = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this).style("opacity"), "0";
+    }).merge(subchart.area).style("opacity", "0");
+  },
+
+  /**
+   * Redraw the area of the subchart
+   * @private
+   * @param {string} drawAreaOnSub path in subchart line
+   * @param {boolean} withTransition whether or not to transition
+   * @param {number} duration transition duration
+   */
+  redrawAreaForSubchart: function redrawAreaForSubchart(drawAreaOnSub, withTransition, duration) {
+    var area = this.$el.subchart.area;
+    (withTransition ? area.transition(getRandom()).duration(duration) : area).attr("d", drawAreaOnSub).style("fill", this.color).style("opacity", this.state.orgAreaOpacity);
+  },
+
+  /**
+   * Redraw subchart.
+   * @private
+   * @param {boolean} withSubchart whether or not to show subchart
+   * @param {number} duration duration
+   * @param {object} shape Shape's info
+   */
+  redrawSubchart: function redrawSubchart(withSubchart, duration, shape) {
+    var $$ = this,
+        config = $$.config,
+        main = $$.$el.subchart.main;
+    main.style("visibility", config.subchart_show ? "visible" : "hidden"), config.subchart_show && (external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"] && external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].type === "zoom" && $$.brush.update(), withSubchart && (!brushEmpty($$) && $$.brush.update(), Object.keys(shape.type).forEach(function (v) {
+      var name = capitalize(v),
+          draw = $$["generateDraw" + name](shape.indices[v], !0);
+      $$["update" + name + "ForSubchart"](duration), $$["redraw" + name + "ForSubchart"](draw, duration, duration);
+    })));
+  },
+
+  /**
+   * Redraw the brush.
+   * @private
+   */
+  redrawForBrush: function redrawForBrush() {
+    var $$ = this,
+        _$$$config = $$.config,
+        onBrush = _$$$config.subchart_onbrush,
+        withY = _$$$config.zoom_rescale,
+        scale = $$.scale;
+    $$.redraw({
+      withTransition: !1,
+      withY: withY,
+      withSubchart: !1,
+      withUpdateXDomain: !0,
+      withDimension: !1
+    }), onBrush.bind($$.api)(scale.x.orgDomain());
+  },
+
+  /**
+   * Transform context
+   * @param {boolean} withTransition indicates transition is enabled
+   * @param {object} transitions The return value of the generateTransitions method of Axis.
+   * @private
+   */
+  transformContext: function transformContext(withTransition, transitions) {
+    var subXAxis,
+        $$ = this,
+        main = $$.$el.subchart.main;
+    transitions && transitions.axisSubX ? subXAxis = transitions.axisSubX : (subXAxis = main.select("." + config_classes.axisX), withTransition && (subXAxis = subXAxis.transition())), main.attr("transform", $$.getTranslate("context")), subXAxis.attr("transform", $$.getTranslate("subX"));
+  },
+
+  /**
+   * Get extent value
+   * @returns {Array} default extent
+   * @private
+   */
+  getExtent: function getExtent() {
+    var $$ = this,
+        config = $$.config,
+        scale = $$.scale,
+        extent = config.axis_x_extent;
+    if (extent) if (isFunction(extent)) extent = extent.bind($$.api)($$.getXDomain($$.data.targets), scale.subX);else if ($$.axis.isTimeSeries() && extent.every(isNaN)) {
+      var fn = parseDate.bind($$);
+      extent = extent.map(function (v) {
+        return scale.subX(fn(v));
+      });
+    }
+    return extent;
+  }
+});
+// CONCATENATED MODULE: ./src/ChartInternal/interactions/zoom.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+
+
+
+/* harmony default export */ var interactions_zoom = ({
+  /**
+   * Initialize zoom.
+   * @private
+   */
+  initZoom: function initZoom() {
+    var $$ = this;
+    $$.scale.zoom = null, $$.generateZoom(), $$.initZoomBehaviour();
+  },
+
+  /**
+   * Bind zoom event
+   * @param {boolean} bind Weather bind or unbound
+   * @private
+   */
+  bindZoomEvent: function bindZoomEvent(bind) {
+    bind === void 0 && (bind = !0);
+    var $$ = this,
+        config = $$.config,
+        main = $$.$el.main,
+        zoomEnabled = config.zoom_enabled,
+        eventRects = main.select("." + config_classes.eventRects);
+    zoomEnabled && bind ? !config.subchart_show && $$.bindZoomOnEventRect(eventRects, config.zoom_type) : bind === !1 && ($$.api.unzoom(), eventRects.on(".zoom", null).on(".drag", null));
+  },
+
+  /**
+   * Generate zoom
+   * @private
+   */
+  generateZoom: function generateZoom() {
+    var $$ = this,
+        config = $$.config,
+        org = $$.org,
+        scale = $$.scale,
+        zoom = Object(external_commonjs_d3_zoom_commonjs2_d3_zoom_amd_d3_zoom_root_d3_["zoom"])().duration(0).on("start", $$.onZoomStart.bind($$)).on("zoom", $$.onZoom.bind($$)).on("end", $$.onZoomEnd.bind($$));
+    // get zoom extent
+    // @ts-ignore
+    // @ts-ignore
+
+    /**
+     * Update scale according zoom transform value
+     * @param {object} transform transform object
+     * @private
+     */
+    // @ts-ignore
+    zoom.orgScaleExtent = function () {
+      var extent = config.zoom_extent || [1, 10];
+      return [extent[0], Math.max($$.getMaxDataCount() / extent[1], extent[1])];
+    }, zoom.updateScaleExtent = function () {
+      var ratio = diffDomain($$.scale.x.orgDomain()) / diffDomain($$.getZoomDomain()),
+          extent = this.orgScaleExtent();
+      return this.scaleExtent([extent[0] * ratio, extent[1] * ratio]), this;
+    }, zoom.updateTransformScale = function (transform) {
+      org.xScale && org.xScale.range(scale.x.range());
+      // rescale from the original scale
+      var newScale = transform[config.axis_rotated ? "rescaleY" : "rescaleX"](org.xScale || scale.x),
+          domain = $$.trimXDomain(newScale.domain()),
+          rescale = config.zoom_rescale;
+      newScale.domain(domain, org.xDomain), scale.zoom = $$.getCustomizedScale(newScale), $$.axis.x.scale(scale.zoom), rescale && (!org.xScale && (org.xScale = scale.x.copy()), scale.x.domain(domain));
+    }, $$.zoom = zoom;
+  },
+
+  /**
+   * 'start' event listener
+   * @private
+   */
+  onZoomStart: function onZoomStart() {
+    var $$ = this,
+        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].sourceEvent;
+    event && ($$.zoom.startEvent = event, callFn($$.config.zoom_onzoomstart, $$.api, event));
+  },
+
+  /**
+   * 'zoom' event listener
+   * @private
+   */
+  onZoom: function onZoom() {
+    var $$ = this,
+        config = $$.config,
+        scale = $$.scale,
+        org = $$.org,
+        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"],
+        sourceEvent = event.sourceEvent;
+
+    if (config.zoom_enabled && event.sourceEvent && $$.filterTargetsToShow($$.data.targets).length !== 0 && (scale.zoom || !(sourceEvent.type.indexOf("touch") > -1) || sourceEvent.touches.length !== 1)) {
+      var isMousemove = sourceEvent.type === "mousemove",
+          isZoomOut = sourceEvent.wheelDelta < 0,
+          transform = event.transform;
+      !isMousemove && isZoomOut && scale.x.domain().every(function (v, i) {
+        return v !== org.xDomain[i];
+      }) && scale.x.domain(org.xDomain), $$.zoom.updateTransformScale(transform), $$.axis.isCategorized() && scale.x.orgDomain()[0] === org.xDomain[0] && scale.x.domain([org.xDomain[0] - 1e-10, scale.x.orgDomain()[1]]), $$.redraw({
+        withTransition: !1,
+        withY: config.zoom_rescale,
+        withSubchart: !1,
+        withEventRect: !1,
+        withDimension: !1
+      }), $$.state.cancelClick = isMousemove, callFn(config.zoom_onzoom, $$.api, scale.zoom.domain());
+    }
+  },
+
+  /**
+   * 'end' event listener
+   * @private
+   */
+  onZoomEnd: function onZoomEnd() {
+    var $$ = this,
+        config = $$.config,
+        scale = $$.scale,
+        startEvent = $$.zoom.startEvent,
+        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"] && external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].sourceEvent;
+    startEvent && startEvent.type.indexOf("touch") > -1 && (startEvent = startEvent.changedTouches[0], event = event.changedTouches[0]);
+    // if click, do nothing. otherwise, click interaction will be canceled.
+    !startEvent || event && startEvent.clientX === event.clientX && startEvent.clientY === event.clientY || ($$.redrawEventRect(), $$.updateZoom(), callFn(config.zoom_onzoomend, $$.api, scale[scale.zoom ? "zoom" : "subX"].domain()));
+  },
+
+  /**
+   * Get zoom domain
+   * @returns {Array} zoom domain
+   * @private
+   */
+  getZoomDomain: function getZoomDomain() {
+    var $$ = this,
+        config = $$.config,
+        org = $$.org,
+        _org$xDomain = org.xDomain,
+        min = _org$xDomain[0],
+        max = _org$xDomain[1];
+    return isDefined(config.zoom_x_min) && (min = getMinMax("min", [min, config.zoom_x_min])), isDefined(config.zoom_x_max) && (max = getMinMax("max", [max, config.zoom_x_max])), [min, max];
+  },
+
+  /**
+   * Update zoom
+   * @param {boolean} force Force unzoom
+   * @private
+   */
+  updateZoom: function updateZoom(force) {
+    var $$ = this,
+        _$$$scale = $$.scale,
+        subX = _$$$scale.subX,
+        x = _$$$scale.x,
+        zoom = _$$$scale.zoom;
+
+    if (zoom) {
+      var zoomDomain = zoom.domain(),
+          xDomain = subX.domain(),
+          delta = .015,
+          isfullyShown = (zoomDomain[0] <= xDomain[0] || zoomDomain[0] - delta <= xDomain[0]) && (xDomain[1] <= zoomDomain[1] || xDomain[1] <= zoomDomain[1] - delta);
+      (force || isfullyShown) && ($$.axis.x.scale(subX), x.domain(subX.orgDomain()), $$.scale.zoom = null);
+    }
+  },
+
+  /**
+   * Attach zoom event on <rect>
+   * @param {d3.selection} eventRects evemt <rect> element
+   * @param {string} type zoom type
+   * @private
+   */
+  bindZoomOnEventRect: function bindZoomOnEventRect(eventRects, type) {
+    var $$ = this,
+        behaviour = type === "drag" ? $$.zoomBehaviour : $$.zoom;
+    eventRects.call(behaviour).on("dblclick.zoom", null);
+  },
+
+  /**
+   * Initialize the drag behaviour used for zooming.
+   * @private
+   */
+  initZoomBehaviour: function initZoomBehaviour() {
+    var zoomRect,
+        $$ = this,
+        config = $$.config,
+        state = $$.state,
+        isRotated = config.axis_rotated,
+        start = 0,
+        end = 0,
+        prop = {
+      axis: isRotated ? "y" : "x",
+      attr: isRotated ? "height" : "width",
+      index: isRotated ? 1 : 0
+    };
+    $$.zoomBehaviour = Object(external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_["drag"])().clickDistance(4).on("start", function () {
+      // @ts-ignore
+      $$.setDragStatus(!0), zoomRect || (zoomRect = $$.$el.main.append("rect").attr("clip-path", state.clip.path).attr("class", config_classes.zoomBrush).attr("width", isRotated ? state.width : 0).attr("height", isRotated ? 0 : state.height)), start = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[prop.index], end = start, zoomRect.attr(prop.axis, start).attr(prop.attr, 0), $$.onZoomStart();
+    }).on("drag", function () {
+      // @ts-ignore
+      end = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[prop.index], zoomRect.attr(prop.axis, Math.min(start, end)).attr(prop.attr, Math.abs(end - start));
+    }).on("end", function () {
+      var _ref,
+          scale = $$.scale.zoom || $$.scale.x;
+
+      if ($$.setDragStatus(!1), zoomRect.attr(prop.axis, 0).attr(prop.attr, 0), start > end && (_ref = [end, start], start = _ref[0], end = _ref[1], _ref), start < 0 && (end += Math.abs(start), start = 0), start !== end) $$.api.zoom([start, end].map(function (v) {
+        return scale.invert(v);
+      })), $$.onZoomEnd();else if ($$.isMultipleX()) $$.clickHandlerForMultipleXS.bind(this)($$);else {
+        var _event3 = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].sourceEvent || external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"],
+            _ref2 = "clientX" in _event3 ? [_event3.clientX, _event3.clientY] : [_event3.x, _event3.y],
+            x = _ref2[0],
+            y = _ref2[1],
+            target = browser_doc.elementFromPoint(x, y);
+
+        $$.clickHandlerForSingleX.bind(target)(Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(target).datum(), $$);
+      }
+    });
+  },
+  setZoomResetButton: function setZoomResetButton() {
+    var $$ = this,
+        config = $$.config,
+        resetButton = config.zoom_resetButton;
+    resetButton && config.zoom_type === "drag" && ($$.zoom.resetBtn ? $$.zoom.resetBtn.style("display", null) : $$.zoom.resetBtn = $$.$el.chart.append("div").classed(config_classes.button, !0).append("span").on("click", function () {
+      isFunction(resetButton.onclick) && resetButton.onclick.bind($$.api)(this), $$.api.unzoom();
+    }).classed(config_classes.buttonZoomReset, !0).text(resetButton.text || "Reset Zoom"));
+  }
+});
+// CONCATENATED MODULE: ./src/config/Options/data/selection.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+/**
+ * data.selection config options
+ */
+/* harmony default export */ var data_selection = ({
+  /**
+   * Set data selection enabled<br><br>
+   * If this option is set true, we can select the data points and get/set its state of selection by API (e.g. select, unselect, selected).
+   * @name data․selection․enabled
+   * @memberof Options
+   * @type {boolean}
+   * @default false
+   * @see [Demo](https://naver.github.io/billboard.js/demo/#Data.DataSelection)
+   * @example
+   * data: {
+   *    selection: {
+   *       enabled: true
+   *    }
+   * }
+   */
+  data_selection_enabled: !1,
+
+  /**
+   * Set grouped selection enabled.<br><br>
+   * If this option set true, multiple data points that have same x value will be selected by one selection.
+   * @name data․selection․grouped
+   * @memberof Options
+   * @type {boolean}
+   * @default false
+   * @example
+   * data: {
+   *    selection: {
+   *       grouped: true
+   *    }
+   * }
+   */
+  data_selection_grouped: !1,
+
+  /**
+   * Set a callback for each data point to determine if it's selectable or not.<br><br>
+   * The callback will receive d as an argument and it has some parameters like id, value, index. This callback should return boolean.
+   * @name data․selection․isselectable
+   * @memberof Options
+   * @type {Function}
+   * @default function() { return true; }
+   * @example
+   * data: {
+   *    selection: {
+   *       isselectable: function(d) { ... }
+   *    }
+   * }
+   */
+  data_selection_isselectable: function data_selection_isselectable() {
+    return !0;
+  },
+
+  /**
+   * Set multiple data points selection enabled.<br><br>
+   * If this option set true, multile data points can have the selected state at the same time. If false set, only one data point can have the selected state and the others will be unselected when the new data point is selected.
+   * @name data․selection․multiple
+   * @memberof Options
+   * @type {boolean}
+   * @default true
+   * @example
+   * data: {
+   *    selection: {
+   *       multiple: false
+   *    }
+   * }
+   */
+  data_selection_multiple: !0,
+
+  /**
+   * Enable to select data points by dragging.
+   * If this option set true, data points can be selected by dragging.
+   * - **NOTE:** If this option set true, scrolling on the chart will be disabled because dragging event will handle the event.
+   * @name data․selection․draggable
+   * @memberof Options
+   * @type {boolean}
+   * @default false
+   * @example
+   * data: {
+   *    selection: {
+   *       draggable: true
+   *   }
+   * }
+   */
+  data_selection_draggable: !1,
+
+  /**
+   * Set a callback for on data selection.
+   * @name data․onselected
+   * @memberof Options
+   * @type {Function}
+   * @default function() {}
+   * @example
+   * data: {
+   *     onselected: function(d, element) {
+   *        // d - ex) {x: 4, value: 150, id: "data1", index: 4, name: "data1"}
+   *        // element - <circle>
+   *        ...
+   *    }
+   * }
+   */
+  data_onselected: function data_onselected() {},
+
+  /**
+   * Set a callback for on data un-selection.
+   * @name data․onunselected
+   * @memberof Options
+   * @type {Function}
+   * @default function() {}
+   * @example
+   * data: {
+   *     onunselected: function(d, element) {
+   *        // d - ex) {x: 4, value: 150, id: "data1", index: 4, name: "data1"}
+   *        // element - <circle>
+   *        ...
+   *    }
+   * }
+   */
+  data_onunselected: function data_onunselected() {}
+});
+// CONCATENATED MODULE: ./src/config/Options/interaction/subchart.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+/**
+ * x Axis config options
+ */
+/* harmony default export */ var interaction_subchart = ({
+  /**
+   * Set subchart options.
+   * - **NOTE:** Not supported for `bubble`, `scatter` and non-Axis based(pie, donut, gauge, radar) types.
+   * @name subchart
+   * @memberof Options
+   * @type {object}
+   * @property {object} subchart Subchart object
+   * @property {boolean} [subchart.show=false] Show sub chart on the bottom of the chart.
+   * @property {boolean} [subchart.axis.x.show=true] Show or hide x axis.
+   * @property {boolean} [subchart.axis.x.tick.show=true] Show or hide x axis tick line.
+   * @property {boolean} [subchart.axis.x.tick.text.show=true] Show or hide x axis tick text.
+   * @property {number} [subchart.size.height] Change the height of the subchart.
+   * @property {Function} [subchart.onbrush] Set callback for brush event.<br>
+   *  Specified function receives the current zoomed x domain.
+   * @see [Demo](https://naver.github.io/billboard.js/demo/#Interaction.SubChart)
+   * @example
+   *  subchart: {
+   *      show: true,
+   *      size: {
+   *          height: 20
+   *      },
+   *      axis: {
+   *      	x: {
+   *      	  show: true,
+   *      	    tick: {
+   *      	      show: true,
+   *      	      text: {
+   *      	        show: false
+   *      	      }
+   *      	    }
+   *      	}
+   *      },
+   *      onbrush: function(domain) { ... }
+   *  }
+   */
+  subchart_show: !1,
+  subchart_size_height: 60,
+  subchart_axis_x_show: !0,
+  subchart_axis_x_tick_show: !0,
+  subchart_axis_x_tick_text_show: !0,
+  subchart_onbrush: function subchart_onbrush() {}
+});
+// CONCATENATED MODULE: ./src/config/Options/interaction/zoom.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+/**
+ * zoom config options
+ */
+/* harmony default export */ var interaction_zoom = ({
+  /**
+   * Set zoom options
+   * @name zoom
+   * @memberof Options
+   * @type {object}
+   * @property {object} zoom Zoom object
+   * @property {boolean} [zoom.enabled=false] Enable zooming.
+   * @property {string} [zoom.type='wheel'] Set zoom interaction type.
+   *  - **Available types:**
+   *    - wheel
+   *    - drag
+   * @property {boolean} [zoom.rescale=false] Enable to rescale after zooming.<br>
+   *  If true set, y domain will be updated according to the zoomed region.
+   * @property {Array} [zoom.extent=[1, 10]] Change zoom extent.
+   * @property {number|Date} [zoom.x.min] Set x Axis minimum zoom range
+   * @property {number|Date} [zoom.x.max] Set x Axis maximum zoom range
+   * @property {Function} [zoom.onzoomstart=undefined] Set callback that is called when zooming starts.<br>
+   *  Specified function receives the zoom event.
+   * @property {Function} [zoom.onzoom=undefined] Set callback that is called when the chart is zooming.<br>
+   *  Specified function receives the zoomed domain.
+   * @property {Function} [zoom.onzoomend=undefined] Set callback that is called when zooming ends.<br>
+   *  Specified function receives the zoomed domain.
+   * @property {boolean|object} [zoom.resetButton=true] Set to display zoom reset button for 'drag' type zoom
+   * @property {Function} [zoom.resetButton.onclick] Set callback when clicks the reset button. The callback will receive reset button element reference as argument.
+   * @property {string} [zoom.resetButton.text='Reset Zoom'] Text value for zoom reset button.
+   * @see [Demo:zoom](https://naver.github.io/billboard.js/demo/#Interaction.Zoom)
+   * @see [Demo:drag zoom](https://naver.github.io/billboard.js/demo/#Interaction.DragZoom)
+   * @example
+   *  zoom: {
+   *      enabled: true,
+   *      type: "drag",
+   *      rescale: true,
+   *      extent: [1, 100]  // enable more zooming
+   *      x: {
+   *          min: -1,  // set min range
+   *          max: 10  // set max range
+   *      },
+   *      onzoomstart: function(event) { ... },
+   *      onzoom: function(domain) { ... },
+   *      onzoomend: function(domain) { ... },
+   *
+   *      // show reset button when is zoomed-in
+   *      resetButton: true,
+   *
+   *      resetButton: {
+   *          // onclick callback when reset button is clicked
+   *          onclick: function(button) {
+   *            button; // Reset button element reference
+   *            ...
+   *          },
+   *
+   *          // customized text value for reset zoom button
+   *          text: "Unzoom"
+   *      }
+   *  }
+   */
+  zoom_enabled: !1,
+  zoom_type: "wheel",
+  zoom_extent: undefined,
+  zoom_privileged: !1,
+  zoom_rescale: !1,
+  zoom_onzoom: undefined,
+  zoom_onzoomstart: undefined,
+  zoom_onzoomend: undefined,
+  zoom_resetButton: !0,
+  zoom_x_min: undefined,
+  zoom_x_max: undefined
+});
+// CONCATENATED MODULE: ./src/config/resolver/interaction.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+ // Chart
+
+
+ // ChartInternal
+
+
+
+ // Axis based options
+
+
+
+
+
+
+var _selectionModule = function selectionModule() {
+  return extend(ChartInternal_ChartInternal.prototype, internals_selection), extend(Chart_Chart.prototype, api_selection), Options_Options.setOptions([data_selection]), (_selectionModule = function selectionModule() {
+    return !0;
+  })();
+},
+    subchartModule = function () {
+  return extend(ChartInternal_ChartInternal.prototype, interactions_subchart), Options_Options.setOptions([interaction_subchart]), (subchartModule = function () {
+    return !0;
+  })();
+},
+    zoomModule = function () {
+  return extend(ChartInternal_ChartInternal.prototype, interactions_zoom), extend(Chart_Chart.prototype, api_zoom), Options_Options.setOptions([interaction_zoom]), (zoomModule = function () {
+    return !0;
+  })();
+};
 // CONCATENATED MODULE: ./src/core.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -16602,7 +16739,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.0.0-next.8",
+  version: "2.0.0-next.9",
 
   /**
    * Generate chart
@@ -16730,7 +16867,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.0.0-next.8
+ * @version 2.0.0-next.9
  */
 // CONCATENATED MODULE: ./src/index.ts
 /**
@@ -16738,22 +16875,13 @@ var _defaults = {},
  * billboard project is licensed under the MIT license
  */
 
+ // extends shape modules
 
-
-
-
-var modules = Object.keys(resolver_namespaceObject),
-    internals = modules.filter(function (v) {
-  return /^(axisInternal|shape)/.test(v);
-}).map(function (v) {
-  return resolver_namespaceObject[v];
-}),
-    src_options = modules.filter(function (v) {
-  return /^opt/.test(v);
-}).map(function (v) {
-  return resolver_namespaceObject[v];
+Object.keys(resolver_shape_namespaceObject).forEach(function (v) {
+  return resolver_shape_namespaceObject[v]();
+}), Object.keys(resolver_interaction_namespaceObject).forEach(function (v) {
+  return resolver_interaction_namespaceObject[v]();
 });
-extend(ChartInternal_ChartInternal.prototype, internals), extend(Chart_Chart.prototype, axis_api), Options_Options.setOptions(axis_options.concat(src_options));
 
 
 /***/ })
