@@ -47,7 +47,7 @@ var apexDashboardChart = (function () {
                 if (util.isAPEX()) {
                     var i = 0;
                     var arr = [];
-                    for (prop in arguments) {
+                    for (var prop in arguments) {
                         arr[i] = arguments[prop];
                         i++;
                     }
@@ -58,7 +58,7 @@ var apexDashboardChart = (function () {
             error: function () {
                 var i = 0;
                 var arr = [];
-                for (prop in arguments) {
+                for (var prop in arguments) {
                     arr[i] = arguments[prop];
                     i++;
                 }
