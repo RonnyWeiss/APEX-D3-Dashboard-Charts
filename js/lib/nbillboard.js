@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  * 
- * @version 2.0.0-next.9
+ * @version 2.0.0
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -3996,7 +3996,9 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
     var $$ = this,
         config = $$.config,
         state = $$.state,
-        main = $$.$el.main;
+        main = $$.$el.main,
+        isSelectionGrouped = config.data_selection_grouped,
+        isSelectable = config.interaction_enabled && config.data_selection_isselectable;
 
     if (!$$.hasArcType() && config.data_selection_enabled && ( // do nothing if not selectable
     !config.zoom_enabled || $$.zoom.altDomain) && config.data_selection_multiple // skip when single selection because drag is used for multiple selection
@@ -4008,10 +4010,10 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
             my = mouse[1],
             minX = Math.min(sx, mx),
             maxX = Math.max(sx, mx),
-            minY = config.data_selection_grouped ? state.margin.top : Math.min(sy, my),
-            maxY = config.data_selection_grouped ? state.height : Math.max(sy, my);
+            minY = isSelectionGrouped ? state.margin.top : Math.min(sy, my),
+            maxY = isSelectionGrouped ? state.height : Math.max(sy, my);
         main.select("." + config_classes.dragarea).attr("x", minX).attr("y", minY).attr("width", maxX - minX).attr("height", maxY - minY), main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).filter(function (d) {
-          return config.data_selection_isselectable.bind($$.api)(d);
+          return isSelectable && isSelectable.bind($$.api)(d);
         }).each(function (d, i) {
           var toggle,
               shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
@@ -4089,6 +4091,7 @@ var external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_ = __webpack
         main = $$.$el.main,
         isSelectionEnabled = config.data_selection_enabled,
         isSelectionGrouped = config.data_selection_grouped,
+        isSelectable = config.data_selection_isselectable,
         isTooltipGrouped = config.tooltip_grouped,
         selectedData = $$.getAllValuesOnIndex(index);
     isTooltipGrouped && ($$.showTooltip(selectedData, context), $$.showGridFocus && $$.showGridFocus(selectedData), !isSelectionEnabled || isSelectionGrouped) || main.selectAll("." + config_classes.shape + "-" + index).each(function () {
@@ -4097,7 +4100,7 @@ var external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_ = __webpack
       return $$.isWithinShape(this, d);
     }).call(function (selected) {
       var d = selected.data();
-      isSelectionEnabled && (isSelectionGrouped || config.data_selection_isselectable.bind($$.api)(d)) && eventRect.style("cursor", "pointer"), isTooltipGrouped || ($$.showTooltip(d, context), $$.showGridFocus && $$.showGridFocus(d), $$.unexpandCircles(), selected.each(function (d) {
+      isSelectionEnabled && (isSelectionGrouped || isSelectable && isSelectable.bind($$.api)(d)) && eventRect.style("cursor", "pointer"), isTooltipGrouped || ($$.showTooltip(d, context), $$.showGridFocus && $$.showGridFocus(d), $$.unexpandCircles(), selected.each(function (d) {
         return $$.expandCirclesBars(index, d.id);
       }));
     });
@@ -13168,12 +13171,13 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
         state = $$.state,
         main = $$.$el.main,
         hasInteraction = config.interaction_enabled,
+        isSelectable = hasInteraction && config.data_selection_isselectable,
         mainArc = main.selectAll("." + config_classes.arcs).selectAll("." + config_classes.arc).data($$.arcData.bind($$));
     // bind arc events
     mainArc.exit().transition().duration(durationForExit).style("opacity", "0").remove(), mainArc = mainArc.enter().append("path").attr("class", $$.classArc.bind($$)).style("fill", function (d) {
       return $$.color(d.data);
     }).style("cursor", function (d) {
-      return hasInteraction && config.data_selection_isselectable.bind($$.api)(d) ? "pointer" : null;
+      return isSelectable && isSelectable.bind($$.api)(d) ? "pointer" : null;
     }).style("opacity", "0").each(function (d) {
       $$.isGaugeType(d.data) && (d.startAngle = config.gauge_startingAngle, d.endAngle = config.gauge_startingAngle), this._current = d;
     }).merge(mainArc), $$.hasMultiArcGauge() && $$.redrawMultiArcGauge(), mainArc.attr("transform", function (d) {
@@ -13467,7 +13471,8 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
         $el = $$.$el,
         classChartBar = $$.classChartBar.bind($$),
         classBars = $$.classBars.bind($$),
-        classFocus = $$.classFocus.bind($$);
+        classFocus = $$.classFocus.bind($$),
+        isSelectable = config.interaction_enabled && config.data_selection_isselectable;
     $el.bar || $$.initBar();
     var mainBarUpdate = $$.$el.main.select("." + config_classes.chartBars).selectAll("." + config_classes.chartBar).data(targets).attr("class", function (d) {
       return classChartBar(d) + classFocus(d);
@@ -13475,7 +13480,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
         mainBarEnter = mainBarUpdate.enter().append("g").attr("class", classChartBar).style("opacity", "0").style("pointer-events", "none");
     // Bars for each data
     mainBarEnter.append("g").attr("class", classBars).style("cursor", function (d) {
-      return config.data_selection_isselectable.bind($$.api)(d) ? "pointer" : null;
+      return isSelectable && isSelectable.bind($$.api)(d) ? "pointer" : null;
     });
   },
   updateBar: function updateBar(durationForExit) {
@@ -13982,8 +13987,8 @@ var getTransitionName = function () {
         config = $$.config,
         data = $$.data,
         $el = $$.$el,
-        selectionEnabled = config.data_selection_enabled,
-        isSelectable = config.data_selection_isselectable,
+        selectionEnabled = config.interaction_enabled && config.data_selection_enabled,
+        isSelectable = selectionEnabled && config.data_selection_isselectable,
         classCircles = $$.classCircles.bind($$);
 
     if (config.point_show) {
@@ -16439,6 +16444,8 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
   /**
    * Set data selection enabled<br><br>
    * If this option is set true, we can select the data points and get/set its state of selection by API (e.g. select, unselect, selected).
+   *  - **NOTE:** for ESM imports, needs to import 'selection' exports and instantiate it by calling `selection()`.
+   *    - `enabled: selection()`
    * @name data․selection․enabled
    * @memberof Options
    * @type {boolean}
@@ -16448,6 +16455,16 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
    * data: {
    *    selection: {
    *       enabled: true
+   *    }
+   * }
+   * @example
+   * // importing ESM
+   * import bb, {selection} from "billboard.js";
+   *
+   * data: {
+   *    selection: {
+   *       enabled: selection(),
+   *       ...
    *    }
    * }
    */
@@ -16572,6 +16589,8 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
    * @type {object}
    * @property {object} subchart Subchart object
    * @property {boolean} [subchart.show=false] Show sub chart on the bottom of the chart.
+   *  - **NOTE:** for ESM imports, needs to import 'subchart' exports and instantiate it by calling `subchart()`.
+   *    - `show: subchart()`
    * @property {boolean} [subchart.axis.x.show=true] Show or hide x axis.
    * @property {boolean} [subchart.axis.x.tick.show=true] Show or hide x axis tick line.
    * @property {boolean} [subchart.axis.x.tick.text.show=true] Show or hide x axis tick text.
@@ -16598,6 +16617,14 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
    *      },
    *      onbrush: function(domain) { ... }
    *  }
+   * @example
+   * // importing ESM
+   * import bb, {subchart} from "billboard.js";
+   *
+   * subchart: {
+   *      show: subchart(),
+   *      ...
+   * }
    */
   subchart_show: !1,
   subchart_size_height: 60,
@@ -16623,6 +16650,8 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
    * @type {object}
    * @property {object} zoom Zoom object
    * @property {boolean} [zoom.enabled=false] Enable zooming.
+   *  - **NOTE:** for ESM imports, needs to import 'zoom' exports and instantiate it by calling `zoom()`.
+   *    - `enabled: zoom()`
    * @property {string} [zoom.type='wheel'] Set zoom interaction type.
    *  - **Available types:**
    *    - wheel
@@ -16671,6 +16700,14 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
    *          text: "Unzoom"
    *      }
    *  }
+   * @example
+   * // importing ESM
+   * import bb, {zoom} from "billboard.js";
+   *
+   * zoom: {
+   *      enabled: zoom(),
+   *      ...
+   * }
    */
   zoom_enabled: !1,
   zoom_type: "wheel",
@@ -16739,7 +16776,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.0.0-next.9",
+  version: "2.0.0",
 
   /**
    * Generate chart
@@ -16867,7 +16904,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.0.0-next.9
+ * @version 2.0.0
  */
 // CONCATENATED MODULE: ./src/index.ts
 /**
