@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  * 
- * @version 2.0.0
+ * @version 2.0.2
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -6021,7 +6021,7 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
     }, $$.updateSizeForLegend && $$.updateSizeForLegend(currLegend), state.width = state.current.width - state.margin.left - state.margin.right, state.height = state.current.height - state.margin.top - state.margin.bottom, state.width < 0 && (state.width = 0), state.height < 0 && (state.height = 0), state.width2 = isRotated ? state.margin.left - state.rotatedPadding.left - state.rotatedPadding.right : state.width, state.height2 = isRotated ? state.height : state.current.height - state.margin2.top - state.margin2.bottom, state.width2 < 0 && (state.width2 = 0), state.height2 < 0 && (state.height2 = 0);
     // for arc
     var hasGauge = $$.hasType("gauge"),
-        isLegendRight = state.legend_show && state.isLegendRight;
+        isLegendRight = config.legend_show && state.isLegendRight;
     state.arcWidth = state.width - (isLegendRight ? currLegend.width + 10 : 0), state.arcHeight = state.height - (isLegendRight && !hasGauge ? 0 : 10), hasGauge && !config.gauge_fullCircle && (state.arcHeight += state.height - $$.getPaddingBottomForGauge()), $$.updateRadius && $$.updateRadius(), state.isLegendRight && hasArc && (state.margin3.left = state.arcWidth / 2 + state.radiusExpanded * 1.1), !hasArc && config.axis_x_show && config.axis_x_tick_autorotate && $$.updateXAxisTickClip();
   }
 });
@@ -13340,9 +13340,9 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
 
 
 /* harmony default export */ var shape_area = ({
-  initArea: function initArea(mainLineEnter) {
+  initArea: function initArea(mainLine) {
     var $$ = this;
-    mainLineEnter.append("g").attr("class", $$.classAreas.bind($$));
+    mainLine.insert("g", "." + config_classes.circles).attr("class", $$.classAreas.bind($$));
   },
   updateAreaGradient: function updateAreaGradient() {
     var $$ = this,
@@ -13752,6 +13752,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
   updateTargetsForLine: function updateTargetsForLine(t) {
     var $$ = this,
         _$$$$el = $$.$el,
+        area = _$$$$el.area,
         line = _$$$$el.line,
         main = _$$$$el.main,
         classChartLine = $$.classChartLine.bind($$),
@@ -13766,8 +13767,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
     }),
         mainLineEnter = mainLineUpdate.enter().append("g").attr("class", classChartLine).style("opacity", "0").style("pointer-events", "none");
     // Lines for each data
-    // Areas
-    mainLineEnter.append("g").attr("class", classLines), $$.hasTypeOf("Area") && $$.initArea(mainLineEnter), $$.updateTargetForCircle(targets, mainLineEnter);
+    mainLineEnter.append("g").attr("class", classLines), $$.hasTypeOf("Area") && !area && $$.initArea(mainLineEnter.empty() ? mainLineUpdate : mainLineEnter), $$.updateTargetForCircle(targets, mainLineEnter);
   },
   updateLine: function updateLine(durationForExit) {
     var $$ = this,
@@ -16776,7 +16776,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.0.0",
+  version: "2.0.2",
 
   /**
    * Generate chart
@@ -16904,7 +16904,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.0.0
+ * @version 2.0.2
  */
 // CONCATENATED MODULE: ./src/index.ts
 /**
