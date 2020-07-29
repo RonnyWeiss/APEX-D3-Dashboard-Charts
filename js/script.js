@@ -7,8 +7,8 @@ var apexDashboardChart = (function () {
         featureInfo: {
             name: "APEX-D3Dashboard-Charts",
             info: {
-                scriptVersion: "2.5.3",
-                utilVersion: "1.3.4",
+                scriptVersion: "2.6",
+                utilVersion: "1.3.5",
                 url: "https://github.com/RonnyWeiss",
                 url2: "https://ronnyweiss.app",
                 license: "MIT"
@@ -76,8 +76,11 @@ var apexDashboardChart = (function () {
         groupObjectArray: function (objectArr, jSONKey) {
             if (objectArr && Array.isArray(objectArr)) {
                 return objectArr.reduce(function (retVal, x) {
-                    if (x[jSONKey]) {
-                        (retVal[x[jSONKey]] = retVal[x[jSONKey]] || []).push(x);
+                    var key = x[jSONKey];
+                    if (key) {
+                        /* workaround for object sort of numbers */
+                        key = "\u200b" + key;
+                        (retVal[key] = retVal[key] || []).push(x);
                     }
                     return retVal;
                 }, {});
