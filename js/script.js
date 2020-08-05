@@ -7,7 +7,7 @@ var apexDashboardChart = (function () {
         featureInfo: {
             name: "APEX-D3Dashboard-Charts",
             info: {
-                scriptVersion: "2.6",
+                scriptVersion: "2.6.1",
                 utilVersion: "1.3.5",
                 url: "https://github.com/RonnyWeiss",
                 url2: "https://ronnyweiss.app",
@@ -799,7 +799,7 @@ var apexDashboardChart = (function () {
                             var xCatArr = Object.keys(xCatObj);
 
                             $.each(xCatArr, function (dIdx, dataValues) {
-                                categoriesArr.push((setObjectParameter(dataValues, null)));
+                                categoriesArr.push((setObjectParameter(dataValues.replace("\u200b", ""), null)));
                             });
                         }
 
