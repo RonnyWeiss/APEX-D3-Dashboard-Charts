@@ -7,7 +7,7 @@ var apexDashboardChart = (function () {
         featureInfo: {
             name: "APEX-D3Dashboard-Charts",
             info: {
-                scriptVersion: "2.6.1",
+                scriptVersion: "2.6.2",
                 utilVersion: "1.3.5",
                 url: "https://github.com/RonnyWeiss",
                 url2: "https://ronnyweiss.app",

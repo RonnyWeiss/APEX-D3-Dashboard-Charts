@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  * 
- * @version 2.0.2
+ * @version 2.0.3
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -769,8 +769,8 @@ var Store = /*#__PURE__*/function () {
    * @type {Function}
    * @default undefined
    * @example
-   * // @param {Chart} ctx - Instance itself
-   * onover: function(ctx) {
+   * onover: function() {
+   *   this; // chart instance itself
    *   ...
    * }
    */
@@ -783,8 +783,8 @@ var Store = /*#__PURE__*/function () {
    * @type {Function}
    * @default undefined
    * @example
-   * // @param {Chart} ctx - Instance itself
-   * onout: function(ctx) {
+   * onout: function() {
+   *   this; // chart instance itself
    *   ...
    * }
    */
@@ -797,8 +797,8 @@ var Store = /*#__PURE__*/function () {
    * @type {Function}
    * @default undefined
    * @example
-   * // @param {Chart} ctx - Instance itself
-   * onresize: function(ctx) {
+   * onresize: function() {
+   *   this; // chart instance itself
    *   ...
    * }
    */
@@ -811,8 +811,8 @@ var Store = /*#__PURE__*/function () {
    * @type {Function}
    * @default undefined
    * @example
-   * // @param {Chart} ctx - Instance itself
-   * onresized: function(ctx) {
+   * onresized: function() {
+   *   this; // chart instance itself
    *   ...
    * }
    */
@@ -825,8 +825,8 @@ var Store = /*#__PURE__*/function () {
    * @type {Function}
    * @default undefined
    * @example
-   * // @param {Chart} ctx - Instance itself
-   * onbeforeinit: function(ctx) {
+   * onbeforeinit: function() {
+   *   this; // chart instance itself
    *   ...
    * }
    */
@@ -839,8 +839,8 @@ var Store = /*#__PURE__*/function () {
    * @type {Function}
    * @default undefined
    * @example
-   * // @param {Chart} ctx - Instance itself
-   * oninit: function(ctx) {
+   * oninit: function() {
+   *   this; // chart instance itself
    *   ...
    * }
    */
@@ -853,8 +853,8 @@ var Store = /*#__PURE__*/function () {
    * @type {Function}
    * @default undefined
    * @example
-   * // @param {Chart} ctx - Instance itself
-   * onafterinit: function(ctx) {
+   * onafterinit: function() {
+   *   this; // chart instance itself
    *   ...
    * }
    */
@@ -867,8 +867,8 @@ var Store = /*#__PURE__*/function () {
    * @type {Function}
    * @default undefined
    * @example
-   * // @param {Chart} ctx - Instance itself
-   * onrendered: function(ctx) {
+   * onrendered: function() {
+   *   this; // chart instance itself
    *   ...
    * }
    */
@@ -2096,36 +2096,28 @@ var Store = /*#__PURE__*/function () {
    *      },
    *
    *      // fires prior tooltip is shown
-   *      onshow: function(ctx, selectedData) {
-   *      	ctx; // current chart instance
-   *
+   *      onshow: function(selectedData) {
    *      	// current dataset selected
    *      	// ==> [{x: 4, value: 150, id: "data2", index: 4, name: "data2"}, ...]
    *      	selectedData;
    *      },
    *
    *      // fires prior tooltip is hidden
-   *      onhide: function(ctx, selectedData) {
-   *      	ctx; // current chart instance
-   *
+   *      onhide: function(selectedData) {
    *      	// current dataset selected
    *      	// ==> [{x: 4, value: 150, id: "data2", index: 4, name: "data2"}, ...]
    *      	selectedData;
    *      },
    *
    *      // fires after tooltip is shown
-   *      onshown: function(ctx, selectedData) {
-   *      	ctx; // current chart instance
-   *
+   *      onshown: function(selectedData) {
    *      	// current dataset selected
    *      	// ==> [{x: 4, value: 150, id: "data2", index: 4, name: "data2"}, ...]
    *      	selectedData;
    *      },
    *
    *      // fires after tooltip is hidden
-   *      onhidden: function(ctx, selectedData) {
-   *      	ctx; // current chart instance
-   *
+   *      onhidden: function(selectedData) {
    *      	// current dataset selected
    *      	// ==> [{x: 4, value: 150, id: "data2", index: 4, name: "data2"}, ...]
    *      	selectedData;
@@ -10482,7 +10474,7 @@ var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack
         left = Math.max(30, margin.left) - (isRotated ? 20 : 0),
         isInner = config.axis_y_inner,
         x = isInner ? -1 : isRotated ? -(1 + left) : -(left - 1),
-        y = -(isRotated ? -20 : margin.top),
+        y = -(isRotated ? 20 : margin.top),
         w = (isRotated ? width + 15 + left : margin.left + 20) + (isInner ? 20 : 0),
         h = (isRotated ? margin.bottom : margin.top + height) + 10;
     node.attr("x", x).attr("y", y).attr("width", w).attr("height", h);
@@ -16776,7 +16768,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.0.2",
+  version: "2.0.3",
 
   /**
    * Generate chart
@@ -16904,7 +16896,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.0.2
+ * @version 2.0.3
  */
 // CONCATENATED MODULE: ./src/index.ts
 /**
