@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  * 
- * @version 2.0.3
+ * @version 2.1.1
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -513,6 +513,16 @@ var State = function () {
     legendItemWidth: 0,
     legendItemHeight: 0,
     legendHasRendered: !1,
+    eventReceiver: {
+      currentIdx: -1,
+      // current event interaction index
+      rect: {},
+      // event rect's clientBoundingRect
+      data: [],
+      // event data bound of previoous eventRect
+      coords: [] // coordination value of previous eventRect
+
+    },
     axis: {
       x: {
         padding: {
@@ -2428,9 +2438,10 @@ function getBrushSelection(_ref) {
  */
 
 
-var getBoundingRect = function (node) {
-  return node.rect || (node.rect = node.getBoundingClientRect());
-};
+function getBoundingRect(node) {
+  var needEvaluate = !("rect" in node) || "rect" in node && node.hasAttribute("width") && node.rect.width !== +node.getAttribute("width");
+  return needEvaluate ? node.rect = node.getBoundingClientRect() : node.rect;
+}
 /**
  * Retrun random number
  * @param {boolean} asStr Convert returned value as string
@@ -2443,6 +2454,27 @@ function getRandom(asStr) {
   asStr === void 0 && (asStr = !0);
   var rand = Math.random();
   return asStr ? rand + "" : rand;
+}
+/**
+ * Find index based on binary search
+ * @param {Array} arr Data array
+ * @param {number} v Target number to find
+ * @param {number} start Start index of data array
+ * @param {number} end End index of data arr
+ * @param {boolean} isRotated Weather is roted axis
+ * @returns {number} Index number
+ * @private
+ */
+
+
+function findIndex(arr, v, start, end, isRotated) {
+  if (start > end) return -1;
+  var mid = Math.floor((start + end) / 2),
+      _arr$mid = arr[mid],
+      x = _arr$mid.x,
+      _arr$mid$w = _arr$mid.w,
+      w = _arr$mid$w === void 0 ? 0 : _arr$mid$w;
+  return isRotated && (x = arr[mid].y, w = arr[mid].h), v >= x && v <= x + w ? mid : v < x ? findIndex(arr, v, start, mid - 1, isRotated) : findIndex(arr, v, mid + 1, end, isRotated);
 }
 /**
  * Check if brush is empty
@@ -3694,6 +3726,25 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
     var dataLabels = this.config.data_labels;
     return isboolean(dataLabels) && dataLabels || isObjectType(dataLabels) && notEmpty(dataLabels);
   },
+
+  /**
+   * Get data index from the event coodinates
+   * @param {Event} event Event object
+   * @returns {number}
+   */
+  getDataIndexFromEvent: function getDataIndexFromEvent(event) {
+    var $$ = this,
+        config = $$.config,
+        _$$$state = $$.state,
+        inputType = _$$$state.inputType,
+        _$$$state$eventReceiv = _$$$state.eventReceiver,
+        coords = _$$$state$eventReceiv.coords,
+        rect = _$$$state$eventReceiv.rect,
+        isRotated = config.axis_rotated,
+        e = inputType === "touch" && event.changedTouches ? event.changedTouches[0] : event,
+        index = findIndex(coords, isRotated ? e.clientY - rect.top : e.clientX - rect.left, 0, coords.length - 1, isRotated);
+    return index;
+  },
   getDataLabelLength: function getDataLabelLength(min, max, key) {
     var $$ = this,
         lengths = [0, 0];
@@ -3771,31 +3822,30 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
     var $$ = this,
         axis = $$.axis,
         config = $$.config,
-        isRotated = config.axis_rotated,
         stepType = config.line_step_type,
         isCategorized = !!axis && axis.isCategorized(),
         converted = isArray(values) ? values.concat() : [values];
-    if (!isRotated && !isCategorized) return values; // insert & append cloning first/last value to be fully rendered covering on each gap sides
+    if (!(isCategorized || /step\-(after|before)/.test(stepType))) return values; // insert & append cloning first/last value to be fully rendered covering on each gap sides
 
-    var id = converted[0].id,
-        x = converted[0].x - 1,
-        value = converted[0].value; // insert
-
-    return isCategorized && converted.unshift({
-      x: x,
-      value: value,
+    var head = converted[0],
+        tail = converted[converted.length - 1],
+        id = head.id,
+        x = head.x;
+    return converted.unshift({
+      x: --x,
+      value: head.value,
       id: id
-    }), stepType === "step-after" && converted.unshift({
-      x: x - 1,
-      value: value,
+    }), isCategorized && stepType === "step-after" && converted.unshift({
+      x: --x,
+      value: head.value,
       id: id
-    }), x = converted.length - 1, value = converted[x].value, isCategorized && converted.push({
-      x: x,
-      value: value,
+    }), x = tail.x, converted.push({
+      x: ++x,
+      value: tail.value,
       id: id
-    }), stepType === "step-before" && converted.push({
-      x: x + 1,
-      value: value,
+    }), isCategorized && stepType === "step-before" && converted.push({
+      x: ++x,
+      value: tail.value,
       id: id
     }), converted;
   },
@@ -3965,104 +4015,6 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
     }), $$.updateTypesElements()) : void done();
   }
 });
-// CONCATENATED MODULE: ./src/ChartInternal/interactions/drag.ts
-/**
- * Copyright (c) 2017 ~ present NAVER Corp.
- * billboard.js project is licensed under the MIT license
- */
-
-
-
-/**
- * Module used for data.selection.draggable option
- */
-
-/* harmony default export */ var interactions_drag = ({
-  /**
-   * Called when dragging.
-   * Data points can be selected.
-   * @private
-   * @param {object} mouse Object
-   */
-  drag: function drag(mouse) {
-    var $$ = this,
-        config = $$.config,
-        state = $$.state,
-        main = $$.$el.main,
-        isSelectionGrouped = config.data_selection_grouped,
-        isSelectable = config.interaction_enabled && config.data_selection_isselectable;
-
-    if (!$$.hasArcType() && config.data_selection_enabled && ( // do nothing if not selectable
-    !config.zoom_enabled || $$.zoom.altDomain) && config.data_selection_multiple // skip when single selection because drag is used for multiple selection
-    ) {
-        var _state$dragStart = state.dragStart,
-            sx = _state$dragStart[0],
-            sy = _state$dragStart[1],
-            mx = mouse[0],
-            my = mouse[1],
-            minX = Math.min(sx, mx),
-            maxX = Math.max(sx, mx),
-            minY = isSelectionGrouped ? state.margin.top : Math.min(sy, my),
-            maxY = isSelectionGrouped ? state.height : Math.max(sy, my);
-        main.select("." + config_classes.dragarea).attr("x", minX).attr("y", minY).attr("width", maxX - minX).attr("height", maxY - minY), main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).filter(function (d) {
-          return isSelectable && isSelectable.bind($$.api)(d);
-        }).each(function (d, i) {
-          var toggle,
-              shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
-              isSelected = shape.classed(config_classes.SELECTED),
-              isIncluded = shape.classed(config_classes.INCLUDED),
-              isWithin = !1;
-
-          if (shape.classed(config_classes.circle)) {
-            var x = +shape.attr("cx") * 1,
-                y = +shape.attr("cy") * 1;
-            toggle = $$.togglePoint, isWithin = minX < x && x < maxX && minY < y && y < maxY;
-          } else if (shape.classed(config_classes.bar)) {
-            var _getPathBox = getPathBox(this),
-                _x = _getPathBox.x,
-                y = _getPathBox.y,
-                width = _getPathBox.width,
-                height = _getPathBox.height;
-
-            toggle = $$.togglePath, isWithin = !(maxX < _x || _x + width < minX) && !(maxY < y || y + height < minY);
-          } else // line/area selection not supported yet
-            return; // @ts-ignore
-
-
-          isWithin ^ isIncluded && (shape.classed(config_classes.INCLUDED, !isIncluded), shape.classed(config_classes.SELECTED, !isSelected), toggle.call($$, !isSelected, shape, d, i));
-        });
-      }
-  },
-
-  /**
-   * Called when the drag starts.
-   * Adds and Shows the drag area.
-   * @private
-   * @param {object} mouse Object
-   */
-  dragstart: function dragstart(mouse) {
-    var $$ = this,
-        config = $$.config,
-        state = $$.state,
-        main = $$.$el.main;
-    $$.hasArcType() || !config.data_selection_enabled || (state.dragStart = mouse, main.select("." + config_classes.chart).append("rect").attr("class", config_classes.dragarea).style("opacity", "0.1"), $$.setDragStatus(!0));
-  },
-
-  /**
-   * Called when the drag finishes.
-   * Removes the drag area.
-   * @private
-   */
-  dragend: function dragend() {
-    var $$ = this,
-        config = $$.config,
-        main = $$.$el.main;
-    $$.hasArcType() || !config.data_selection_enabled || (main.select("." + config_classes.dragarea).transition().duration(100).style("opacity", "0").remove(), main.selectAll("." + config_classes.shape).classed(config_classes.INCLUDED, !1), $$.setDragStatus(!1));
-  },
-  setDragStatus: function setDragStatus(isDragging) {
-    this.state.dragging = isDragging;
-  }
-});
 // EXTERNAL MODULE: external {"commonjs":"d3-drag","commonjs2":"d3-drag","amd":"d3-drag","root":"d3"}
 var external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_ = __webpack_require__(6);
 
@@ -4092,7 +4044,7 @@ var external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_ = __webpack
       return $$.isWithinShape(this, d);
     }).call(function (selected) {
       var d = selected.data();
-      isSelectionEnabled && (isSelectionGrouped || isSelectable && isSelectable.bind($$.api)(d)) && eventRect.style("cursor", "pointer"), isTooltipGrouped || ($$.showTooltip(d, context), $$.showGridFocus && $$.showGridFocus(d), $$.unexpandCircles(), selected.each(function (d) {
+      isSelectionEnabled && (isSelectionGrouped || isSelectable && isSelectable.bind($$.api)(d)) && eventRect.style("cursor", "pointer"), isTooltipGrouped || ($$.showTooltip(d, context), $$.showGridFocus && $$.showGridFocus(d), $$.unexpandCircles && $$.unexpandCircles(), selected.each(function (d) {
         return $$.expandCirclesBars(index, d.id);
       }));
     });
@@ -4181,26 +4133,36 @@ var external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_ = __webpack
    */
   dispatchEvent: function dispatchEvent(type, index, mouse) {
     var $$ = this,
-        hasRadar = $$.state.hasRadar,
+        config = $$.config,
+        _$$$state = $$.state,
+        eventReceiver = _$$$state.eventReceiver,
+        hasRadar = _$$$state.hasRadar,
         _$$$$el2 = $$.$el,
-        main = _$$$$el2.main,
+        eventRect = _$$$$el2.eventRect,
         radar = _$$$$el2.radar,
         isMultipleX = $$.isMultipleX(),
-        selector = hasRadar ? "." + config_classes.axis + "-" + index + " text" : "." + (isMultipleX ? config_classes.eventRect : config_classes.eventRect + "-" + index),
-        eventRect = (hasRadar ? radar.axes : main).select(selector).node(),
-        _eventRect$getBoundin = eventRect.getBoundingClientRect(),
-        width = _eventRect$getBoundin.width,
-        left = _eventRect$getBoundin.left,
-        top = _eventRect$getBoundin.top,
-        x = left + (mouse ? mouse[0] : 0) + (isMultipleX || $$.config.axis_rotated ? 0 : width / 2),
-        y = top + (mouse ? mouse[1] : 0);
+        element = (hasRadar ? radar.axes.select("." + config_classes.axis + "-" + index + " text") : eventRect).node(),
+        _element$getBoundingC = element.getBoundingClientRect(),
+        width = _element$getBoundingC.width,
+        left = _element$getBoundingC.left,
+        top = _element$getBoundingC.top;
 
-    emulateEvent[/^(mouse|click)/.test(type) ? "mouse" : "touch"](eventRect, type, {
+    if (!hasRadar && !isMultipleX) {
+      var coords = eventReceiver.coords[index];
+      width = coords.w, left += coords.x, top += coords.y;
+    }
+
+    var x = left + (mouse ? mouse[0] : 0) + (isMultipleX || config.axis_rotated ? 0 : width / 2),
+        y = top + (mouse ? mouse[1] : 0);
+    emulateEvent[/^(mouse|click)/.test(type) ? "mouse" : "touch"](element, type, {
       screenX: x,
       screenY: y,
       clientX: x,
       clientY: y
     });
+  },
+  setDragStatus: function setDragStatus(isDragging) {
+    this.state.dragging = isDragging;
   }
 });
 // CONCATENATED MODULE: ./src/ChartInternal/internals/class.ts
@@ -4470,7 +4432,8 @@ var colorizePattern = function (pattern, color, id) {
       return id in onover ? onover[id] : $$.color(id);
     } : isString(color) ? color = function () {
       return onover;
-    } : isFunction(onover) && (color = color.bind($$.api)), isObject(d) ? main.selectAll("." + config_classes.arc + $$.getTargetSelectorSuffix(d.id)).style("fill", color(d)) : main.selectAll("." + config_classes.shape + "-" + d).style("fill", color);
+    } : isFunction(onover) && (color = color.bind($$.api)), main.selectAll(isObject(d) ? // when is Arc type
+    "." + config_classes.arc + $$.getTargetSelectorSuffix(d.id) : "." + config_classes.shape + "-" + d).style("fill", color);
   }
 });
 // CONCATENATED MODULE: ./src/config/const.ts
@@ -4641,7 +4604,7 @@ var TYPE_BY_CATEGORY = {
       padding[v] = axis.getPadding(p, v, padding[v], domainLength);
     }), isZeroBased && (isAllPositive && (padding.bottom = yDomainMin), isAllNegative && (padding.top = -yDomainMax));
     var domain = isLog ? [yDomainMin, yDomainMax].map(function (v) {
-      return v <= 0 ? 1 : v;
+      return v < 0 ? 0 : v;
     }) : [yDomainMin - padding.bottom, yDomainMax + padding.top];
     return isInverted ? domain.reverse() : domain;
   },
@@ -4941,7 +4904,8 @@ function getFormat($$, typeValue, v) {
    * @private
    */
   updateLegendItemColor: function updateLegendItemColor(id, color) {
-    this.$el.legend.select("." + config_classes.legendItem + "-" + id + " line").style("stroke", color);
+    var legend = this.$el.legend;
+    legend && legend.select("." + config_classes.legendItem + "-" + id + " line").style("stroke", color);
   },
 
   /**
@@ -5084,7 +5048,7 @@ function getFormat($$, typeValue, v) {
     }).style("visibility", function (id) {
       return $$.isLegendToShow(id) ? "visible" : "hidden";
     }), config.interaction_enabled && (item.style("cursor", "pointer").on("click", function (id) {
-      callFn(config.legend_item_onclick, api, id) || (external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].altKey ? (api.hide(), api.show(id)) : (api.toggle(id), !isTouch && $$.isTargetToShow(id) ? api.focus(id) : api.revert())), isTouch && $$.hideTooltip();
+      callFn(config.legend_item_onclick, api, id) || (external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].altKey ? (api.hide(), api.show(id)) : (api.toggle(id), Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this).classed(config_classes.legendItemFocused, !1).style("opacity", null))), isTouch && $$.hideTooltip();
     }), !isTouch && item.on("mouseout", function (id) {
       callFn(config.legend_item_onout, api, id) || (Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this).classed(config_classes.legendItemFocused, !1), hasGauge && $$.undoMarkOverlapped($$, "." + config_classes.gaugeValue), $$.api.revert());
     }).on("mouseover", function (id) {
@@ -5197,7 +5161,7 @@ function getFormat($$, typeValue, v) {
         var pattern = notEmpty(config.point_pattern) ? config.point_pattern : [config.point_type];
         ids.indexOf(d) === -1 && ids.push(d);
         var point = pattern[ids.indexOf(d) % pattern.length];
-        return point === "rectangle" && (point = "rect"), browser_doc.createElementNS(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["namespaces"].svg, $$.hasValidPointType(point) ? point : "use");
+        return point === "rectangle" && (point = "rect"), browser_doc.createElementNS(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["namespaces"].svg, "hasValidPointType" in $$ && $$.hasValidPointType(point) ? point : "use");
       }).attr("class", config_classes.legendItemPoint).style("fill", function (d) {
         return $$.color(d);
       }).style("pointer-events", "none").attr("href", function (data, idx, selection) {
@@ -5403,10 +5367,11 @@ function getScale(type, min, max) {
   type === void 0 && (type = "linear"), min === void 0 && (min = 0), max === void 0 && (max = 1);
   var scale = {
     linear: external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleLinear"],
-    log: external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleLog"],
+    log: external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleSymlog"],
+    _log: external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleLog"],
     time: external_commonjs_d3_scale_commonjs2_d3_scale_amd_d3_scale_root_d3_["scaleTime"]
   }[type]();
-  return scale.type = type, type === "log" && scale.clamp(!0), scale.range([min, max]);
+  return scale.type = type, /_?log/.test(type) && scale.clamp(!0), scale.range([min, max]);
 }
 /* harmony default export */ var internals_scale = ({
   /**
@@ -5426,15 +5391,16 @@ function getScale(type, min, max) {
 
   /**
    * Get y Axis scale function
+   * @param {string} id Axis id: 'y' or 'y2'
    * @param {number} min Min value
    * @param {number} max Max value
    * @param {Array} domain Domain value
    * @returns {Function} Scale function
    * @private
    */
-  getYScale: function getYScale(min, max, domain) {
+  getYScale: function getYScale(id, min, max, domain) {
     var $$ = this,
-        scale = getScale($$.axis.getAxisType("y"), min, max);
+        scale = getScale($$.axis.getAxisType(id), min, max);
     return domain && scale.domain(domain), scale;
   },
 
@@ -5525,7 +5491,7 @@ function getScale(type, min, max) {
         return axis.x.tickOffset();
       }), scale.subX = $$.getXScale(min.x, max.x, xSubDomain, function (d) {
         return d % 1 ? 0 : axis.subX.tickOffset();
-      }), format.xAxisTick = axis.getXAxisTickFormat(), axis.setAxis("x", scale.x, config.axis_x_tick_outer, isInit), config.subchart_show && axis.setAxis("subX", scale.subX, config.axis_x_tick_outer, isInit), scale.y = $$.getYScale(min.y, max.y, scale.y ? scale.y.domain() : config.axis_y_default), scale.subY = $$.getYScale(min.subY, max.subY, scale.subY ? scale.subY.domain() : config.axis_y_default), axis.setAxis("y", scale.y, config.axis_y_tick_outer, isInit), config.axis_y2_show && (scale.y2 = $$.getYScale(min.y, max.y, scale.y2 ? scale.y2.domain() : config.axis_y2_default), scale.subY2 = $$.getYScale(min.subY, max.subY, scale.subY2 ? scale.subY2.domain() : config.axis_y2_default), axis.setAxis("y2", scale.y2, config.axis_y2_tick_outer, isInit));
+      }), format.xAxisTick = axis.getXAxisTickFormat(), axis.setAxis("x", scale.x, config.axis_x_tick_outer, isInit), config.subchart_show && axis.setAxis("subX", scale.subX, config.axis_x_tick_outer, isInit), scale.y = $$.getYScale("y", min.y, max.y, scale.y ? scale.y.domain() : config.axis_y_default), scale.subY = $$.getYScale("y", min.subY, max.subY, scale.subY ? scale.subY.domain() : config.axis_y_default), axis.setAxis("y", scale.y, config.axis_y_tick_outer, isInit), config.axis_y2_show && (scale.y2 = $$.getYScale("y2", min.y, max.y, scale.y2 ? scale.y2.domain() : config.axis_y2_default), scale.subY2 = $$.getYScale("y2", min.subY, max.subY, scale.subY2 ? scale.subY2.domain() : config.axis_y2_default), axis.setAxis("y2", scale.y2, config.axis_y2_tick_outer, isInit));
     } else // update for arc
     $$.updateArc && $$.updateArc();
   },
@@ -5782,7 +5748,7 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
     var isWithin,
         $$ = this,
         shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(that);
-    return $$.isTargetToShow(d.id) ? $$.hasValidPointType(that.nodeName) ? isWithin = $$.isStepType(d) ? $$.isWithinStep(that, $$.getYScaleById(d.id)(d.value)) : $$.isWithinCircle(that, $$.isBubbleType(d) ? $$.pointSelectR(d) * 1.5 : 0) : that.nodeName === "path" && (isWithin = !shape.classed(config_classes.bar) || $$.isWithinBar(that)) : isWithin = !1, isWithin;
+    return $$.isTargetToShow(d.id) ? "hasValidPointType" in $$ && $$.hasValidPointType(that.nodeName) ? isWithin = $$.isStepType(d) ? $$.isWithinStep(that, $$.getYScaleById(d.id)(d.value)) : $$.isWithinCircle(that, $$.isBubbleType(d) ? $$.pointSelectR(d) * 1.5 : 0) : that.nodeName === "path" && (isWithin = !shape.classed(config_classes.bar) || $$.isWithinBar(that)) : isWithin = !1, isWithin;
   },
   getInterpolate: function getInterpolate(d) {
     var $$ = this,
@@ -6591,35 +6557,36 @@ function getTextPos(pos, width) {
     var $$ = this,
         config = $$.config,
         scale = $$.scale,
-        _$$$state = $$.state,
-        width = _$$$state.width,
-        height = _$$$state.height,
-        current = _$$$state.current,
-        isLegendRight = _$$$state.isLegendRight,
-        inputType = _$$$state.inputType,
+        state = $$.state,
+        _state = state,
+        width = _state.width,
+        height = _state.height,
+        current = _state.current,
+        isLegendRight = _state.isLegendRight,
+        inputType = _state.inputType,
         hasGauge = $$.hasType("gauge") && !config.gauge_fullCircle,
         svgLeft = $$.getSvgLeft(!0),
         _d3Mouse = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(element),
-        left = _d3Mouse[0],
-        top = _d3Mouse[1],
+        x = _d3Mouse[0],
+        y = _d3Mouse[1],
         chartRight = svgLeft + current.width - $$.getCurrentPaddingRight(!0),
         chartLeft = $$.getCurrentPaddingLeft(!0),
         size = 20;
 
     // Determine tooltip position
-    if (top += size, $$.hasArcType()) {
+    if ($$.hasArcType()) {
       var raw = inputType === "touch" || $$.hasType("radar");
-      raw || (top += hasGauge ? height : height / 2, left += (width - (isLegendRight ? $$.getLegendWidth() : 0)) / 2);
+      raw || (y += hasGauge ? height : height / 2, x += (width - (isLegendRight ? $$.getLegendWidth() : 0)) / 2);
     } else {
       var dataScale = scale.x(dataToShow[0].x);
-      config.axis_rotated ? (top = dataScale + size, left += svgLeft + 100, chartRight -= svgLeft) : (top -= 5, left = svgLeft + chartLeft + size + ($$.zoomScale ? left : dataScale));
+      config.axis_rotated ? (y = dataScale + size, x += svgLeft + 100, chartRight -= svgLeft) : (y -= 5, x = svgLeft + chartLeft + size + ($$.zoomScale ? x : dataScale));
     } // when tooltip left + tWidth > chart's width
 
 
-    left + tWidth + 15 > chartRight && (left -= tWidth + chartLeft), top + tHeight > current.height && (top -= hasGauge ? tHeight * 3 : tHeight + 30);
+    x + tWidth + 15 > chartRight && (x -= tWidth + chartLeft), y + tHeight > current.height && (y -= hasGauge ? tHeight * 3 : tHeight + 30);
     var pos = {
-      top: top,
-      left: left
+      top: y,
+      left: x
     }; // make sure to not be positioned out of viewport
 
     return Object.keys(pos).forEach(function (v) {
@@ -7003,7 +6970,6 @@ function getTextPos(pos, width) {
 
  // interactions
 
-
  // internals
 
 
@@ -7341,7 +7307,7 @@ var ChartInternal_ChartInternal = /*#__PURE__*/function () {
 
 
 extend(ChartInternal_ChartInternal.prototype, [// common
-convert, ChartInternal_data_data, load, category, internals_class, internals_color, internals_domain, interactions_drag, interactions_interaction, internals_format, internals_legend, internals_redraw, internals_scale, shape_shape, internals_size, internals_text, internals_title, internals_tooltip, internals_transform, internals_type]);
+convert, ChartInternal_data_data, load, category, internals_class, internals_color, internals_domain, interactions_interaction, internals_format, internals_legend, internals_redraw, internals_scale, shape_shape, internals_size, internals_text, internals_title, internals_tooltip, internals_transform, internals_type]);
 // CONCATENATED MODULE: ./src/config/config.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -7400,6 +7366,7 @@ function loadConfig(config) {
 
   /**
    * Force to redraw.
+   * - **NOTE:** When zoom/subchart is used, the zoomed state will be resetted.
    * @function flush
    * @instance
    * @memberof Chart
@@ -7422,7 +7389,7 @@ function loadConfig(config) {
       withLegend: !0,
       withTransition: !1,
       withTransitionForTransform: !1
-    })) : $$.initToRender(!0);
+    }), !state.resizing && $$.brush && ($$.brush.getSelection().call($$.brush.move), $$.unselectRect())) : $$.initToRender(!0);
   },
 
   /**
@@ -7441,11 +7408,13 @@ function loadConfig(config) {
         chart = _$$$$el.chart,
         svg = _$$$$el.svg;
 
-    return notEmpty($$) && ($$.callPluginHook("$willDestroy"), $$.charts.splice($$.charts.indexOf(this), 1), svg.select("*").interrupt(), $$.resizeFunction.clear(), win.removeEventListener("resize", $$.resizeFunction), chart.classed("bb", !1).html(""), Object.keys(this).forEach(function (key) {
-      key === "internal" && Object.keys($$).forEach(function (k) {
-        $$[k] = null;
-      }), _this[key] = null, delete _this[key];
-    })), null;
+    if (notEmpty($$)) // release prototype chains
+      for (var _key in $$.callPluginHook("$willDestroy"), $$.charts.splice($$.charts.indexOf(this), 1), svg.select("*").interrupt(), $$.resizeFunction.clear(), win.removeEventListener("resize", $$.resizeFunction), chart.classed("bb", !1).html(""), Object.keys(this).forEach(function (key) {
+        key === "internal" && Object.keys($$).forEach(function (k) {
+          $$[k] = null;
+        }), _this[key] = null, delete _this[key];
+      }), this) this[_key] = function () {};
+    return null;
   },
 
   /**
@@ -8287,8 +8256,7 @@ var tooltip_tooltip = {
       var data = args.data,
           y = $$.getYScaleById(data.id)(data.value);
       $$.isMultipleX() ? mouse = [$$.scale.x(data.x), y] : (!config.tooltip_grouped && (mouse = [0, y]), index = isValue(data.index) ? data.index : $$.getIndexByX(data.x));
-    } else isDefined(args.x) ? index = $$.getIndexByX(args.x) : isDefined(args.index) && (index = args.index); // emulate events to show
-
+    } else isDefined(args.x) ? index = $$.getIndexByX(args.x) : isDefined(args.index) && (index = args.index);
 
     (inputType === "mouse" ? ["mouseover", "mousemove"] : ["touchstart"]).forEach(function (eventName) {
       $$.dispatchEvent(eventName, index, mouse);
@@ -9147,12 +9115,18 @@ var AxisRendererHelper_AxisRendererHelper = /*#__PURE__*/function () {
 
     // When 'axis[y|y2].tick.stepSize' option is set
     if (isYAxes && tickStepSize) for (var interval = start; interval <= end;) ticks.push(interval), interval += tickStepSize;else if (scale.ticks) {
-      // adjust excessive tick count show
-      if (ticks = scale.ticks.apply(scale, this.config.tickArguments || []), scale.type === "log") {
-        for (var t = scale.ticks(), _ref = [t[0], t[t.length - 1]], head = _ref[0], tail = _ref[1], cnt = end.toFixed().length; ticks.length > 15; cnt--) ticks = scale.ticks(cnt);
+      var tickArguments = this.config.tickArguments; // adjust excessive tick count show
 
-        ticks[0] !== head && ticks.unshift(head), ticks[ticks.length - 1] !== tail && ticks.push(tail);
-      }
+      if (scale.type === "log" && !tickArguments) {
+        // nicer symlog ticks didn't implemented yet: https://github.com/d3/d3-scale/issues/162
+        // get ticks values from logScale
+        var s = getScale("_log").domain([start > 0 ? start : 1, end]).range(scale.range());
+        ticks = s.ticks();
+
+        for (var cnt = end.toFixed().length; ticks.length > 15; cnt--) ticks = s.ticks(cnt);
+
+        ticks.splice(0, 1, start), ticks.splice(ticks.length - 1, 1, end);
+      } else ticks = scale.ticks.apply(scale, this.config.tickArguments || []);
 
       ticks = ticks.map(function (v) {
         // round the tick value if is number
@@ -10033,7 +10007,6 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
 
 
 
-
 /* harmony default export */ var eventrect = ({
   /**
    * Initialize the area that detects the event.
@@ -10050,42 +10023,47 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
    * @private
    */
   redrawEventRect: function redrawEventRect() {
-    var eventRectUpdate,
-        $$ = this,
+    var $$ = this,
         config = $$.config,
+        state = $$.state,
         $el = $$.$el,
-        isMultipleX = $$.isMultipleX(),
-        eventRects = $$.$el.main.select("." + config_classes.eventRects).style("cursor", config.zoom_enabled && config.zoom_type !== "drag" ? config.axis_rotated ? "ns-resize" : "ew-resize" : null).classed(config_classes.eventRectsMultiple, isMultipleX).classed(config_classes.eventRectsSingle, !isMultipleX);
-    if (eventRects.selectAll("." + config_classes.eventRect).remove(), $el.eventRect = eventRects.selectAll("." + config_classes.eventRect), isMultipleX) eventRectUpdate = $el.eventRect.data([0]), eventRectUpdate = $$.generateEventRectsForMultipleXs(eventRectUpdate.enter()).merge(eventRectUpdate);else {
-      // Set data and update $el.eventRect
+        isMultipleX = $$.isMultipleX();
+    if ($el.eventRect) $$.updateEventRect($el.eventRect);else {
+      var eventRects = $$.$el.main.select("." + config_classes.eventRects).style("cursor", config.zoom_enabled && config.zoom_type !== "drag" ? config.axis_rotated ? "ns-resize" : "ew-resize" : null).classed(config_classes.eventRectsMultiple, isMultipleX).classed(config_classes.eventRectsSingle, !isMultipleX),
+          eventRectUpdate = eventRects.selectAll("." + config_classes.eventRect).data([0]).enter().append("rect"); // append event <rect>
+
+      // bind event to <rect> element
+      // bind draggable selection
+      $$.updateEventRect(eventRectUpdate), isMultipleX ? $$.generateEventRectsForMultipleXs(eventRectUpdate) : $$.generateEventRectsForSingleX(eventRectUpdate), eventRectUpdate.call($$.getDraggableSelection()), $el.eventRect = eventRectUpdate, $$.state.inputType !== "touch" || $el.svg.on("touchstart.eventRect") || $$.hasArcType() || $$.bindTouchOnEventRect(isMultipleX);
+    }
+
+    if (!isMultipleX) {
+      // Set data and update eventReceiver.data
       var xAxisTickValues = $$.getMaxDataCountTarget(); // update data's index value to be alinged with the x Axis
 
-      $$.updateDataIndexByX(xAxisTickValues), $$.updateXs(xAxisTickValues), $$.updatePointClass && $$.updatePointClass(!0), eventRects.datum(xAxisTickValues), $el.eventRect = eventRects.selectAll("." + config_classes.eventRect), eventRectUpdate = $el.eventRect.data(function (d) {
-        return d;
-      }), eventRectUpdate.exit().remove(), eventRectUpdate = $$.generateEventRectsForSingleX(eventRectUpdate.enter()).merge(eventRectUpdate);
+      $$.updateDataIndexByX(xAxisTickValues), $$.updateXs(xAxisTickValues), $$.updatePointClass && $$.updatePointClass(!0), state.eventReceiver.data = xAxisTickValues;
     }
-    $el.eventRect = eventRectUpdate, $$.updateEventRect(eventRectUpdate), $$.state.inputType !== "touch" || $el.svg.on("touchstart.eventRect") || $$.hasArcType() || $$.bindTouchOnEventRect(isMultipleX);
+
+    $$.updateEventRectData();
   },
   bindTouchOnEventRect: function bindTouchOnEventRect(isMultipleX) {
     var startPx,
         $$ = this,
         config = $$.config,
         state = $$.state,
-        svg = $$.$el.svg,
-        getEventRect = function () {
-      var touch = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].changedTouches[0];
-      return Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(browser_doc.elementFromPoint(touch.clientX, touch.clientY));
-    },
-        getIndex = function (eventRect) {
-      var index = eventRect && eventRect.attr("class") && eventRect.attr("class").replace(new RegExp("(" + config_classes.eventRect + "-?|s)", "g"), "") * 1;
-      return (isNaN(index) || index === null) && (index = -1), index;
-    },
+        _$$$$el = $$.$el,
+        eventRect = _$$$$el.eventRect,
+        svg = _$$$$el.svg,
         selectRect = function (context) {
       if (isMultipleX) $$.selectRectForMultipleXs(context);else {
-        var eventRect = getEventRect(),
-            index = getIndex(eventRect);
+        // const eventRect = getEventRect();
+        // const index = getIndex(eventRect);
+        var index = $$.getDataIndexFromEvent(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"]);
         $$.callOverOutForTouch(index), index === -1 ? $$.unselectRect() : $$.selectRectForSingle(context, eventRect, index);
       }
+    },
+        unselectRect = function () {
+      $$.unselectRect(), $$.callOverOutForTouch();
     },
         preventDefault = config.interaction_inputType_touch.preventDefault,
         isPrevented = isboolean(preventDefault) && preventDefault || !1,
@@ -10098,27 +10076,50 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
     };
 
     // bind touch events
-    svg.on("touchstart.eventRect touchmove.eventRect", function () {
-      var eventRect = getEventRect(),
-          event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"];
+    eventRect.on("touchstart", function () {
+      return $$.updateEventRect();
+    }).on("touchstart.eventRect touchmove.eventRect", function () {
+      var event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"];
 
       if (!eventRect.empty() && eventRect.classed(config_classes.eventRect)) {
         // if touch points are > 1, means doing zooming interaction. In this case do not execute tooltip codes.
         if (state.dragging || state.flowing || $$.hasArcType() || event.touches.length > 1) return;
-        preventEvent(event), selectRect(this);
-      } else $$.unselectRect(), $$.callOverOutForTouch();
+        preventEvent(event), selectRect(eventRect.node());
+      } else unselectRect();
     }, !0).on("touchend.eventRect", function () {
-      var eventRect = getEventRect();
       !eventRect.empty() && eventRect.classed(config_classes.eventRect) && ($$.hasArcType() || !$$.toggleShape || state.cancelClick) && state.cancelClick && (state.cancelClick = !1);
-    }, !0);
+    }, !0), svg.on("touchstart", function () {
+      var target = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"].target;
+      target && target !== eventRect.node() && unselectRect();
+    });
+  },
+  updateEventRect: function updateEventRect(eventRect) {
+    var $$ = this,
+        state = $$.state,
+        $el = $$.$el,
+        _state = state,
+        eventReceiver = _state.eventReceiver,
+        width = _state.width,
+        height = _state.height,
+        rendered = _state.rendered,
+        resizing = _state.resizing;
+
+    if (!rendered || resizing) {
+      var rect = eventRect.attr("x", 0).attr("y", 0).attr("width", width).attr("height", height); // only for init
+
+      rendered || rect.attr("class", config_classes.eventRect);
+    }
+
+    (function updateClientRect() {
+      eventReceiver && (eventReceiver.rect = (eventRect || $el.eventRect).node().getBoundingClientRect());
+    })();
   },
 
   /**
    * Updates the location and size of the eventRect.
-   * @param {object} eventRectUpdate d3.select(CLASS.eventRects) object.
    * @private
    */
-  updateEventRect: function updateEventRect(eventRectUpdate) {
+  updateEventRectData: function updateEventRectData() {
     var x,
         y,
         w,
@@ -10128,7 +10129,6 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
         scale = $$.scale,
         state = $$.state,
         xScale = scale.zoom || scale.x,
-        eventRectData = eventRectUpdate || $$.$el.eventRect.data(),
         isRotated = config.axis_rotated;
     if ($$.isMultipleX()) // TODO: rotated not supported yet
     x = 0, y = 0, w = state.width, h = state.height;else {
@@ -10136,8 +10136,8 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
       if ($$.axis.isCategorized()) rectW = $$.getEventRectWidth(), rectX = function (d) {
         return xScale(d.x) - rectW / 2;
       };else {
-        var getPrevNextX = function (d) {
-          var index = d.index;
+        var getPrevNextX = function (_ref) {
+          var index = _ref.index;
           return {
             prev: $$.getPrevX(index),
             next: $$.getNextX(index)
@@ -10157,7 +10157,20 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
       }
       x = isRotated ? 0 : rectX, y = isRotated ? rectX : 0, w = isRotated ? state.width : rectW, h = isRotated ? rectW : state.height;
     }
-    eventRectData.attr("class", $$.classEvent.bind($$)).attr("x", x).attr("y", y).attr("width", w).attr("height", h);
+
+    var eventReceiver = state.eventReceiver,
+        call = function (fn, v) {
+      return isFunction(fn) ? fn(v) : fn;
+    };
+
+    eventReceiver.data.forEach(function (d, i) {
+      eventReceiver.coords[i] = {
+        x: call(x, d),
+        y: call(y, d),
+        w: call(w, d),
+        h: call(h, d)
+      };
+    });
   },
   selectRectForMultipleXs: function selectRectForMultipleXs(context) {
     var $$ = this,
@@ -10186,10 +10199,10 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
   unselectRect: function unselectRect() {
     var $$ = this,
         config = $$.config,
-        _$$$$el = $$.$el,
-        bar = _$$$$el.bar,
-        circle = _$$$$el.circle,
-        tooltip = _$$$$el.tooltip;
+        _$$$$el2 = $$.$el,
+        bar = _$$$$el2.bar,
+        circle = _$$$$el2.circle,
+        tooltip = _$$$$el2.tooltip;
     $$.$el.svg.select("." + config_classes.eventRect).style("cursor", null), $$.hideGridFocus(), tooltip && ($$.hideTooltip(), $$._handleLinkedCharts(!1)), circle && !config.point_focus_only && $$.unexpandCircles(), bar && $$.unexpandBars();
   },
 
@@ -10204,31 +10217,48 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
     var $$ = this,
         config = $$.config,
         state = $$.state,
-        rect = eventRectEnter.append("rect").attr("class", $$.classEvent.bind($$)).style("cursor", config.data_selection_enabled && config.data_selection_grouped ? "pointer" : null).on("click", function (d) {
+        eventReceiver = state.eventReceiver,
+        rect = eventRectEnter.attr("class", $$.classEvent.bind($$)).style("cursor", config.data_selection_enabled && config.data_selection_grouped ? "pointer" : null).on("click", function () {
+      var _eventReceiver = eventReceiver,
+          currentIdx = _eventReceiver.currentIdx,
+          data = _eventReceiver.data,
+          d = data[currentIdx === -1 ? $$.getDataIndexFromEvent(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"]) : currentIdx];
       $$.clickHandlerForSingleX.bind(this)(d, $$);
-    }).call($$.getDraggableSelection());
-    return state.inputType === "mouse" && rect.on("mouseover", function (d) {
-      state.dragging || state.flowing || $$.hasArcType() || config.tooltip_grouped && $$.setOverOut(!0, d.index);
-    }).on("mousemove", function (d) {
-      // do nothing while dragging/flowing
-      if (!(state.dragging || state.flowing || $$.hasArcType())) {
-        var index = d.index,
-            eventRect = $$.$el.svg.select("." + config_classes.eventRect + "-" + index);
-        $$.isStepType(d) && config.line_step_type === "step-after" && Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[0] < $$.scale.x($$.getXValue(d.id, index)) && (index -= 1), index === -1 ? $$.unselectRect() : $$.selectRectForSingle(this, eventRect, index), config.tooltip_grouped || $$.setOverOut(index !== -1, d.index);
-      }
-    }).on("mouseout", function (d) {
-      !config || $$.hasArcType() || ($$.unselectRect(), $$.setOverOut(!1, d.index));
-    }), rect;
+    });
+
+    if (state.inputType === "mouse") {
+      var getData = function () {
+        var index = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"] ? $$.getDataIndexFromEvent(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"]) : eventReceiver.currentIdx;
+        return index > -1 ? eventReceiver.data[index] : null;
+      };
+
+      rect.on("mouseover", function () {
+        return $$.updateEventRect();
+      }).on("mousemove", function () {
+        var d = getData(); // do nothing while dragging/flowing
+
+        if (!(state.dragging || state.flowing || $$.hasArcType() || !d || config.tooltip_grouped && d && d.index === eventReceiver.currentIdx)) {
+          var index = d.index;
+          $$.isStepType(d) && config.line_step_type === "step-after" && Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[0] < $$.scale.x($$.getXValue(d.id, index)) && (index -= 1), index !== eventReceiver.currentIdx && ($$.setOverOut(!1, eventReceiver.currentIdx), eventReceiver.currentIdx = index), index === -1 ? $$.unselectRect() : $$.selectRectForSingle(this, rect, index), $$.setOverOut(index !== -1, index);
+        }
+      }).on("mouseout", function () {
+        // chart is destroyed
+        !config || $$.hasArcType() || eventReceiver.currentIdx === -1 || ( // reset the event current index
+        $$.unselectRect(), $$.setOverOut(!1, eventReceiver.currentIdx), eventReceiver.currentIdx = -1);
+      });
+    }
+
+    return rect;
   },
   clickHandlerForSingleX: function clickHandlerForSingleX(d, ctx) {
     var $$ = ctx,
         config = $$.config,
         state = $$.state,
         main = $$.$el.main;
-    if ($$.hasArcType() || !$$.toggleShape || state.cancelClick) return void (state.cancelClick && (state.cancelClick = !1));
+    if ($$.hasArcType() || state.cancelClick) return void (state.cancelClick && (state.cancelClick = !1));
     var index = d.index;
     main.selectAll("." + config_classes.shape + "-" + index).each(function (d2) {
-      (config.data_selection_grouped || $$.isWithinShape(this, d2)) && ($$.toggleShape(this, d2, index), config.data_onclick.bind($$.api)(d2, this));
+      (config.data_selection_grouped || $$.isWithinShape(this, d2)) && ($$.toggleShape && $$.toggleShape(this, d2, index), config.data_onclick.bind($$.api)(d2, this));
     });
   },
 
@@ -10236,23 +10266,19 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
    * Create an eventRect,
    * Register touch and drag events.
    * @param {object} eventRectEnter d3.select(CLASS.eventRects) object.
-   * @returns {object} d3.select(CLASS.eventRects) object.
    * @private
    */
   generateEventRectsForMultipleXs: function generateEventRectsForMultipleXs(eventRectEnter) {
     var $$ = this,
-        _$$$state = $$.state,
-        width = _$$$state.width,
-        height = _$$$state.height,
-        inputType = _$$$state.inputType,
-        rect = eventRectEnter.append("rect").attr("x", 0).attr("y", 0).attr("width", width).attr("height", height).attr("class", config_classes.eventRect).on("click", function () {
+        inputType = $$.state.inputType;
+    eventRectEnter.on("click", function () {
       $$.clickHandlerForMultipleXS.bind(this)($$);
-    }).call($$.getDraggableSelection());
-    return inputType === "mouse" && rect.on("mouseover mousemove", function () {
+    }), inputType === "mouse" && eventRectEnter.on("mouseover mousemove", function () {
       $$.selectRectForMultipleXs(this);
     }).on("mouseout", function () {
+      // chart is destroyed
       !$$.config || $$.hasArcType() || $$.unselectRect();
-    }), rect;
+    });
   },
   clickHandlerForMultipleXS: function clickHandlerForMultipleXS(ctx) {
     var $$ = ctx,
@@ -10703,7 +10729,7 @@ function smoothLines(el, type) {
         texts = gridLines.x.select("text");
     return lines = (withTransition ? lines.transition() : lines).attr("x1", isRotated ? 0 : xv).attr("x2", isRotated ? width : xv).attr("y1", isRotated ? xv : 0).attr("y2", isRotated ? xv : height), texts = (withTransition ? texts.transition() : texts).attr("x", getGridTextX(!isRotated, width, height)).attr("y", xv).text(function (d) {
       return d.text;
-    }), [(withTransition ? lines.transition() : lines).style("opacity", "1"), (withTransition ? texts.transition() : texts).style("opacity", "1")];
+    }), [lines.style("opacity", "1"), texts.style("opacity", "1")];
   },
   initFocusGrid: function initFocusGrid() {
     var $$ = this,
@@ -10764,17 +10790,19 @@ function smoothLines(el, type) {
   },
   hideGridFocus: function hideGridFocus() {
     var $$ = this,
-        inputType = $$.state.inputType,
+        _$$$state4 = $$.state,
+        inputType = _$$$state4.inputType,
+        resizing = _$$$state4.resizing,
         main = $$.$el.main;
-    inputType === "mouse" && (main.selectAll("line." + config_classes.xgridFocus + ", line." + config_classes.ygridFocus).style("visibility", "hidden"), $$.hideCircleFocus && $$.hideCircleFocus());
+    inputType !== "mouse" && resizing || (main.selectAll("line." + config_classes.xgridFocus + ", line." + config_classes.ygridFocus).style("visibility", "hidden"), $$.hideCircleFocus && $$.hideCircleFocus());
   },
   updateGridFocus: function updateGridFocus() {
     var $$ = this,
-        _$$$state4 = $$.state,
-        inputType = _$$$state4.inputType,
-        width = _$$$state4.width,
-        height = _$$$state4.height,
-        resizing = _$$$state4.resizing,
+        _$$$state5 = $$.state,
+        inputType = _$$$state5.inputType,
+        width = _$$$state5.width,
+        height = _$$$state5.height,
+        resizing = _$$$state5.resizing,
         grid = $$.$el.grid,
         xgridFocus = grid.main.select("line." + config_classes.xgridFocus);
     if (inputType === "touch") xgridFocus.empty() ? resizing && $$.showCircleFocus() : $$.showGridFocus();else {
@@ -11189,15 +11217,15 @@ function smoothLines(el, type) {
   /**
    * Set type of x axis.<br><br>
    * **Available Values:**
-   * - timeseries
    * - category
    * - indexed
    * - log
+   * - timeseries
    *
    * **NOTE:**<br>
    * - **log** type:
    *   - the x values specified by [`data.x`](#.data%25E2%2580%25A4x)(or by any equivalent option), must be exclusively-positive.
-   *   - x axis min value should be > 0, otherwise will be set `1`.
+   *   - x axis min value should be >= 0.
    *
    * @name axis․x․type
    * @memberof Options
@@ -11845,14 +11873,14 @@ function smoothLines(el, type) {
   /**
    * Set type of y axis.<br><br>
    * **Available Values:**
-   *  - timeseries
    *  - indexed
    *  - log
+   *  - timeseries
    *
    * **NOTE:**<br>
    * - **log** type:
    *   - the bound data values must be exclusively-positive.
-   *   - y axis min value should be > 0, otherwise will be set `1`.
+   *   - y axis min value should be >= 0.
    *   - [`data.groups`](#.data%25E2%2580%25A4groups)(stacked data) option aren't supported.
    *
    * @name axis․y․type
@@ -11863,11 +11891,11 @@ function smoothLines(el, type) {
    * @example
    * axis: {
    *   y: {
-   *     type: "timeseries"
+   *     type: "log"
    *   }
    * }
    */
-  axis_y_type: undefined,
+  axis_y_type: "indexed",
 
   /**
    * Set max value of y axis.
@@ -12325,6 +12353,33 @@ function smoothLines(el, type) {
    * }
    */
   axis_y2_show: !1,
+
+  /**
+   * Set type of y2 axis.<br><br>
+   * **Available Values:**
+   *  - indexed
+   *  - log
+   *  - timeseries
+   *
+   * **NOTE:**<br>
+   * - **log** type:
+   *   - the bound data values must be exclusively-positive.
+   *   - y2 axis min value should be >= 0.
+   *   - [`data.groups`](#.data%25E2%2580%25A4groups)(stacked data) option aren't supported.
+   *
+   * @name axis․y2․type
+   * @memberof Options
+   * @type {string}
+   * @default "indexed"
+   * @see [Demo: log](https://naver.github.io/billboard.js/demo/#Axis.LogScales)
+   * @example
+   * axis: {
+   *   y2: {
+   *     type: "indexed"
+   *   }
+   * }
+   */
+  axis_y2_type: "indexed",
 
   /**
    * Set max value of y2 axis.
@@ -13333,8 +13388,9 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
 
 /* harmony default export */ var shape_area = ({
   initArea: function initArea(mainLine) {
-    var $$ = this;
-    mainLine.insert("g", "." + config_classes.circles).attr("class", $$.classAreas.bind($$));
+    var $$ = this,
+        config = $$.config;
+    mainLine.insert("g", "." + config_classes[config.area_front ? "circles" : "lines"]).attr("class", $$.classAreas.bind($$));
   },
   updateAreaGradient: function updateAreaGradient() {
     var $$ = this,
@@ -14044,7 +14100,7 @@ var getTransitionName = function () {
     return circle.each(function (d) {
       var result = fn.bind(this)(d);
       result = (withTransition || !rendered ? result.transition(t) : result).style("opacity", opacityStyleFn), mainCircles.push(result);
-    }), [mainCircles, selectedCircles.attr(posAttr + "x", cx).attr(posAttr + "y", cy)];
+    }), [mainCircles, (withTransition ? selectedCircles.transition() : selectedCircles).attr(posAttr + "x", cx).attr(posAttr + "y", cy)];
   },
 
   /**
@@ -14686,21 +14742,25 @@ var radar_cacheKey = KEY.radarPoints;
    * @memberof Options
    * @type {object}
    * @property {object} area Area object
-   * @property {boolean} [area.zerobased=true] Set if min or max value will be 0 on area chart.
    * @property {boolean} [area.above=false] Set background area above the data chart line.
+   * @property {boolean} [area.front=true] Set area node to be positioned over line node.
    * @property {boolean|object} [area.linearGradient=false] Set the linear gradient on area.<br><br>
    * Or customize by giving below object value:
    *  - x {Array}: `x1`, `x2` value
    *  - y {Array}: `y1`, `y2` value
    *  - stops {Array}: Each item should be having `[offset, stop-color, stop-opacity]` values.
+   * @property {boolean} [area.zerobased=true] Set if min or max value will be 0 on area chart.
    * @see [MDN's &lt;linearGradient>](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/linearGradient), [&lt;stop>](https://developer.mozilla.org/en-US/docs/Web/SVG/Element/stop)
    * @see [Demo](https://naver.github.io/billboard.js/demo/#Chart.AreaChart)
    * @see [Demo: above](https://naver.github.io/billboard.js/demo/#AreaChartOptions.Above)
    * @see [Demo: linearGradient](https://naver.github.io/billboard.js/demo/#AreaChartOptions.LinearGradient)
    * @example
    *  area: {
-   *      zerobased: false,
    *      above: true,
+   *      zerobased: false,
+   *
+   *      // <g class='bb-areas'> will be positioned behind the line <g class='bb-lines'> in stacking order
+   *      front: false,
    *
    *      // will generate follwing linearGradient:
    *      // <linearGradient x1="0" x2="0" y1="0" y2="1">
@@ -14727,9 +14787,10 @@ var radar_cacheKey = KEY.radarPoints;
    *      }
    *  }
    */
-  area_zerobased: !0,
   area_above: !1,
-  area_linearGradient: !1
+  area_front: !0,
+  area_linearGradient: !1,
+  area_zerobased: !0
 });
 // CONCATENATED MODULE: ./src/config/Options/shape/bar.ts
 /**
@@ -15789,7 +15850,109 @@ extend(zoom_zoom, {
 // EXTERNAL MODULE: external {"commonjs":"d3-color","commonjs2":"d3-color","amd":"d3-color","root":"d3"}
 var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webpack_require__(14);
 
+// CONCATENATED MODULE: ./src/ChartInternal/interactions/drag.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+/**
+ * Module used for data.selection.draggable option
+ */
+
+/* harmony default export */ var interactions_drag = ({
+  /**
+   * Called when dragging.
+   * Data points can be selected.
+   * @private
+   * @param {object} mouse Object
+   */
+  drag: function drag(mouse) {
+    var $$ = this,
+        config = $$.config,
+        state = $$.state,
+        main = $$.$el.main,
+        isSelectionGrouped = config.data_selection_grouped,
+        isSelectable = config.interaction_enabled && config.data_selection_isselectable;
+
+    if (!$$.hasArcType() && config.data_selection_enabled && ( // do nothing if not selectable
+    !config.zoom_enabled || $$.zoom.altDomain) && config.data_selection_multiple // skip when single selection because drag is used for multiple selection
+    ) {
+        var _ref = state.dragStart || [0, 0],
+            sx = _ref[0],
+            sy = _ref[1],
+            mx = mouse[0],
+            my = mouse[1],
+            minX = Math.min(sx, mx),
+            maxX = Math.max(sx, mx),
+            minY = isSelectionGrouped ? state.margin.top : Math.min(sy, my),
+            maxY = isSelectionGrouped ? state.height : Math.max(sy, my);
+
+        main.select("." + config_classes.dragarea).attr("x", minX).attr("y", minY).attr("width", maxX - minX).attr("height", maxY - minY), main.selectAll("." + config_classes.shapes).selectAll("." + config_classes.shape).filter(function (d) {
+          return isSelectable && isSelectable.bind($$.api)(d);
+        }).each(function (d, i) {
+          var toggle,
+              shape = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this),
+              isSelected = shape.classed(config_classes.SELECTED),
+              isIncluded = shape.classed(config_classes.INCLUDED),
+              isWithin = !1;
+
+          if (shape.classed(config_classes.circle)) {
+            var x = +shape.attr("cx") * 1,
+                y = +shape.attr("cy") * 1;
+            toggle = $$.togglePoint, isWithin = minX < x && x < maxX && minY < y && y < maxY;
+          } else if (shape.classed(config_classes.bar)) {
+            var _getPathBox = getPathBox(this),
+                _x = _getPathBox.x,
+                y = _getPathBox.y,
+                width = _getPathBox.width,
+                height = _getPathBox.height;
+
+            toggle = $$.togglePath, isWithin = !(maxX < _x || _x + width < minX) && !(maxY < y || y + height < minY);
+          } else // line/area selection not supported yet
+            return; // @ts-ignore
+
+
+          isWithin ^ isIncluded && (shape.classed(config_classes.INCLUDED, !isIncluded), shape.classed(config_classes.SELECTED, !isSelected), toggle.call($$, !isSelected, shape, d, i));
+        });
+      }
+  },
+
+  /**
+   * Called when the drag starts.
+   * Adds and Shows the drag area.
+   * @private
+   * @param {object} mouse Object
+   */
+  dragstart: function dragstart(mouse) {
+    var $$ = this,
+        config = $$.config,
+        state = $$.state,
+        main = $$.$el.main;
+    $$.hasArcType() || !config.data_selection_enabled || (state.dragStart = mouse, main.select("." + config_classes.chart).append("rect").attr("class", config_classes.dragarea).style("opacity", "0.1"), $$.setDragStatus(!0));
+  },
+
+  /**
+   * Called when the drag finishes.
+   * Removes the drag area.
+   * @private
+   */
+  dragend: function dragend() {
+    var $$ = this,
+        config = $$.config,
+        main = $$.$el.main;
+    $$.hasArcType() || !config.data_selection_enabled || (main.select("." + config_classes.dragarea).transition().duration(100).style("opacity", "0").remove(), main.selectAll("." + config_classes.shape).classed(config_classes.INCLUDED, !1), $$.setDragStatus(!1));
+  }
+});
 // CONCATENATED MODULE: ./src/ChartInternal/internals/selection.ts
+
+
+function selection_ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function selection_objectSpread(target) { for (var source, i = 1; i < arguments.length; i++) source = arguments[i] == null ? {} : arguments[i], i % 2 ? selection_ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : selection_ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); return target; }
+
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
  * billboard.js project is licensed under the MIT license
@@ -15798,7 +15961,8 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
 
 
 
-/* harmony default export */ var internals_selection = ({
+
+/* harmony default export */ var internals_selection = (selection_objectSpread(selection_objectSpread({}, interactions_drag), {}, {
   /**
    * Select a point
    * @param {object} target Target point
@@ -15931,7 +16095,7 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
       toggledShape && toggledShape.node() === shape.node() || (shape.classed(config_classes.SELECTED, !isSelected), toggle(!isSelected, shape, d, i));
     }
   }
-});
+}));
 // CONCATENATED MODULE: ./src/ChartInternal/interactions/subchart.ts
 /**
  * Copyright (c) 2017 ~ present NAVER Corp.
@@ -16393,7 +16557,7 @@ var external_commonjs_d3_color_commonjs2_d3_color_amd_d3_color_root_d3_ = __webp
     };
     $$.zoomBehaviour = Object(external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_["drag"])().clickDistance(4).on("start", function () {
       // @ts-ignore
-      $$.setDragStatus(!0), zoomRect || (zoomRect = $$.$el.main.append("rect").attr("clip-path", state.clip.path).attr("class", config_classes.zoomBrush).attr("width", isRotated ? state.width : 0).attr("height", isRotated ? 0 : state.height)), start = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[prop.index], end = start, zoomRect.attr(prop.axis, start).attr(prop.attr, 0), $$.onZoomStart();
+      $$.setDragStatus(!0), $$.unselectRect(), zoomRect || (zoomRect = $$.$el.main.append("rect").attr("clip-path", state.clip.path).attr("class", config_classes.zoomBrush).attr("width", isRotated ? state.width : 0).attr("height", isRotated ? 0 : state.height)), start = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[prop.index], end = start, zoomRect.attr(prop.axis, start).attr(prop.attr, 0), $$.onZoomStart();
     }).on("drag", function () {
       // @ts-ignore
       end = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["mouse"])(this)[prop.index], zoomRect.attr(prop.axis, Math.min(start, end)).attr(prop.attr, Math.abs(end - start));
@@ -16768,7 +16932,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.0.3",
+  version: "2.1.1",
 
   /**
    * Generate chart
@@ -16896,7 +17060,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.0.3
+ * @version 2.1.1
  */
 // CONCATENATED MODULE: ./src/index.ts
 /**
