@@ -14,6 +14,8 @@
 }
 
 .bb-tooltip th {
+    background-color: transparent;
+    color: inherit;
     border-bottom: solid 1px #aaa;
 }
 
@@ -47,4 +49,8 @@
 .bb-chart-radars .bb-shapes polygon,
 .bb-area {
     opacity: 0.3;
+}
+
+.bb-color-pattern {
+    background-image: url("#2ac4b3;#feaf29;#ff617b;#73a2ef;#b180d0;#3064cf;#d0a45f;#8aaec7;#ef65a2;#8aaec7;");
 }

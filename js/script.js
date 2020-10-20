@@ -7,7 +7,7 @@ var apexDashboardChart = (function () {
         featureInfo: {
             name: "APEX-D3Dashboard-Charts",
             info: {
-                scriptVersion: "2.6.2",
+                scriptVersion: "2.6.3",
                 utilVersion: "1.3.5",
                 url: "https://github.com/RonnyWeiss",
                 url2: "https://ronnyweiss.app",
@@ -288,45 +288,6 @@ var apexDashboardChart = (function () {
         }
     }
 
-    /***********************************************************************
-     **
-     ** Used to define svg shadows if needed
-     **
-     ***********************************************************************/
-    function defineSVGShadows(pSVG, pID, pY, pX, pSize) {
-        var defs = pSVG.append("defs");
-
-        var filter = defs.append("filter")
-            .attr("id", pID);
-
-        filter.append("feGaussianBlur")
-            .attr("in", "SourceAlpha")
-            .attr("stdDeviation", pSize)
-            .attr("result", "blur");
-        filter.append("feOffset")
-            .attr("in", "blur")
-            .attr("dx", pX)
-            .attr("dy", pY)
-            .attr("result", "offsetBlur")
-        filter.append("feFlood")
-            .attr("in", "offsetBlur")
-            .attr("flood-color", "#000")
-            .attr("flood-opacity", "0.26")
-            .attr("result", "offsetColor");
-        filter.append("feComposite")
-            .attr("in", "offsetColor")
-            .attr("in2", "offsetBlur")
-            .attr("operator", "in")
-            .attr("result", "offsetBlur");
-
-        var feMerge = filter.append("feMerge");
-
-        feMerge.append("feMergeNode")
-            .attr("in", "offsetBlur")
-        feMerge.append("feMergeNode")
-            .attr("in", "SourceGraphic");
-    }
-
     return {
         initialize: function (pRegionID, pAjaxID, pNoDataMsg, pErrorMsg, pDefaultConfigJSON, pChartConfigJSON, pItems2Submit, pRequireHTMLEscape, pData) {
             var timers = {};
@@ -363,7 +324,6 @@ var apexDashboardChart = (function () {
                     "right": null,
                     "top": null
                 },
-                "shadows": true,
                 "rotateAxis": false,
                 "showDataLabels": false,
                 "showDataPoints": true,
@@ -665,7 +625,6 @@ var apexDashboardChart = (function () {
                     /* Grid */
                     var gridX = setObjectParameter(pConfigData.gridX, pDefaultConfig.d3chart.grid.x, true);
                     var gridY = setObjectParameter(pConfigData.gridY, pDefaultConfig.d3chart.grid.y, true);
-                    var shadows = setObjectParameter(pConfigData.shadows, pDefaultConfig.d3chart.shadows, true);
 
                     /* heights */
                     var heightXAxis = setObjectParameter(pConfigData.xAxisHeight, pDefaultConfig.d3chart.x.axisHeight);
@@ -955,7 +914,6 @@ var apexDashboardChart = (function () {
                         try {
                             var chartContIDSel = pItemSel + "bbc";
                             var chartContID = chartContIDSel.replace("#", "");
-                            var shadowID = chartContID + "-shadow";
                             var chartCont = $("<div></div>");
                             chartCont.attr("id", chartContID);
 
@@ -1098,17 +1056,7 @@ var apexDashboardChart = (function () {
                                         }
                                     }
                                 },
-                                padding: chartPadding,
-                                onrendered: function () {
-                                    /* define shadows */
-                                    if (shadows) {
-                                        var svg = d3.select(chartContIDSel).select("svg");
-                                        defineSVGShadows(svg, shadowID, 0, 2, 2);
-                                        svg.selectAll(".bb-chart-bar").style("filter", "url(#" + shadowID + ")");
-                                        svg.selectAll(".bb-line").style("filter", "url(#" + shadowID + ")");
-                                        svg.selectAll(".bb-shape").style("filter", "url(#" + shadowID + ")");
-                                    }
-                                }
+                                padding: chartPadding
                             };
 
                             util.debug.info({
