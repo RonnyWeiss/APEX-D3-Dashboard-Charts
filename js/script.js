@@ -7,7 +7,7 @@ var apexDashboardChart = (function () {
         featureInfo: {
             name: "APEX-D3Dashboard-Charts",
             info: {
-                scriptVersion: "2.6.3",
+                scriptVersion: "2.6.4",
                 utilVersion: "1.3.5",
                 url: "https://github.com/RonnyWeiss",
                 url2: "https://ronnyweiss.app",
@@ -343,7 +343,9 @@ var apexDashboardChart = (function () {
                         "maxNumber": 25,
                         "multiline": false,
                         "rotation": 60,
-                        "timeFormat": "%y-%m-%d %H:%M"
+                        "autoRotate": true,
+                        "timeFormat": "%y-%m-%d %H:%M",
+                        "fit": false
                     }
                 },
                 "y": {
@@ -674,6 +676,8 @@ var apexDashboardChart = (function () {
                     var xTickMaxNumber = setObjectParameter(pConfigData.xTickMaxNumber, pDefaultConfig.d3chart.x.tick.maxNumber);
                     var xTickRotation = setObjectParameter(pConfigData.xTickRotation, pDefaultConfig.d3chart.x.tick.rotation);
                     var xTickMultiline = setObjectParameter(pConfigData.xTickMultiline, pDefaultConfig.d3chart.x.tick.multiline, true);
+                    var xTickFit = setObjectParameter(pConfigData.xTickFit, pDefaultConfig.d3chart.x.tick.fit, true);
+                    var xTickAutoRotate = setObjectParameter(pConfigData.xTickAutoRotate, pDefaultConfig.d3chart.x.tick.autoRotate, true);
                     var xTickTimeFormat = null;
 
                     if (xType == "category" || xType == "timeseries") {
@@ -1018,11 +1022,11 @@ var apexDashboardChart = (function () {
                                             culling: {
                                                 max: xTickMaxNumber
                                             },
-                                            autorotate: true,
+                                            autorotate: xTickAutoRotate,
                                             rotate: xTickRotation,
                                             multiline: xTickMultiline,
                                             format: xTickTimeFormat,
-                                            fit: true
+                                            fit: xTickFit
                                         },
                                         height: heightXAxis
                                     },
