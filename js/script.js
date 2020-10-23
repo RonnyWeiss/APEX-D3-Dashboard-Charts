@@ -345,7 +345,7 @@ var apexDashboardChart = (function () {
                         "rotation": 60,
                         "autoRotate": true,
                         "timeFormat": "%y-%m-%d %H:%M",
-                        "fit": false
+                        "fit": true
                     }
                 },
                 "y": {
