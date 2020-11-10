@@ -7,7 +7,7 @@ var apexDashboardChart = (function () {
         featureInfo: {
             name: "APEX-D3Dashboard-Charts",
             info: {
-                scriptVersion: "2.6.4",
+                scriptVersion: "2.6.5",
                 utilVersion: "1.3.5",
                 url: "https://github.com/RonnyWeiss",
                 url2: "https://ronnyweiss.app",
@@ -483,8 +483,7 @@ var apexDashboardChart = (function () {
                             /* draw each chart in a col */
                             util.debug.info("Render chart  - Col " + idx);
 
-                            var seriesData = util.groupObjectArray(item.itemData, 'seriesID');
-                            drawChartCol(idx, item.height, row, colSpan, item.title, itemConfigJSON, pDefaultConfig, seriesData, item.itemData);
+                            drawChartCol(idx, item.height, row, colSpan, item.title, itemConfigJSON, pDefaultConfig, item.itemData);
 
                             if (chartNum >= 12) {
                                 row = drawRow(container);
@@ -524,7 +523,7 @@ var apexDashboardChart = (function () {
              ** Used to draw one chart column
              **
              ***********************************************************************/
-            function drawChartCol(pColIndex, pHeight, pParent, pColSpan, pTitle, pItemConfig, pDefaultConfig, pSeriesData, pItemData) {
+            function drawChartCol(pColIndex, pHeight, pParent, pColSpan, pTitle, pItemConfig, pDefaultConfig, pItemData) {
                 var colID = pRegionID + "-c-" + pColIndex;
 
                 /* define new column for rows */
@@ -535,7 +534,7 @@ var apexDashboardChart = (function () {
                 pParent.append(col);
 
                 if (pItemData) {
-                    drawChart("#" + colID, pHeight, pItemConfig, pSeriesData, pItemData, pDefaultConfig);
+                    drawChart("#" + colID, pHeight, pItemConfig, pItemData, pDefaultConfig);
                 } else {
                     util.noDataMessage.show(col, pDefaultConfig.noDataMessage);
                 }
@@ -558,14 +557,13 @@ var apexDashboardChart = (function () {
              ** function to render chart
              **
              ***********************************************************************/
-            function drawChart(pItemSel, pItemHeight, pConfigData, pSeriesData, pValuesData, pDefaultConfig) {
+            function drawChart(pItemSel, pItemHeight, pConfigData, pValuesData, pDefaultConfig) {
 
                 util.debug.info({
                     "module": "drawChart",
                     "pItemSel": pItemSel,
                     "pItemHeight": pItemHeight,
                     "pConfigData": pConfigData,
-                    "pSeriesData": pSeriesData,
                     "pValuesData": pValuesData,
                     "pDefaultConfig": pDefaultConfig
                 });
@@ -574,6 +572,7 @@ var apexDashboardChart = (function () {
                 var isGauge = false;
                 var isPie = false;
                 var isDonut = false;
+                var seriesData = util.groupObjectArray(pValuesData, 'seriesID');
 
                 /* search link from data and set window.location.href */
                 function executeLink(seriesID, valueIdx) {
@@ -582,9 +581,10 @@ var apexDashboardChart = (function () {
                         "submodule": "executeLink",
                         "seriesID": seriesID,
                         "valueIdx": valueIdx,
-                        "pSeriesData": pSeriesData
+                        "seriesData": seriesData
                     });
-                    $.each(pSeriesData, function (idx, series) {
+
+                    $.each(seriesData, function (idx, series) {
                         util.debug.info({
                             "module": "drawChart",
                             "submodule": "executeLink",
@@ -723,19 +723,17 @@ var apexDashboardChart = (function () {
 
                     /* Zoom and Subchart */
                     var zoomEnabled = setObjectParameter(pConfigData.zoomEnabled, pDefaultConfig.d3chart.zoom.enabled, true);
-                    var zoom_type = setObjectParameter(pConfigData.zoomType, pDefaultConfig.d3chart.zoom.type);
+                    var zoomType = setObjectParameter(pConfigData.zoomType, pDefaultConfig.d3chart.zoom.type);
                     var showSubChart = false;
 
                     if (zoomEnabled) {
-                        if (zoom_type == "scroll") {
+                        if (zoomType == "scroll") {
                             showSubChart = false;
-                        } else if (zoom_type == "subchart") {
+                        } else if (zoomType == "subchart") {
                             showSubChart = true;
                             zoomEnabled = false;
-                        } else if (zoom_type == "drag") {
-                            zoomEnabled = {
-                                type: "drag"
-                            };
+                        } else if (zoomType == "drag") {
+                            zoomEnabled = true;
                             showSubChart = false;
                         }
                     } else {
@@ -754,7 +752,7 @@ var apexDashboardChart = (function () {
                     var namesJSON = {};
                     var groupJSON = {};
 
-                    if (pSeriesData) {
+                    if (seriesData) {
                         /* Add Categories or time values to x Axis when correct type is set */
                         if (xType == "category" || xType == "timeseries") {
                             categoriesArr.push("x");
@@ -769,7 +767,7 @@ var apexDashboardChart = (function () {
                         dataArr.push(categoriesArr);
 
                         /* Transform data for billboard.js */
-                        $.each(pSeriesData, function (idx, seriesData) {
+                        $.each(seriesData, function (idx, seriesData) {
                             var series;
 
                             if (seriesData[0] && seriesData[0].seriesID) {
@@ -839,7 +837,7 @@ var apexDashboardChart = (function () {
                                         }
                                     });
                                 } else {
-                                    $.each(util.groupObjectArray(pValuesData, "seriesID")[dataKey], function (dIdx, dataValues) {
+                                    $.each(seriesData, function (dIdx, dataValues) {
                                         var setValueY = setObjectParameter(dataValues.y, null);
                                         if (dataValues.z) {
                                             var setValueZ = dataValues.z;
@@ -897,11 +895,11 @@ var apexDashboardChart = (function () {
                                 div.addClass("bb-tooltip");
                                 div.addClass("bida-chart-tooltip-custome");
                                 $.each(d, function (i, v) {
-                                    if (Object.keys(pSeriesData)[i]) {
-                                        var key = Object.keys(pSeriesData)[i];
+                                    if (Object.keys(seriesData)[i]) {
+                                        var key = Object.keys(seriesData)[i];
 
-                                        if (pSeriesData[key][v.index] && util.isDefinedAndNotNull(pSeriesData[key][v.index].tooltip)) {
-                                            var ttS = pSeriesData[key][v.index].tooltip;
+                                        if (seriesData[key][v.index] && util.isDefinedAndNotNull(seriesData[key][v.index].tooltip)) {
+                                            var ttS = seriesData[key][v.index].tooltip;
                                             if (pRequireHTMLEscape !== false) {
                                                 ttS = util.escapeHTML(ttS);
                                             }
@@ -986,6 +984,7 @@ var apexDashboardChart = (function () {
                                     show: showSubChart
                                 },
                                 zoom: {
+                                    type: zoomType,
                                     enabled: zoomEnabled,
                                     rescale: zoomRescale
                                 },

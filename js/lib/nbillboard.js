@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  * 
- * @version 2.1.2
+ * @version 2.1.3
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -113,9 +113,12 @@ module.exports = __webpack_require__(15);
 
 /***/ }),
 /* 1 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+__webpack_require__.r(__webpack_exports__);
 // extracted by mini-css-extract-plugin
+
 
 /***/ }),
 /* 2 */
@@ -10057,8 +10060,6 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
         svg = _$$$$el.svg,
         selectRect = function (context) {
       if (isMultipleX) $$.selectRectForMultipleXs(context);else {
-        // const eventRect = getEventRect();
-        // const index = getIndex(eventRect);
         var index = $$.getDataIndexFromEvent(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["event"]);
         $$.callOverOutForTouch(index), index === -1 ? $$.unselectRect() : $$.selectRectForSingle(context, eventRect, index);
       }
@@ -10256,7 +10257,7 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
         config = $$.config,
         state = $$.state,
         main = $$.$el.main;
-    if ($$.hasArcType() || state.cancelClick) return void (state.cancelClick && (state.cancelClick = !1));
+    if (!d || $$.hasArcType() || state.cancelClick) return void (state.cancelClick && (state.cancelClick = !1));
     var index = d.index;
     main.selectAll("." + config_classes.shape + "-" + index).each(function (d2) {
       (config.data_selection_grouped || $$.isWithinShape(this, d2)) && ($$.toggleShape && $$.toggleShape(this, d2, index), config.data_onclick.bind($$.api)(d2, this));
@@ -14286,7 +14287,7 @@ var getTransitionName = function () {
       for (var _len = arguments.length, args = Array(_len > 2 ? _len - 2 : 0), _key = 2; _key < _len; _key++) args[_key - 2] = arguments[_key];
 
       return function (d) {
-        var id = d.id || d.data && d.data.id || d,
+        var id = $$.getTargetSelectorSuffix(d.id || d.data && d.data.id || d),
             element = Object(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_["select"])(this);
         ids.indexOf(id) < 0 && ids.push(id);
         var point = pattern[ids.indexOf(id) % pattern.length];
@@ -16928,7 +16929,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.1.2",
+  version: "2.1.3",
 
   /**
    * Generate chart
@@ -17056,7 +17057,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.1.2
+ * @version 2.1.3
  */
 // CONCATENATED MODULE: ./src/index.ts
 /**
