@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  * 
- * @version 2.1.3
+ * @version 2.1.4
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -993,6 +993,20 @@ var Store = /*#__PURE__*/function () {
  * data config options
  */
 /* harmony default export */ var data_data = ({
+  /**
+   * Specify the key of x values in the data.<br><br>
+   * We can show the data with non-index x values by this option. This option is required when the type of x axis is timeseries. If this option is set on category axis, the values of the data on the key will be used for category names.
+   * @name data․x
+   * @memberof Options
+   * @type {string}
+   * @default undefined
+   * @example
+   * data: {
+   *   x: "date"
+   * }
+   */
+  data_x: undefined,
+
   /**
    * Converts data id value
    * @name data․idConverter
@@ -6706,26 +6720,26 @@ function getTextPos(pos, width) {
 
     if (config.tooltip_linked && charts.length > 1) {
       var linkedName = config.tooltip_linked_name;
-      charts.forEach(function (c) {
-        if (c !== $$.api) {
-          var _c$internal = c.internal,
-              _config = _c$internal.config,
-              $el = _c$internal.$el,
-              isLinked = _config.tooltip_linked,
-              name = _config.tooltip_linked_name,
-              isInDom = browser_doc.body.contains($el.chart.node());
+      charts.filter(function (v) {
+        return v !== $$.api;
+      }).forEach(function (c) {
+        var _c$internal = c.internal,
+            config = _c$internal.config,
+            $el = _c$internal.$el,
+            isLinked = config.tooltip_linked,
+            name = config.tooltip_linked_name,
+            isInDom = browser_doc.body.contains($el.chart.node());
 
-          if (isLinked && linkedName === name && isInDom) {
-            var data = c.internal.$el.tooltip.data()[0],
-                isNotSameIndex = index !== (data && data.index);
+        if (isLinked && linkedName === name && isInDom) {
+          var data = $el.tooltip.data()[0],
+              isNotSameIndex = index !== (data && data.index);
 
-            // prevent throwing error for non-paired linked indexes
-            try {
-              show && isNotSameIndex ? c.tooltip.show({
-                index: index
-              }) : !show && c.tooltip.hide();
-            } catch (e) {}
-          }
+          // prevent throwing error for non-paired linked indexes
+          try {
+            show && isNotSameIndex ? c.tooltip.show({
+              index: index
+            }) : !show && c.tooltip.hide();
+          } catch (e) {}
         }
       });
     }
@@ -8093,8 +8107,9 @@ function showHide(show, targetIdsValue, options) {
   $$.state.toggling = !0, $$[(show ? "remove" : "add") + "HiddenTargetIds"](targetIds);
   var targets = $$.$el.svg.selectAll($$.selectorTargets(targetIds)),
       opacity = show ? "1" : "0";
-  targets.transition().style("opacity", opacity, "important").call(endall, function () {
-    targets.style("opacity", null).style("opacity", opacity);
+  show && targets.style("display", null), targets.transition().style("opacity", opacity, "important").call(endall, function () {
+    // https://github.com/naver/billboard.js/issues/1758
+    show || targets.style("display", "none"), targets.style("opacity", opacity);
   }), options.withLegend && $$[(show ? "show" : "hide") + "Legend"](targetIds), $$.redraw({
     withUpdateOrgXDomain: !0,
     withUpdateXDomain: !0,
@@ -8274,9 +8289,21 @@ var tooltip_tooltip = {
    * @memberof Chart
    */
   hide: function hide() {
-    var $$ = this.internal; // reset last touch point index
+    var $$ = this.internal,
+        inputType = $$.state.inputType,
+        tooltip = $$.$el.tooltip,
+        data = tooltip && tooltip.datum();
 
-    $$.inputType === "touch" && $$.callOverOutForTouch(), $$.hideTooltip(!0), $$.hideGridFocus(), $$.unexpandCircles(), $$.unexpandBars();
+    if (data) {
+      var index = JSON.parse(data.current)[0].index; // make to finalize, possible pending event flow set from '.tooltip.show()' call
+
+      (inputType === "mouse" ? ["mouseout"] : ["touchend"]).forEach(function (eventName) {
+        $$.dispatchEvent(eventName, index);
+      });
+    } // reset last touch point index
+
+
+    inputType === "touch" && $$.callOverOutForTouch(), $$.hideTooltip(!0), $$.hideGridFocus(), $$.unexpandCircles && $$.unexpandCircles(), $$.unexpandBars && $$.unexpandBars();
   }
 };
 /* harmony default export */ var api_tooltip = ({
@@ -10104,17 +10131,11 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
         width = _state.width,
         height = _state.height,
         rendered = _state.rendered,
-        resizing = _state.resizing;
-
-    if (!rendered || resizing) {
-      var rect = eventRect.attr("x", 0).attr("y", 0).attr("width", width).attr("height", height); // only for init
-
-      rendered || rect.attr("class", config_classes.eventRect);
-    }
-
-    (function updateClientRect() {
-      eventReceiver && (eventReceiver.rect = (eventRect || $el.eventRect).node().getBoundingClientRect());
-    })();
+        resizing = _state.resizing,
+        rectElement = eventRect || $el.eventRect;
+    (!rendered || resizing) && (rectElement.attr("x", 0).attr("y", 0).attr("width", width).attr("height", height), !rendered && rectElement.attr("class", config_classes.eventRect)), function updateClientRect() {
+      eventReceiver && (eventReceiver.rect = rectElement.node().getBoundingClientRect());
+    }();
   },
 
   /**
@@ -10165,7 +10186,8 @@ var Axis_Axis_Axis = /*#__PURE__*/function () {
       return isFunction(fn) ? fn(v) : fn;
     };
 
-    eventReceiver.data.forEach(function (d, i) {
+    // reset for possible remains coords data before the data loading
+    eventReceiver.coords.splice(eventReceiver.data.length), eventReceiver.data.forEach(function (d, i) {
       eventReceiver.coords[i] = {
         x: call(x, d),
         y: call(y, d),
@@ -11029,20 +11051,6 @@ function smoothLines(el, type) {
  * Axis based chart data config options
  */
 /* harmony default export */ var data_axis = ({
-  /**
-   * Specify the key of x values in the data.<br><br>
-   * We can show the data with non-index x values by this option. This option is required when the type of x axis is timeseries. If this option is set on category axis, the values of the data on the key will be used for category names.
-   * @name data․x
-   * @memberof Options
-   * @type {string}
-   * @default undefined
-   * @example
-   * data: {
-   *   x: "date"
-   * }
-   */
-  data_x: undefined,
-
   /**
    * Specify the keys of the x values for each data.<br><br>
    * This option can be used if we want to show the data that has different x values.
@@ -12993,19 +13001,14 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
 
     if (d.data && $$.isGaugeType(d.data) && !$$.hasMultiArcGauge()) {
       // to prevent excluding total data sum during the init(when data.hide option is used), use $$.rendered state value
-      var totalSum = $$.getTotalDataSum(state.rendered); // if gauge_max less than totalSum, make totalSum to max value
-
-      totalSum > config.gauge_max && (config.gauge_max = totalSum);
-      var gEnd = radius * (totalSum / (config.gauge_max - config.gauge_min));
+      var totalSum = $$.getTotalDataSum(state.rendered),
+          gEnd = radius * (totalSum / (config.gauge_max - config.gauge_min));
       pie = pie.startAngle(gStart).endAngle(gEnd + gStart);
     }
 
     if (pie($$.filterTargetsToShow()).forEach(function (t, i) {
       found || t.data.id !== d.data.id || (found = !0, d = t, d.index = i);
     }), isNaN(d.startAngle) && (d.startAngle = 0), isNaN(d.endAngle) && (d.endAngle = d.startAngle), d.data && $$.hasMultiArcGauge()) {
-      var maxValue = $$.getMinMaxData().max[0].value; // if gauge_max less than maxValue, make maxValue to max value
-
-      maxValue > config.gauge_max && (config.gauge_max = maxValue);
       var gMin = config.gauge_min,
           gMax = config.gauge_max,
           gValue = d.value < gMin ? 0 : d.value < gMax ? d.value - gMin : gMax - gMin;
@@ -13229,7 +13232,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
       return isSelectable && isSelectable.bind($$.api)(d) ? "pointer" : null;
     }).style("opacity", "0").each(function (d) {
       $$.isGaugeType(d.data) && (d.startAngle = config.gauge_startingAngle, d.endAngle = config.gauge_startingAngle), this._current = d;
-    }).merge(mainArc), $$.hasMultiArcGauge() && $$.redrawMultiArcGauge(), mainArc.attr("transform", function (d) {
+    }).merge(mainArc), $$.hasType("gauge") && ($$.updateGaugeMax(), $$.hasMultiArcGauge() && $$.redrawMultiArcGauge()), mainArc.attr("transform", function (d) {
       return !$$.isGaugeType(d.data) && withTransform ? "scale(0)" : "";
     }).style("opacity", function (d) {
       return d === this._current ? "0" : "1";
@@ -13675,6 +13678,14 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
     };
 
     $$.hasType("gauge") && (arcs.append($$.hasMultiArcGauge() ? "g" : "path").attr("class", config_classes.chartArcsBackground), config.gauge_units && appendText(config_classes.chartArcsGaugeUnit), config.gauge_label_show && (appendText(config_classes.chartArcsGaugeMin), !config.gauge_fullCircle && appendText(config_classes.chartArcsGaugeMax)));
+  },
+  updateGaugeMax: function updateGaugeMax() {
+    var $$ = this,
+        config = $$.config,
+        state = $$.state,
+        hasMultiGauge = $$.hasMultiArcGauge(),
+        max = hasMultiGauge ? $$.getMinMaxData().max[0].value : $$.getTotalDataSum(state.rendered);
+    max > config.gauge_max && (config.gauge_max = max);
   },
   redrawMultiArcGauge: function redrawMultiArcGauge() {
     var $$ = this,
@@ -16929,7 +16940,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.1.3",
+  version: "2.1.4",
 
   /**
    * Generate chart
@@ -17057,7 +17068,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.1.3
+ * @version 2.1.4
  */
 // CONCATENATED MODULE: ./src/index.ts
 /**
