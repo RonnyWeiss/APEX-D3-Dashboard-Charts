@@ -1,18 +1,13 @@
-var apexDashboardChart = (function () {
+var apexDashboardChart = function (apex) {
     "use strict";
     var util = {
-        /**********************************************************************************
-         ** required functions 
-         *********************************************************************************/
-        featureInfo: {
+        featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            info: {
-                scriptVersion: "2.6.6",
-                utilVersion: "1.3.5",
-                url: "https://github.com/RonnyWeiss",
-                url2: "https://ronnyweiss.app",
-                license: "MIT"
-            }
+            scriptVersion: "2.6.6.1",
+            utilVersion: "1.4",
+            url: "https://github.com/RonnyWeiss",
+            url2: "https://ronnyweiss.app",
+            license: "MIT"
         },
         isDefinedAndNotNull: function (pInput) {
             if (typeof pInput !== "undefined" && pInput !== null && pInput != "") {
@@ -21,58 +16,6 @@ var apexDashboardChart = (function () {
                 return false;
             }
         },
-        isAPEX: function () {
-            if (typeof (apex) !== 'undefined') {
-                return true;
-            } else {
-                return false;
-            }
-        },
-        varType: function (pObj) {
-            if (typeof pObj === "object") {
-                var arrayConstructor = [].constructor;
-                var objectConstructor = ({}).constructor;
-                if (pObj.constructor === arrayConstructor) {
-                    return "array";
-                }
-                if (pObj.constructor === objectConstructor) {
-                    return "json";
-                }
-            } else {
-                return typeof pObj;
-            }
-        },
-        debug: {
-            info: function () {
-                if (util.isAPEX()) {
-                    var i = 0;
-                    var arr = [];
-                    for (var prop in arguments) {
-                        arr[i] = arguments[prop];
-                        i++;
-                    }
-                    arr.push(util.featureInfo);
-                    apex.debug.info.apply(this, arr);
-                }
-            },
-            error: function () {
-                var i = 0;
-                var arr = [];
-                for (var prop in arguments) {
-                    arr[i] = arguments[prop];
-                    i++;
-                }
-                arr.push(util.featureInfo);
-                if (util.isAPEX()) {
-                    apex.debug.error.apply(this, arr);
-                } else {
-                    console.error.apply(this, arr);
-                }
-            }
-        },
-        /**********************************************************************************
-         ** optinal functions 
-         *********************************************************************************/
         groupObjectArray: function (objectArr, jSONKey) {
             if (objectArr && Array.isArray(objectArr)) {
                 return objectArr.reduce(function (retVal, x) {
@@ -109,44 +52,14 @@ var apexDashboardChart = (function () {
                     /*do nothing */
                 }
             }
-            if (util.isAPEX()) {
-                return apex.util.escapeHTML(String(str));
-            } else {
-                str = String(str);
-                return str
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#x27;")
-                    .replace(/\//g, "&#x2F;");
-            }
+            return apex.util.escapeHTML(String(str));
         },
         loader: {
             start: function (id, setMinHeight) {
                 if (setMinHeight) {
                     $(id).css("min-height", "100px");
                 }
-                if (util.isAPEX()) {
-                    apex.util.showSpinner($(id));
-                } else {
-                    /* define loader */
-                    var faLoader = $("<span></span>");
-                    faLoader.attr("id", "loader" + id);
-                    faLoader.addClass("ct-loader");
-
-                    /* define refresh icon with animation */
-                    var faRefresh = $("<i></i>");
-                    faRefresh.addClass("fa fa-refresh fa-2x fa-anim-spin");
-                    faRefresh.css("background", "rgba(121,121,121,0.6)");
-                    faRefresh.css("border-radius", "100%");
-                    faRefresh.css("padding", "15px");
-                    faRefresh.css("color", "white");
-
-                    /* append loader */
-                    faLoader.append(faRefresh);
-                    $(id).append(faLoader);
-                }
+                apex.util.showSpinner($(id));
             },
             stop: function (id, removeMinHeight) {
                 if (removeMinHeight) {
@@ -164,7 +77,8 @@ var apexDashboardChart = (function () {
                 try {
                     tmpJSON = JSON.parse(targetConfig);
                 } catch (e) {
-                    util.debug.error({
+                    apex.debug.error({
+                        "module": "util.js",
                         "msg": "Error while try to parse targetConfig. Please check your Config JSON. Standard Config will be used.",
                         "err": e,
                         "targetConfig": targetConfig
@@ -178,7 +92,8 @@ var apexDashboardChart = (function () {
                 finalConfig = $.extend(true, {}, srcConfig, tmpJSON);
             } catch (e) {
                 finalConfig = $.extend(true, {}, srcConfig);
-                util.debug.error({
+                apex.debug.error({
+                    "module": "util.js",
                     "msg": "Error while try to merge 2 JSONs into standard JSON if any attribute is missing. Please check your Config JSON. Standard Config will be used.",
                     "err": e,
                     "finalConfig": finalConfig
@@ -289,7 +204,7 @@ var apexDashboardChart = (function () {
     }
 
     return {
-        initialize: function (pRegionID, pAjaxID, pNoDataMsg, pErrorMsg, pDefaultConfigJSON, pChartConfigJSON, pItems2Submit, pRequireHTMLEscape, pData) {
+        initialize: function (pRegionID, pAjaxID, pNoDataMsg, pErrorMsg, pDefaultConfigJSON, pChartConfigJSON, pItems2Submit, pRequireHTMLEscape) {
             var timers = {};
             var resizeRange = 5;
 
@@ -379,7 +294,11 @@ var apexDashboardChart = (function () {
             /* get parent */
             var parentID = "#" + pRegionID;
             var parent = $(parentID).find(".d3dc-root");
-            util.debug.info("Load...");
+            apex.debug.info({
+                "fct": util.featureDetails.name + " - " + "initialize",
+                "msg": "Load...",
+                "featureDetails": util.featureDetails
+            });
             if (parentID) {
                 if (parent.length > 0) {
                     var configJSON = {};
@@ -408,9 +327,11 @@ var apexDashboardChart = (function () {
                         });
                     } catch (e) {
                         util.errorMessage.show(parentID, configJSON.errorMessage);
-                        util.debug.error({
+                        apex.debug.error({
+                            "fct": util.featureDetails.name + " - " + "initialize",
                             "msg": "Can't bind refresh event on " + parentID + ". Apex is missing",
-                            "err": e
+                            "err": e,
+                            "featureDetails": util.featureDetails
                         });
                     }
 
@@ -423,13 +344,17 @@ var apexDashboardChart = (function () {
                         }, configJSON.refresh * 1000);
                     }
                 } else {
-                    util.debug.error({
-                        "msg": "Can't find element with class d3dc-root in element with id: " + pRegionID
+                    apex.debug.error({
+                        "fct": util.featureDetails.name + " - " + "initialize",
+                        "msg": "Can't find element with class d3dc-root in element with id: " + pRegionID,
+                        "featureDetails": util.featureDetails
                     });
                 }
             } else {
-                util.debug.error({
-                    "msg": "Can't find pRegionID: " + pRegionID
+                apex.debug.error({
+                    "fct": util.featureDetails.name + " - " + "initialize",
+                    "msg": "Can't find pRegionID: " + pRegionID,
+                    "featureDetails": util.featureDetails
                 });
             }
             /***********************************************************************
@@ -452,8 +377,12 @@ var apexDashboardChart = (function () {
              **
              ***********************************************************************/
             function prepareData(pAjaxResponse, pDefaultConfig) {
-                util.debug.info(pAjaxResponse);
-                util.debug.info("Ajax finished");
+                apex.debug.info({
+                    "fct": util.featureDetails.name + " - " + "prepareData",
+                    "msg": "AJAX Finished",
+                    "pAjaxResponse": pAjaxResponse,
+                    "featureDetails": util.featureDetails
+                });
 
                 /* clear timers */
                 if (timers.innerItemsIntervals) {
@@ -481,7 +410,11 @@ var apexDashboardChart = (function () {
                             var colSpan = item.colSpan || configJSON.colSpan;
                             chartNum = chartNum + colSpan;
                             /* draw each chart in a col */
-                            util.debug.info("Render chart  - Col " + idx);
+                            apex.debug.info({
+                                "fct": util.featureDetails.name + " - " + "prepareData",
+                                "msg": "Render chart  - Col " + idx,
+                                "featureDetails": util.featureDetails
+                            });
 
                             drawChartCol(idx, item.height, row, colSpan, item.title, itemConfigJSON, pDefaultConfig, item.itemData);
 
@@ -493,9 +426,11 @@ var apexDashboardChart = (function () {
                         });
                     } catch (e) {
                         util.errorMessage.show(container, pDefaultConfig.errorMessage);
-                        util.debug.error({
+                        apex.debug.error({
+                            "fct": util.featureDetails.name + " - " + "prepareData",
                             "msg": "Error while prepare data for chart",
-                            "err": e
+                            "err": e,
+                            "featureDetails": util.featureDetails
                         });
                     }
                 } else {
@@ -503,7 +438,11 @@ var apexDashboardChart = (function () {
                     util.noDataMessage.show(container, pDefaultConfig.noDataMessage);
                 }
                 util.loader.stop(parentID);
-                util.debug.info("Finished");
+                apex.debug.info({
+                    "fct": util.featureDetails.name + " - " + "prepareData",
+                    "msg": "Finished",
+                    "featureDetails": util.featureDetails
+                });
             }
 
             /***********************************************************************
@@ -559,13 +498,14 @@ var apexDashboardChart = (function () {
              ***********************************************************************/
             function drawChart(pItemSel, pItemHeight, pConfigData, pValuesData, pDefaultConfig) {
 
-                util.debug.info({
-                    "module": "drawChart",
+                apex.debug.info({
+                    "fct": util.featureDetails.name + " - " + "drawChart",
                     "pItemSel": pItemSel,
                     "pItemHeight": pItemHeight,
                     "pConfigData": pConfigData,
                     "pValuesData": pValuesData,
-                    "pDefaultConfig": pDefaultConfig
+                    "pDefaultConfig": pDefaultConfig,
+                    "featureDetails": util.featureDetails
                 });
 
                 var aTypeCharts = ["pie", "donut", "gauge"];
@@ -576,20 +516,22 @@ var apexDashboardChart = (function () {
 
                 /* search link from data and set window.location.href */
                 function executeLink(seriesID, valueIdx) {
-                    util.debug.info({
-                        "module": "drawChart",
+                    apex.debug.info({
+                        "fct": util.featureDetails.name + " - " + "drawChart",
                         "submodule": "executeLink",
                         "seriesID": seriesID,
                         "valueIdx": valueIdx,
-                        "seriesData": seriesData
+                        "seriesData": seriesData,
+                        "featureDetails": util.featureDetails
                     });
 
                     $.each(seriesData, function (idx, series) {
-                        util.debug.info({
-                            "module": "drawChart",
-                            "submodule": "executeLink",
+                        apex.debug.info({
+                            "fct": util.featureDetails.name + " - " + "drawChart",
+                            "subModule": "executeLink",
                             "idx": idx,
-                            "series": series
+                            "series": series,
+                            "featureDetails": util.featureDetails
                         });
                         if (series && series[0] && seriesID == $.escapeSelector(series[0].seriesID)) {
                             var chartType = series[0].type;
@@ -606,7 +548,11 @@ var apexDashboardChart = (function () {
                                         return true;
                                     }
                                 } else {
-                                    util.debug.error("Error while find correct link in data please chekc debug");
+                                    apex.debug.error({
+                                        "fct": util.featureDetails.name + " - " + "drawChart",
+                                        "msg": "Error while find correct link in data please chekc debug",
+                                        "featureDetails": util.featureDetails
+                                    });
                                 }
                             }
                         }
@@ -855,7 +801,11 @@ var apexDashboardChart = (function () {
 
                             } else {
                                 util.errorMessage.show(pItemSel, pDefaultConfig.errorMessage);
-                                util.debug.error("No seriesID found in seriesID Cursor");
+                                apex.debug.error({
+                                    "fct": util.featureDetails.name + " - " + "drawChart",
+                                    "msg": "No seriesID found in seriesID Cursor",
+                                    "featureDetails": util.featureDetails
+                                });
                             }
 
                         });
@@ -937,9 +887,10 @@ var apexDashboardChart = (function () {
                                     axes: axesJSON,
                                     names: namesJSON,
                                     onclick: function (d) {
-                                        util.debug.info({
-                                            "module": "drawChart",
-                                            "onclick_element": d
+                                        apex.debug.info({
+                                            "fct": util.featureDetails.name + " - " + "drawChart",
+                                            "onclickElement": d,
+                                            "featureDetails": util.featureDetails
                                         });
                                         executeLink(d.id, d.index);
                                     }
@@ -1062,9 +1013,10 @@ var apexDashboardChart = (function () {
                                 padding: chartPadding
                             };
 
-                            util.debug.info({
-                                "module": "drawChart",
-                                "finalChartData": bbData
+                            apex.debug.info({
+                                "fct": util.featureDetails.name + " - " + "drawChart",
+                                "finalChartData": bbData,
+                                "featureDetails": util.featureDetails
                             });
 
                             var chart = bb.generate(bbData);
@@ -1086,61 +1038,58 @@ var apexDashboardChart = (function () {
                                 }
                             }
 
-                            if (util.isAPEX()) {
-                                $(window).on("apexwindowresized", function () {
-                                    resize();
-                                });
+                            // bind resize events
+                            $(window).resize(function () {
+                                resize();
+                            });
 
-                                /* bind resize events */
-                                $("#t_TreeNav").on("theme42layoutchanged", function () {
-                                    resize();
-                                });
-
-                                /* dirty workaround because in apex sometimes chart renders in wrong size hope apexDev Team will bring us layout change events also for tabs, collapsible so on */
-                                function stopResizeWA() {
-                                    if (timers.innerItemsIntervals && timers.innerItemsIntervals[pItemSel]) {
-                                        clearInterval(timers.innerItemsIntervals[pItemSel]);
-                                    }
+                            /* dirty workaround because in apex sometimes chart renders in wrong size hope apexDev Team will bring us layout change events also for tabs, collapsible so on */
+                            function stopResizeWA() {
+                                if (timers.innerItemsIntervals && timers.innerItemsIntervals[pItemSel]) {
+                                    clearInterval(timers.innerItemsIntervals[pItemSel]);
                                 }
-
-                                function startResizeWA() {
-                                    timers.innerItemsIntervals[pItemSel] = setInterval(function () {
-                                        if ($(pItemSel).length === 0) {
-                                            clearInterval(timers.innerItemsIntervals[pItemSel]);
-                                        } else {
-                                            if (chartCont.is(":visible")) {
-                                                if (!util.isBetween(chartCont.width(), chartCont.find("svg").width(), resizeRange)) {
-                                                    util.debug.info("Chart has resize problem");
-                                                    resize();
-                                                }
-
-                                            }
-                                        }
-                                    }, timers.defTime);
-                                }
-
-                                stopResizeWA();
-                                startResizeWA();
-
-                                /* stop when tab is not active */
-                                document.addEventListener("visibilitychange", function () {
-                                    if (document.hidden) {
-                                        stopResizeWA();
-                                    } else {
-                                        startResizeWA();
-                                    }
-                                });
-                            } else {
-                                $(window).resize(function () {
-                                    resize();
-                                });
                             }
+
+                            function startResizeWA() {
+                                timers.innerItemsIntervals[pItemSel] = setInterval(function () {
+                                    if ($(pItemSel).length === 0) {
+                                        clearInterval(timers.innerItemsIntervals[pItemSel]);
+                                    } else {
+                                        if (chartCont.is(":visible")) {
+                                            if (!util.isBetween(chartCont.width(), chartCont.find("svg").width(), resizeRange)) {
+                                                apex.debug.info({
+                                                    "fct": util.featureDetails.name + " - " + "drawChart",
+                                                    "msg": "Chart has resize problem",
+                                                    "featureDetails": util.featureDetails
+                                                });
+                                                resize();
+                                            }
+
+                                        }
+                                    }
+                                }, timers.defTime);
+                            }
+
+                            stopResizeWA();
+                            startResizeWA();
+
+                            /* stop when tab is not active */
+                            document.addEventListener("visibilitychange", function () {
+                                if (document.hidden) {
+                                    stopResizeWA();
+                                } else {
+                                    startResizeWA();
+                                }
+                            });
+
                         } catch (e) {
                             $(pItemSel).empty();
                             util.errorMessage.show(pItemSel, pDefaultConfig.errorMessage);
-                            util.debug.error({
+                            apex.debug.error({
+                                "fct": util.featureDetails.name + " - " + "drawChart",
                                 "msg": "Error while try to render chart",
-                                "err": e
+                                "err": e,
+                                "featureDetails": util.featureDetails
                             });
                         }
                     } else {
@@ -1149,9 +1098,11 @@ var apexDashboardChart = (function () {
                 } catch (e) {
                     $(pItemSel).empty();
                     util.errorMessage.show(pItemSel, pDefaultConfig.errorMessage);
-                    util.debug.error({
+                    apex.debug.error({
+                        "fct": util.featureDetails.name + " - " + "drawChart",
                         "msg": "Error while prepare data for chart",
-                        "err": e
+                        "err": e,
+                        "featureDetails": util.featureDetails
                     });
                 }
             }
@@ -1161,39 +1112,30 @@ var apexDashboardChart = (function () {
              **
              ***********************************************************************/
             function getData(pDefaultConfig) {
-                if (util.isAPEX()) {
-                    util.loader.start(parentID);
-                    var submitItems = pItems2Submit;
+                util.loader.start(parentID);
+                var submitItems = pItems2Submit;
 
-                    apex.server.plugin(
-                        pAjaxID, {
-                            pageItems: submitItems
-                        }, {
-                            success: function (pData) {
-                                prepareData(pData, pDefaultConfig)
-                            },
-                            error: function (d) {
-                                $(parentID).empty();
-                                util.errorMessage.show(parentID, pDefaultConfig.errorMessage);
-                                util.debug.error({
-                                    "msg": "Error while loading AJAX data",
-                                    "err": d
-                                });
-                                util.loader.stop(parentID);
-                                util.debug.error(d.responseText);
-                            },
-                            dataType: "json"
-                        });
-
-                } else if (pData) {
-                    prepareData(pData, pDefaultConfig);
-                } else {
-                    util.errorMessage.show(parentID, pDefaultConfig.errorMessage);
-                    util.debug.error({
-                        "msg": "No offline Data found or apex and ajax id is unedefined."
+                apex.server.plugin(
+                    pAjaxID, {
+                        pageItems: submitItems
+                    }, {
+                        success: function (pData) {
+                            prepareData(pData, pDefaultConfig)
+                        },
+                        error: function (d) {
+                            $(parentID).empty();
+                            util.errorMessage.show(parentID, pDefaultConfig.errorMessage);
+                            apex.debug.error({
+                                "fct": util.featureDetails.name + " - " + "getData",
+                                "msg": "Error while loading AJAX data",
+                                "err": d,
+                                "featureDetails": util.featureDetails
+                            });
+                            util.loader.stop(parentID);
+                        },
+                        dataType: "json"
                     });
-                }
             }
         }
     }
-})();
+};

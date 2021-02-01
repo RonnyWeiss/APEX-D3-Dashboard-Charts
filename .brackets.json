@@ -4,7 +4,7 @@
     "brackets-minifier.css-project-minify": true,
     "brackets-minifier.js-custom-path": "build",
     "brackets-minifier.css-custom-path": "build",
-    "brackets-minifier.project-exclude": "data/data.js",
+    "brackets-minifier.project-exclude": "data/data.js<br>js/bridge.js",
     "brackets-minifier.concat-js-filename": "d3dashboard.pkgd",
     "brackets-minifier.concat-css-filename": "d3dashboard.pkgd",
     "brackets-minifier.uglifyjs-options": "{}",
