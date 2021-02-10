@@ -3,7 +3,7 @@ var apexDashboardChart = function (apex) {
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.1",
+            scriptVersion: "2.6.6.2",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -232,6 +232,9 @@ var apexDashboardChart = function (apex) {
                 "legend": {
                     "position": "right",
                     "show": true
+                },
+                "line": {
+                    "step": "step"
                 },
                 "padding": {
                     "bottom": null,
@@ -513,54 +516,30 @@ var apexDashboardChart = function (apex) {
                 var isPie = false;
                 var isDonut = false;
                 var seriesData = util.groupObjectArray(pValuesData, 'seriesID');
+                var specialStr = "\u200b";
 
                 /* search link from data and set window.location.href */
-                function executeLink(seriesID, valueIdx) {
-                    apex.debug.info({
-                        "fct": util.featureDetails.name + " - " + "drawChart",
-                        "submodule": "executeLink",
-                        "seriesID": seriesID,
-                        "valueIdx": valueIdx,
-                        "seriesData": seriesData,
-                        "featureDetails": util.featureDetails
-                    });
+                function executeLink(pData) {
+                    var key = specialStr + unescape(pData.id);
+                    var index = pData.index;
 
-                    $.each(seriesData, function (idx, series) {
-                        apex.debug.info({
-                            "fct": util.featureDetails.name + " - " + "drawChart",
-                            "subModule": "executeLink",
-                            "idx": idx,
-                            "series": series,
-                            "featureDetails": util.featureDetails
-                        });
-                        if (series && series[0] && seriesID == $.escapeSelector(series[0].seriesID)) {
-                            var chartType = series[0].type;
-                            /* check if atypechart*/
-                            if (chartType && aTypeCharts.indexOf(chartType) >= 0) {
-                                if (series[0].link) {
-                                    util.link(series[0].link);
-                                    return true;
-                                }
-                            } else {
-                                if (series[valueIdx]) {
-                                    if (series[valueIdx].link) {
-                                        util.link(series[valueIdx].link);
-                                        return true;
-                                    }
-                                } else {
-                                    apex.debug.error({
-                                        "fct": util.featureDetails.name + " - " + "drawChart",
-                                        "msg": "Error while find correct link in data please chekc debug",
-                                        "featureDetails": util.featureDetails
-                                    });
-                                }
-                            }
+                    if (seriesData[key]) {
+                        var seriesObj = seriesData[key];
+                        if (seriesObj.length === 1) {
+                            index = 0
                         }
-                    });
+
+                        if (seriesData[key][index] && seriesData[key][index].link) {
+                            util.link(seriesData[key][index].link);
+                        }
+                    }
                 }
 
                 try {
                     var ownTooltip = false;
+
+                    /* line */
+                    var lineStep = setObjectParameter(pConfigData.lineStep, pDefaultConfig.d3chart.line.step);
 
                     /* gauge */
                     var gaugeMin = setObjectParameter(pConfigData.gaugeMin, pDefaultConfig.d3chart.gauge.min);
@@ -706,7 +685,7 @@ var apexDashboardChart = function (apex) {
                             var xCatArr = Object.keys(xCatObj);
 
                             $.each(xCatArr, function (dIdx, dataValues) {
-                                categoriesArr.push((setObjectParameter(dataValues.replace("\u200b", ""), null)));
+                                categoriesArr.push((setObjectParameter(dataValues.replace(specialStr, ""), null)));
                             });
                         }
 
@@ -718,7 +697,7 @@ var apexDashboardChart = function (apex) {
 
                             if (seriesData[0] && seriesData[0].seriesID) {
                                 series = seriesData[0];
-                                var dataKey = $.escapeSelector(series.seriesID);
+                                var dataKey = escape(series.seriesID);
                                 colorsJSON[dataKey] = series.color;
                                 typesJSON[dataKey] = series.type;
 
@@ -745,7 +724,7 @@ var apexDashboardChart = function (apex) {
 
                                 axesJSON[dataKey] = (series.yAxis || "y");
                                 if (series.groupID) {
-                                    var groupID = $.escapeSelector(series.groupID);
+                                    var groupID = escape(series.groupID);
                                     if (groupJSON[groupID]) {
                                         groupJSON[groupID].push(dataKey);
                                     } else {
@@ -766,7 +745,7 @@ var apexDashboardChart = function (apex) {
                                         var setValueY = null;
                                         var setValueZ = null;
                                         $.each(dataValues, function (sIDx, sDataValues) {
-                                            if ($.escapeSelector(sDataValues.seriesID) == dataKey) {
+                                            if (escape(sDataValues.seriesID) == dataKey) {
                                                 setValueY = sDataValues.y;
                                                 if (sDataValues.z) {
                                                     setValueZ = sDataValues.z;
@@ -844,12 +823,17 @@ var apexDashboardChart = function (apex) {
                                 var div = $("<div></div>");
                                 div.addClass("bb-tooltip");
                                 div.addClass("bida-chart-tooltip-custome");
-                                $.each(d, function (i, v) {
-                                    if (Object.keys(seriesData)[i]) {
-                                        var key = Object.keys(seriesData)[i];
+                                $.each(d, function (i, pData) {
+                                    var key = specialStr + unescape(pData.id);
+                                    var index = pData.index;
 
-                                        if (seriesData[key][v.index] && util.isDefinedAndNotNull(seriesData[key][v.index].tooltip)) {
-                                            var ttS = seriesData[key][v.index].tooltip;
+                                    if (seriesData[key]) {
+                                        var seriesObj = seriesData[key];
+                                        if (seriesObj.length === 1) {
+                                            index = 0
+                                        }
+                                        if (seriesData[key][index] && util.isDefinedAndNotNull(seriesData[key][index].tooltip)) {
+                                            var ttS = seriesData[key][index].tooltip;
                                             if (pRequireHTMLEscape !== false) {
                                                 ttS = util.escapeHTML(ttS);
                                             }
@@ -858,7 +842,6 @@ var apexDashboardChart = function (apex) {
                                         }
                                     }
                                 });
-
                                 return div[0].outerHTML;
                             }
                         }
@@ -886,13 +869,8 @@ var apexDashboardChart = function (apex) {
                                     labels: dataLabels,
                                     axes: axesJSON,
                                     names: namesJSON,
-                                    onclick: function (d) {
-                                        apex.debug.info({
-                                            "fct": util.featureDetails.name + " - " + "drawChart",
-                                            "onclickElement": d,
-                                            "featureDetails": util.featureDetails
-                                        });
-                                        executeLink(d.id, d.index);
+                                    onclick: function (pData) {
+                                        executeLink(pData);
                                     }
                                 },
                                 pie: {
@@ -910,6 +888,11 @@ var apexDashboardChart = function (apex) {
                                 bar: {
                                     label: {
                                         threshold: 0.05
+                                    }
+                                },
+                                line: {
+                                    step: {
+                                        type: lineStep
                                     }
                                 },
                                 gauge: {
