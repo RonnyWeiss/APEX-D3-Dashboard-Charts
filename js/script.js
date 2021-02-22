@@ -1,9 +1,9 @@
-var apexDashboardChart = function (apex) {
+var apexDashboardChart = function (apex, $) {
     "use strict";
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.3",
+            scriptVersion: "2.6.6.4",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -723,8 +723,8 @@ var apexDashboardChart = function (apex) {
                                 }
 
                                 axesJSON[dataKey] = (series.yAxis || "y");
-                                if (series.groupID) {
-                                    var groupID = escape(series.groupID);
+                                if (util.isDefinedAndNotNull(series.groupID)) {
+                                    var groupID = escape(series.groupID.toString());
                                     if (groupJSON[groupID]) {
                                         groupJSON[groupID].push(dataKey);
                                     } else {
