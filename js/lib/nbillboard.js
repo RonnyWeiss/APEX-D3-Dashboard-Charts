@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  *
- * @version 2.2.3
+ * @version 2.2.5
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -4809,7 +4809,8 @@ function getFormat($$, typeValue, v) {
     // Update size and scale
     // Update g positions
     optionz.withTransition = getOption(optionz, "withTransition", !0), optionz.withTransitionForTransform = getOption(optionz, "withTransitionForTransform", !0), config.legend_contents_bindto && config.legend_contents_template ? $$.updateLegendTemplate() : $$.updateLegendElement(targetIds || $$.mapToIds($$.data.targets), optionz, transitions), $el.legend.selectAll("." + config_classes.legendItem).classed(config_classes.legendItemHidden, function (id) {
-      return !$$.isTargetToShow(id);
+      var hide = !$$.isTargetToShow(id);
+      return hide && (this.style.opacity = null), hide;
     }), $$.updateScales(!1, !scale.zoom), $$.updateSvgSize(), $$.transformAll(optionz.withTransitionForTransform, transitions), state.legendHasRendered = !0;
   },
 
@@ -5250,7 +5251,7 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
 
 
 /* harmony default export */ var redraw = ({
-  redraw: function redraw(options, transitionsValue) {
+  redraw: function redraw(options) {
     options === void 0 && (options = {});
     var $$ = this,
         config = $$.config,
@@ -5265,10 +5266,10 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
         duration = wth.Transition ? config.transition_duration : 0,
         durationForExit = wth.TransitionForExit ? duration : 0,
         durationForAxis = wth.TransitionForAxis ? duration : 0,
-        transitions = transitionsValue || $$.axis && $$.axis.generateTransitions(durationForAxis);
+        transitions = $$.axis && $$.axis.generateTransitions(durationForAxis);
     // text
     // title
-    $$.updateSizes(initializing), wth.Legend && config.legend_show ? $$.updateLegend($$.mapToIds($$.data.targets), options, transitions) : wth.Dimension && $$.updateDimension(!0), (!$$.hasArcType() || state.hasRadar) && $$.updateCircleY && $$.updateCircleY(), state.hasAxis ? ($$.axis.redrawAxis(targetsToShow, wth, transitions, flow, initializing), config.data_empty_label_text && main.select("text." + config_classes.text + "." + config_classes.empty).attr("x", state.width / 2).attr("y", state.height / 2).text(config.data_empty_label_text).style("display", targetsToShow.length ? "none" : null), $$.hasGrid() && $$.updateGrid(duration), config.regions.length && $$.updateRegion(duration), $$.hasType("bar") && $$.updateBar(durationForExit), $$.hasTypeOf("Line") && $$.updateLine(durationForExit), $$.hasTypeOf("Area") && $$.updateArea(durationForExit), $el.text && main.selectAll("." + config_classes.selectedCircles).filter($$.isBarType.bind($$)).selectAll("circle").remove(), config.interaction_enabled && !flow && wth.EventRect && ($$.redrawEventRect(), $$.bindZoomEvent && $$.bindZoomEvent())) : ($el.arcs && $$.redrawArc(duration, durationForExit, wth.Transform), $el.radar && $$.redrawRadar(durationForExit)), !state.resizing && ($$.hasPointType() || state.hasRadar) && $$.updateCircle(), $$.hasDataLabel() && !$$.hasArcType(null, ["radar"]) && $$.updateText(durationForExit), $$.redrawTitle && $$.redrawTitle(), initializing && $$.updateTypesElements(), $$.generateRedrawList(targetsToShow, flow, duration, wth.Subchart), $$.callPluginHook("$redraw", options, duration);
+    $$.updateSizes(initializing), wth.Legend && config.legend_show ? (options.withTransition = !!duration, $$.updateLegend($$.mapToIds($$.data.targets), options, transitions)) : wth.Dimension && $$.updateDimension(!0), (!$$.hasArcType() || state.hasRadar) && $$.updateCircleY && $$.updateCircleY(), state.hasAxis ? ($$.axis.redrawAxis(targetsToShow, wth, transitions, flow, initializing), config.data_empty_label_text && main.select("text." + config_classes.text + "." + config_classes.empty).attr("x", state.width / 2).attr("y", state.height / 2).text(config.data_empty_label_text).style("display", targetsToShow.length ? "none" : null), $$.hasGrid() && $$.updateGrid(duration), config.regions.length && $$.updateRegion(duration), $$.hasType("bar") && $$.updateBar(durationForExit), $$.hasTypeOf("Line") && $$.updateLine(durationForExit), $$.hasTypeOf("Area") && $$.updateArea(durationForExit), $el.text && main.selectAll("." + config_classes.selectedCircles).filter($$.isBarType.bind($$)).selectAll("circle").remove(), config.interaction_enabled && !flow && wth.EventRect && ($$.redrawEventRect(), $$.bindZoomEvent && $$.bindZoomEvent())) : ($el.arcs && $$.redrawArc(duration, durationForExit, wth.Transform), $el.radar && $$.redrawRadar(durationForExit)), !state.resizing && ($$.hasPointType() || state.hasRadar) && $$.updateCircle(), $$.hasDataLabel() && !$$.hasArcType(null, ["radar"]) && $$.updateText(durationForExit), $$.redrawTitle && $$.redrawTitle(), initializing && $$.updateTypesElements(), $$.generateRedrawList(targetsToShow, flow, duration, wth.Subchart), $$.callPluginHook("$redraw", options, duration);
   },
 
   /**
@@ -9628,15 +9629,16 @@ var Axis_Axis = /*#__PURE__*/function () {
    * Set Axis & tick values
    * called from: updateScales()
    * @param {string} id Axis id string
-   * @param {Array} args Arguments
+   * @param {d3Scale} scale Scale
+   * @param {boolean} outerTick If show outer tick
+   * @param {boolean} noTransition If with no transition
    * @private
    */
-  , _proto.setAxis = function setAxis(id) {
-    id !== "subX" && (this.tick[id] = this.getTickValues(id));
-
-    for (var _len = arguments.length, args = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) args[_key - 1] = arguments[_key];
-
-    this[id] = this.getAxis.apply(this, [id].concat(args));
+  , _proto.setAxis = function setAxis(id, scale, outerTick, noTransition) {
+    var $$ = this.owner;
+    id !== "subX" && (this.tick[id] = this.getTickValues(id)), this[id] = this.getAxis(id, scale, outerTick, // do not transit x Axis on zoom and resizing
+    // https://github.com/naver/billboard.js/issues/1949
+    !!(id === "x" && ($$.scale.zoom || $$.config.subchart_show || $$.state.resizing)) || noTransition);
   } // called from : getMaxTickWidth()
   , _proto.getAxis = function getAxis(id, scale, outerTick, noTransition, noTickTextRotate) {
     var tickFormat,
@@ -9979,7 +9981,7 @@ var Axis_Axis = /*#__PURE__*/function () {
     ["x", "y", "y2", "subX"].forEach(function (id) {
       var axis = _this4[id],
           $axis = $el.axis[id];
-      axis && $axis && (!isInit && (axis.config.withoutTransition = !config.transition_duration), $axis.style("opacity", opacity), axis.create(transitions["axis" + capitalize(id)]));
+      axis && $axis && (!isInit && !config.transition_duration && (axis.config.withoutTransition = !0), $axis.style("opacity", opacity), axis.create(transitions["axis" + capitalize(id)]));
     }), this.updateAxes();
   }
   /**
@@ -17076,7 +17078,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.2.3",
+  version: "2.2.5",
 
   /**
    * Generate chart
@@ -17204,7 +17206,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.2.3
+ * @version 2.2.5
  */
 ;// CONCATENATED MODULE: ./src/index.ts
 /**
