@@ -1,6 +1,6 @@
 {
     "name": "APEX D3 Dashboard Charts",
-    "version": "2.6.6.5",
+    "version": "2.6.6.6",
     "description": "Create with only one SQL statement one or more D3 charts with different configurations and different chart types. Possible are among other things: Bar, line, area, pie, gauge, donut, step and stack charts.\r\n\r\nAll things such as chart type, number of series, colors, size, data points and chart configurations can be adjusted at runtime by the SQL statement and reset again and again by refresh. Examples can be found in the Sample App:\r\n\r\nhttps:\/\/apex.oracle.com\/pls\/apex\/f?p=103428\r\n",
     "keywords": ["oracle", "apex", "plugin", "charts", "region", "responsive", "d3"],
     "homepage": "https://github.com/RonnyWeiss/APEX-D3-Dashboard-Charts",

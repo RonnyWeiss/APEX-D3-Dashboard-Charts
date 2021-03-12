@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  *
- * @version 2.2.5
+ * @version 2.2.6
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -6732,10 +6732,12 @@ function getTextPos(pos, width) {
         charts = $$.charts,
         config = $$.config;
 
-    if (config.tooltip_linked && charts.length > 1) {
+    // Prevent propagation among instances if isn't instantiated from the user's event
+    // https://github.com/naver/billboard.js/issues/1979
+    if (external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event && external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.isTrusted && config.tooltip_linked && charts.length > 1) {
       var linkedName = config.tooltip_linked_name;
-      charts.filter(function (v) {
-        return v !== $$.api;
+      charts.filter(function (c) {
+        return c !== $$.api;
       }).forEach(function (c) {
         var _c$internal = c.internal,
             config = _c$internal.config,
@@ -6748,11 +6750,10 @@ function getTextPos(pos, width) {
           var data = $el.tooltip.data()[0],
               isNotSameIndex = index !== (data && data.index);
 
-          // prevent throwing error for non-paired linked indexes
           try {
-            show && isNotSameIndex ? c.tooltip.show({
+            c.tooltip[show && isNotSameIndex ? "show" : "hide"]({
               index: index
-            }) : !show && c.tooltip.hide();
+            });
           } catch (e) {}
         }
       });
@@ -17078,7 +17079,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.2.5",
+  version: "2.2.6",
 
   /**
    * Generate chart
@@ -17206,7 +17207,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.2.5
+ * @version 2.2.6
  */
 ;// CONCATENATED MODULE: ./src/index.ts
 /**

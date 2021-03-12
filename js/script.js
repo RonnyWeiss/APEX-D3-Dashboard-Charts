@@ -3,7 +3,7 @@ var apexDashboardChart = function (apex, $) {
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.5",
+            scriptVersion: "2.6.6.6",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -217,6 +217,7 @@ var apexDashboardChart = function (apex, $) {
 
             /* default d3 billboard charts options */
             var stdChartConfigJSON = {
+                "axisLabelPosition": "inner3",
                 "gauge": {
                     "min": 0,
                     "max": null,
@@ -581,6 +582,45 @@ var apexDashboardChart = function (apex, $) {
 
                     /* Axis */
                     var rotateAxis = setObjectParameter(pConfigData.rotateAxis, pDefaultConfig.d3chart.rotateAxis, true);
+                    var axisLabelPosition = setObjectParameter(pConfigData.axisLabelPosition, pDefaultConfig.d3chart.axisLabelPosition);
+
+                    var xAxisLabelPosition = null;
+                    var yAxisLabelPosition = null;
+
+                    switch (axisLabelPosition) {
+                        case "inner1":
+                            xAxisLabelPosition = "inner-left";
+                            yAxisLabelPosition = "inner-bottom";
+                            break;
+                        case "inner2":
+                            xAxisLabelPosition = "inner-center";
+                            yAxisLabelPosition = "inner-middle";
+                            break;
+                        case "inner3":
+                            xAxisLabelPosition = "inner-right";
+                            yAxisLabelPosition = "inner-top";
+                            break;
+                        case "outer1":
+                            xAxisLabelPosition = "outer-left";
+                            yAxisLabelPosition = "outer-bottom";
+                            break;
+                        case "outer2":
+                            xAxisLabelPosition = "outer-center";
+                            yAxisLabelPosition = "outer-middle";
+                            break;
+                        case "outer3":
+                            xAxisLabelPosition = "outer-right";
+                            yAxisLabelPosition = "outer-top";
+                            break;
+                        default:
+                            break;
+                    }
+
+                    if (rotateAxis) {
+                        var xAxisLabelPositionTmp = xAxisLabelPosition;
+                        xAxisLabelPosition = yAxisLabelPosition;
+                        yAxisLabelPosition = xAxisLabelPositionTmp;
+                    }
 
                     /* tooltip */
                     var tooltipShow = setObjectParameter(pConfigData.tooltipShow, pDefaultConfig.d3chart.tooltip.show, true);
@@ -949,7 +989,10 @@ var apexDashboardChart = function (apex, $) {
                                     rotated: rotateAxis,
                                     x: {
                                         show: xShow,
-                                        label: xLabel,
+                                        label: {
+                                            text: xLabel,
+                                            position: xAxisLabelPosition
+                                        },
                                         type: xType,
                                         tick: {
                                             culling: {
@@ -964,7 +1007,10 @@ var apexDashboardChart = function (apex, $) {
                                         height: heightXAxis
                                     },
                                     y: {
-                                        label: yLabel,
+                                        label: {
+                                            text: yLabel,
+                                            position: yAxisLabelPosition
+                                        },
                                         type: yType,
                                         max: yMax,
                                         min: yMin,
@@ -979,7 +1025,10 @@ var apexDashboardChart = function (apex, $) {
                                     },
                                     y2: {
                                         show: y2Show,
-                                        label: y2Label,
+                                        label: {
+                                            text: y2Label,
+                                            position: yAxisLabelPosition
+                                        },
                                         type: y2Type,
                                         max: y2Max,
                                         min: y2Min,
