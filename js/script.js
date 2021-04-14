@@ -3,7 +3,7 @@ var apexDashboardChart = function (apex, $) {
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.6",
+            scriptVersion: "2.6.6.7",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -218,13 +218,15 @@ var apexDashboardChart = function (apex, $) {
             /* default d3 billboard charts options */
             var stdChartConfigJSON = {
                 "axisLabelPosition": "inner3",
+                "chartTitle": null,
                 "gauge": {
                     "min": 0,
                     "max": null,
                     "type": "single",
                     "width": null,
                     "arcMinWidth": null,
-                    "fullCircle": false
+                    "fullCircle": false,
+                    "title": null
                 },
                 "grid": {
                     "x": true,
@@ -539,6 +541,8 @@ var apexDashboardChart = function (apex, $) {
                 try {
                     var ownTooltip = false;
 
+                    var chartTitle = setObjectParameter(pConfigData.chartTitle, pDefaultConfig.d3chart.chartTitle || "").toString();
+
                     /* line */
                     var lineStep = setObjectParameter(pConfigData.lineStep, pDefaultConfig.d3chart.line.step);
 
@@ -549,6 +553,7 @@ var apexDashboardChart = function (apex, $) {
                     var gaugeWidth = setObjectParameter(pConfigData.gaugeWidth, pDefaultConfig.d3chart.gauge.width);
                     var gaugeArcMinWidth = setObjectParameter(pConfigData.gaugeArcMinWidth, pDefaultConfig.d3chart.gauge.arcMinWidth);
                     var gaugeFullCircle = setObjectParameter(pConfigData.gaugeFullCircle, pDefaultConfig.d3chart.gauge.fullCircle, true);
+                    var gaugeTitle = setObjectParameter(pConfigData.gaugeTitle, pDefaultConfig.d3chart.gauge.title || "").toString();
 
                     /* Grid */
                     var gridX = setObjectParameter(pConfigData.gridX, pDefaultConfig.d3chart.grid.x, true);
@@ -631,7 +636,7 @@ var apexDashboardChart = function (apex, $) {
 
                     /* x Axis */
                     var xShow = setObjectParameter(pConfigData.xShow, pDefaultConfig.d3chart.x.show, true);
-                    var xLabel = setObjectParameter(pConfigData.xLabel, pDefaultConfig.d3chart.x.label || "");
+                    var xLabel = setObjectParameter(pConfigData.xLabel, pDefaultConfig.d3chart.x.label || "").toString();
                     var xType = setObjectParameter(pConfigData.xType, pDefaultConfig.d3chart.x.type);
                     var xAxisTimeFormat = null;
                     var xName = null;
@@ -662,7 +667,7 @@ var apexDashboardChart = function (apex, $) {
                     }
 
                     /* y Axis */
-                    var yLabel = pConfigData.yLabel || pDefaultConfig.d3chart.y.label || "";
+                    var yLabel = setObjectParameter(pConfigData.yLabel, pDefaultConfig.d3chart.y.label || "").toString();
                     var yLog = setObjectParameter(pConfigData.yLog, pDefaultConfig.d3chart.y.log, true);
                     var yType = null;
                     if (yLog) {
@@ -675,7 +680,7 @@ var apexDashboardChart = function (apex, $) {
 
                     /* y2 Axis */
                     var y2Show = false;
-                    var y2Label = setObjectParameter(pConfigData.y2Label, pDefaultConfig.d3chart.y2.label || "");
+                    var y2Label = setObjectParameter(pConfigData.y2Label, pDefaultConfig.d3chart.y2.label || "").toString();
                     var y2Log = setObjectParameter(pConfigData.y2Log, pDefaultConfig.d3chart.y2.log, true);
                     var y2Type = null;
                     if (y2Log) {
@@ -716,6 +721,7 @@ var apexDashboardChart = function (apex, $) {
                     var axesJSON = {};
                     var namesJSON = {};
                     var groupJSON = {};
+                    var seriesCnt = 0;
 
                     if (seriesData) {
                         /* Add Categories or time values to x Axis when correct type is set */
@@ -734,7 +740,7 @@ var apexDashboardChart = function (apex, $) {
                         /* Transform data for billboard.js */
                         $.each(seriesData, function (idx, seriesData) {
                             var series;
-
+                            seriesCnt++;
                             if (seriesData[0] && seriesData[0].seriesID) {
                                 series = seriesData[0];
                                 var dataKey = escape(series.seriesID);
@@ -843,7 +849,7 @@ var apexDashboardChart = function (apex, $) {
                             };
                         } else if (isGauge) {
                             dataLabels = {
-                                colors: (gaugeType === "single") ? "white" : "black"
+                                colors: (gaugeType === "single" && seriesCnt > 1) ? "white" : "inherit"
                             };
                         }
                         var showDataPoints = setObjectParameter(pConfigData.showDataPoints, pDefaultConfig.d3chart.showDataPoints, true);
@@ -896,6 +902,9 @@ var apexDashboardChart = function (apex, $) {
 
                             var bbData = {
                                 bindto: chartContIDSel,
+                                title: {
+                                    text: chartTitle
+                                },
                                 size: {
                                     height: pItemHeight
                                 },
@@ -945,6 +954,7 @@ var apexDashboardChart = function (apex, $) {
                                     max: gaugeMax,
                                     type: gaugeType,
                                     width: gaugeWidth,
+                                    title: gaugeTitle,
                                     arc: {
                                         minWidth: gaugeArcMinWidth
                                     }

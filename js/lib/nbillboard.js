@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  *
- * @version 2.2.6
+ * @version 3.0.2
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -108,8 +108,9 @@ module.exports = __WEBPACK_EXTERNAL_MODULE__14__;
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
 /******/ 		// Check if module is in cache
-/******/ 		if(__webpack_module_cache__[moduleId]) {
-/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
 /******/ 		}
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = __webpack_module_cache__[moduleId] = {
@@ -183,6 +184,7 @@ __webpack_require__.d(resolver_shape_namespaceObject, {
   "areaStep": function() { return areaStep; },
   "bar": function() { return resolver_shape_bar; },
   "bubble": function() { return resolver_shape_bubble; },
+  "candlestick": function() { return resolver_shape_candlestick; },
   "donut": function() { return shape_donut; },
   "gauge": function() { return resolver_shape_gauge; },
   "line": function() { return resolver_shape_line; },
@@ -234,6 +236,8 @@ var external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_
   brush: "bb-brush",
   button: "bb-button",
   buttonZoomReset: "bb-zoom-reset",
+  candlestick: "bb-candlestick",
+  candlesticks: "bb-candlesticks",
   chart: "bb-chart",
   chartArc: "bb-chart-arc",
   chartArcs: "bb-chart-arcs",
@@ -245,6 +249,8 @@ var external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_
   chartArcsGaugeTitle: "bb-chart-arcs-gauge-title",
   chartBar: "bb-chart-bar",
   chartBars: "bb-chart-bars",
+  chartCandlestick: "bb-chart-candlestick",
+  chartCandlesticks: "bb-chart-candlesticks",
   chartCircles: "bb-chart-circles",
   chartLine: "bb-chart-line",
   chartLines: "bb-chart-lines",
@@ -299,6 +305,8 @@ var external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_
   tooltip: "bb-tooltip",
   tooltipContainer: "bb-tooltip-container",
   tooltipName: "bb-tooltip-name",
+  valueDown: "bb-value-down",
+  valueUp: "bb-value-up",
   xgrid: "bb-xgrid",
   xgridFocus: "bb-xgrid-focus",
   xgridLine: "bb-xgrid-line",
@@ -356,6 +364,7 @@ var Element = function () {
     arcs: null,
     bar: null,
     // mainBar,
+    candlestick: null,
     line: null,
     // mainLine,
     area: null,
@@ -508,6 +517,8 @@ var State = function () {
       pathGrid: ""
     },
     // status
+    event: null,
+    // event object
     dragStart: null,
     dragging: !1,
     flowing: !1,
@@ -1042,6 +1053,7 @@ function _defineProperty(obj, key, value) {
    * - area-step
    * - bar
    * - bubble
+   * - candlestick
    * - donut
    * - gauge
    * - line
@@ -1069,6 +1081,7 @@ function _defineProperty(obj, key, value) {
    *   areaStep,
    *   bar,
    *   bubble,
+   *   candlestick,
    *   donut,
    *   gauge,
    *   line,
@@ -1114,6 +1127,7 @@ function _defineProperty(obj, key, value) {
    *   areaStep,
    *   bar,
    *   bubble,
+   *   candlestick,
    *   donut,
    *   gauge,
    *   line,
@@ -1572,6 +1586,25 @@ function _defineProperty(obj, key, value) {
    *       data2: "line"
    *   }
    * }
+   *
+   * // for 'canlestick' type, data should contain:
+   * // - an array of [open, high, low, close, volume(optional)] data following the order
+   * // - or an object with 'open', 'high', 'low', 'close' and 'value'(optional) key value
+   * data: {
+   *   rows: [
+   *      ["data1", "data2"],
+   *		[
+   *			// open, high, low, close, volume (optional)
+   *			{open: 1300, high: 1369, low: 1200, close: 1339, volume: 100},
+   *			[1000, 1100, 850, 870]
+   *		],
+   *		[
+   *			{open: 1348, high: 1371, low: 1271, close: 1320},
+   *			[870, 1250, 830, 1200, 50]
+   *		]
+   *   ],
+   *   type: "candlestick"
+   * }
    */
   data_rows: undefined,
 
@@ -1618,6 +1651,19 @@ function _defineProperty(obj, key, value) {
    *      ]
    *   ],
    *   type: "bubble"
+   * }
+   *
+   * // for 'canlestick' type, data should contain:
+   * // - an array of [open, high, low, close, volume(optional)] data following the order
+   * // - or an object with 'open', 'high', 'low', 'close' and 'value'(optional) key value
+   * data: {
+   *   columns: [
+   *      ["data1",
+   *          [1000, 1100, 850, 870, 100],  // or {open:1000, high: 1100, low: 870, volume: 100}
+   *          [870, 1250, 830, 1200]  // 'volume' can be omitted
+   *      ]
+   *   ],
+   *   type: "candlestick"
    * }
    */
   data_columns: undefined,
@@ -2421,18 +2467,31 @@ function getPathBox(path) {
   };
 }
 /**
+ * Get event's current position coordinates
+ * @param {object} event Event object
+ * @param {SVGElement|HTMLElement} element Target element
+ * @returns {Array} [x, y] Coordinates x, y array
+ * @private
+ */
+
+
+function getPointer(event, element) {
+  var touches = event && (event.touches || event.sourceEvent && event.sourceEvent.touches),
+      pointer = event ? (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.pointer)(touches ? touches[0] : event, element) : [0, 0];
+  return pointer;
+}
+/**
  * Return brush selection array
- * @param {object} {} Selection object
- * @param {object} {}.$el Selection object
+ * @param {object} ctx Current instance
  * @returns {d3.brushSelection}
  * @private
  */
 
 
-function getBrushSelection(_ref) {
+function getBrushSelection(ctx) {
   var selection,
-      $el = _ref.$el,
-      event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event,
+      event = ctx.event,
+      $el = ctx.$el,
       main = $el.subchart.main || $el.main;
   return event && event.type === "brush" ? selection = event.selection : main && (selection = main.select("." + config_classes.brush).node()) && (selection = (0,external_commonjs_d3_brush_commonjs2_d3_brush_amd_d3_brush_root_d3_.brushSelection)(selection)), selection;
 }
@@ -3414,7 +3473,7 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
     var $$ = this,
         hasAxis = $$.state.hasAxis,
         value = data.value;
-    return value && hasAxis && ($$.isAreaRangeType(data) ? value = $$.getAreaRangeData(data, "mid") : $$.isBubbleZType(data) && (value = $$.getBubbleZData(value, "y"))), value;
+    return value && hasAxis && ($$.isAreaRangeType(data) ? value = $$.getRangedData(data, "mid") : $$.isBubbleZType(data) && (value = $$.getBubbleZData(value, "y"))), value;
   },
 
   /**
@@ -3634,9 +3693,12 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
     }) : null;
     return targets.forEach(function (t) {
       var data = [];
-      t.values.forEach(function (v) {
-        var value = v.value;
-        isArray(value) ? data.push.apply(data, value) : isObject(value) && "high" in value ? data.push.apply(data, Object.values(value)) : $$.isBubbleZType(v) ? data.push(hasAxis && $$.getBubbleZData(value, "y")) : isMultipleX ? data[$$.getIndexByX(v.x, xs)] = value : data.push(value);
+      t.values.filter(function (v) {
+        return isValue(v.value);
+      }).forEach(function (v) {
+        var value = v.value; // exclude 'volume' value to correct mis domain calculation
+
+        $$.isCandlestickType(v) && (value = isArray(value) ? value.slice(0, 4) : [value.open, value.high, value.low, value.close]), isArray(value) ? data.push.apply(data, value) : isObject(value) && "high" in value ? data.push.apply(data, Object.values(value)) : $$.isBubbleZType(v) ? data.push(hasAxis && $$.getBubbleZData(value, "y")) : isMultipleX ? data[$$.getIndexByX(v.x, xs)] = value : data.push(value);
       }), ys[t.id] = data;
     }), ys;
   },
@@ -3892,15 +3954,20 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
       withLegend: !0
     }), current);
   },
-  getAreaRangeData: function getAreaRangeData(d, type) {
-    var value = d.value;
+  getRangedData: function getRangedData(d, key, type) {
+    key === void 0 && (key = ""), type === void 0 && (type = "areaRange");
+    var value = d == null ? void 0 : d.value;
 
     if (isArray(value)) {
-      var index = ["high", "mid", "low"].indexOf(type);
-      return index === -1 ? null : value[index];
+      // @ts-ignore
+      var index = {
+        areaRange: ["high", "mid", "low"],
+        candlestick: ["open", "high", "low", "close", "volume"]
+      }[type].indexOf(key);
+      return index >= 0 && value ? value[index] : undefined;
     }
 
-    return value[type];
+    return value ? value[key] : value;
   },
 
   /**
@@ -4145,15 +4212,14 @@ var external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_ = __webpack
    */
   getDraggableSelection: function getDraggableSelection() {
     var $$ = this,
-        config = $$.config;
-    return config.interaction_enabled && config.data_selection_draggable && $$.drag ? (0,external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_.drag)().on("drag", function () {
-      // @ts-ignore
-      $$.drag((0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(this));
-    }).on("start", function () {
-      // @ts-ignore
-      $$.dragstart((0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(this));
-    }).on("end", function () {
-      $$.dragend();
+        config = $$.config,
+        state = $$.state;
+    return config.interaction_enabled && config.data_selection_draggable && $$.drag ? (0,external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_.drag)().on("drag", function (event) {
+      state.event = event, $$.drag(getPointer(event, this));
+    }).on("start", function (event) {
+      state.event = event, $$.dragstart(getPointer(event, this));
+    }).on("end", function (event) {
+      state.event = event, $$.dragend();
     }) : function () {};
   },
 
@@ -4230,7 +4296,7 @@ var external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_ = __webpack
       var data = d.data || d,
           result = (withShape ? _this.generateClass(config_classes[isPlural ? "shapes" : "shape"], data[key]) : "") + _this.generateClass(config_classes[type], data[useIdKey ? "id" : key]);
 
-      return result;
+      return result.trim();
     };
   },
 
@@ -4465,6 +4531,7 @@ var TYPE = {
   AREA_STEP: "area-step",
   BAR: "bar",
   BUBBLE: "bubble",
+  CANDLESTICK: "candlestick",
   DONUT: "donut",
   GAUGE: "gauge",
   LINE: "line",
@@ -4628,7 +4695,7 @@ var TYPE_BY_CATEGORY = {
       }));
     })),
         value = isObject(configValue) ? configValue.value : configValue;
-    return value = isDefined(value) && $$.axis.isTimeSeries() ? parseDate(value) : value, isObject(configValue) && configValue.fit && (type === "min" && value < dataValue || type === "max" && value > dataValue) && (value = undefined), isDefined(value) ? value : dataValue;
+    return value = isDefined(value) && $$.axis.isTimeSeries() ? parseDate.bind(this)(value) : value, isObject(configValue) && configValue.fit && (type === "min" && value < dataValue || type === "max" && value > dataValue) && (value = undefined), isDefined(value) ? value : dataValue;
   },
   getXDomainMin: function getXDomainMin(targets) {
     return this.getXDomainMinMax(targets, "min");
@@ -5060,11 +5127,11 @@ function getFormat($$, typeValue, v) {
       return itemClass + $$.generateClass(config_classes.legendItem, id);
     }).style("visibility", function (id) {
       return $$.isLegendToShow(id) ? "visible" : "hidden";
-    }), config.interaction_enabled && (item.style("cursor", "pointer").on("click", function (id) {
-      callFn(config.legend_item_onclick, api, id) || (external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.altKey ? (api.hide(), api.show(id)) : (api.toggle(id), (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).classed(config_classes.legendItemFocused, !1).style("opacity", null))), isTouch && $$.hideTooltip();
-    }), !isTouch && item.on("mouseout", function (id) {
+    }), config.interaction_enabled && (item.style("cursor", "pointer").on("click", function (event, id) {
+      callFn(config.legend_item_onclick, api, id) || (event.altKey ? (api.hide(), api.show(id)) : (api.toggle(id), (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).classed(config_classes.legendItemFocused, !1).style("opacity", null))), isTouch && $$.hideTooltip();
+    }), !isTouch && item.on("mouseout", function (event, id) {
       callFn(config.legend_item_onout, api, id) || ((0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).classed(config_classes.legendItemFocused, !1), hasGauge && $$.undoMarkOverlapped($$, "." + config_classes.gaugeValue), $$.api.revert());
-    }).on("mouseover", function (id) {
+    }).on("mouseover", function (event, id) {
       callFn(config.legend_item_onover, api, id) || ((0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).classed(config_classes.legendItemFocused, !0), hasGauge && $$.markOverlapped(id, $$, "." + config_classes.gaugeValue), !state.transiting && $$.isTargetToShow(id) && api.focus(id));
     }));
   },
@@ -5269,7 +5336,10 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
         transitions = $$.axis && $$.axis.generateTransitions(durationForAxis);
     // text
     // title
-    $$.updateSizes(initializing), wth.Legend && config.legend_show ? (options.withTransition = !!duration, $$.updateLegend($$.mapToIds($$.data.targets), options, transitions)) : wth.Dimension && $$.updateDimension(!0), (!$$.hasArcType() || state.hasRadar) && $$.updateCircleY && $$.updateCircleY(), state.hasAxis ? ($$.axis.redrawAxis(targetsToShow, wth, transitions, flow, initializing), config.data_empty_label_text && main.select("text." + config_classes.text + "." + config_classes.empty).attr("x", state.width / 2).attr("y", state.height / 2).text(config.data_empty_label_text).style("display", targetsToShow.length ? "none" : null), $$.hasGrid() && $$.updateGrid(duration), config.regions.length && $$.updateRegion(duration), $$.hasType("bar") && $$.updateBar(durationForExit), $$.hasTypeOf("Line") && $$.updateLine(durationForExit), $$.hasTypeOf("Area") && $$.updateArea(durationForExit), $el.text && main.selectAll("." + config_classes.selectedCircles).filter($$.isBarType.bind($$)).selectAll("circle").remove(), config.interaction_enabled && !flow && wth.EventRect && ($$.redrawEventRect(), $$.bindZoomEvent && $$.bindZoomEvent())) : ($el.arcs && $$.redrawArc(duration, durationForExit, wth.Transform), $el.radar && $$.redrawRadar(durationForExit)), !state.resizing && ($$.hasPointType() || state.hasRadar) && $$.updateCircle(), $$.hasDataLabel() && !$$.hasArcType(null, ["radar"]) && $$.updateText(durationForExit), $$.redrawTitle && $$.redrawTitle(), initializing && $$.updateTypesElements(), $$.generateRedrawList(targetsToShow, flow, duration, wth.Subchart), $$.callPluginHook("$redraw", options, duration);
+    $$.updateSizes(initializing), wth.Legend && config.legend_show ? (options.withTransition = !!duration, $$.updateLegend($$.mapToIds($$.data.targets), options, transitions)) : wth.Dimension && $$.updateDimension(!0), (!$$.hasArcType() || state.hasRadar) && $$.updateCircleY && ($$.circleY = $$.updateCircleY()), state.hasAxis ? ($$.axis.redrawAxis(targetsToShow, wth, transitions, flow, initializing), config.data_empty_label_text && main.select("text." + config_classes.text + "." + config_classes.empty).attr("x", state.width / 2).attr("y", state.height / 2).text(config.data_empty_label_text).style("display", targetsToShow.length ? "none" : null), $$.hasGrid() && $$.updateGrid(duration), config.regions.length && $$.updateRegion(duration), ["bar", "candlestick", "line", "area"].forEach(function (v) {
+      var name = capitalize(v);
+      (/^(line|area)$/.test(v) && $$.hasTypeOf(name) || $$.hasType(v)) && $$["update" + name](durationForExit);
+    }), $el.text && main.selectAll("." + config_classes.selectedCircles).filter($$.isBarType.bind($$)).selectAll("circle").remove(), config.interaction_enabled && !flow && wth.EventRect && ($$.redrawEventRect(), $$.bindZoomEvent && $$.bindZoomEvent())) : ($el.arcs && $$.redrawArc(duration, durationForExit, wth.Transform), $el.radar && $$.redrawRadar(durationForExit)), !state.resizing && ($$.hasPointType() || state.hasRadar) && $$.updateCircle(), $$.hasDataLabel() && !$$.hasArcType(null, ["radar"]) && $$.updateText(durationForExit), $$.redrawTitle && $$.redrawTitle(), initializing && $$.updateTypesElements(), $$.generateRedrawList(targetsToShow, flow, duration, wth.Subchart), $$.callPluginHook("$redraw", options, duration);
   },
 
   /**
@@ -5330,16 +5400,11 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
         xForText = _shape$pos.xForText,
         yForText = _shape$pos.yForText,
         list = [];
-
-    if (hasAxis) {
-      var _shape$type = shape.type,
-          area = _shape$type.area,
-          bar = _shape$type.bar,
-          line = _shape$type.line;
-      (config.grid_x_lines.length || config.grid_y_lines.length) && list.push($$.redrawGrid(isTransition)), config.regions.length && list.push($$.redrawRegion(isTransition)), $$.hasTypeOf("Line") && list.push($$.redrawLine(line, isTransition)), $$.hasTypeOf("Area") && list.push($$.redrawArea(area, isTransition)), $$.hasType("bar") && list.push($$.redrawBar(bar, isTransition)), !flow && grid.main && list.push($$.updateGridFocus());
-    }
-
-    return (!$$.hasArcType() || hasRadar) && notEmpty(config.data_labels) && config.data_labels !== !1 && list.push($$.redrawText(xForText, yForText, flow, isTransition)), ($$.hasPointType() || hasRadar) && !config.point_focus_only && $$.redrawCircle && list.push($$.redrawCircle(cx, cy, isTransition, flowFn)), list;
+    return hasAxis && ((config.grid_x_lines.length || config.grid_y_lines.length) && list.push($$.redrawGrid(isTransition)), config.regions.length && list.push($$.redrawRegion(isTransition)), Object.keys(shape.type).forEach(function (v) {
+      var name = capitalize(v),
+          drawFn = shape.type[v];
+      (/^(area|line)$/.test(v) && $$.hasTypeOf(name) || $$.hasType(v)) && list.push($$["redraw" + name](drawFn, isTransition));
+    }), !flow && grid.main && list.push($$.updateGridFocus())), (!$$.hasArcType() || hasRadar) && notEmpty(config.data_labels) && config.data_labels !== !1 && list.push($$.redrawText(xForText, yForText, flow, isTransition)), ($$.hasPointType() || hasRadar) && !config.point_focus_only && $$.redrawCircle && list.push($$.redrawCircle(cx, cy, isTransition, flowFn)), list;
   },
   updateAndRedraw: function updateAndRedraw(options) {
     options === void 0 && (options = {});
@@ -5572,24 +5637,15 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
       pos: {}
     };
 
-    // setup drawer - MEMO: these must be called after axis updated
-    if ($$.hasTypeOf("Line") || $$.hasType("bubble") || $$.hasType("scatter")) {
-      var indices = $$.getShapeIndices($$.isLineType);
+    if (["bar", "candlestick", "line", "area"].forEach(function (v) {
+      var name = capitalize(/^(bubble|scatter)$/.test(v) ? "line" : v);
 
-      if (shape.indices.line = indices, shape.type.line = $$.generateDrawLine ? $$.generateDrawLine(indices, !1) : undefined, $$.hasTypeOf("Area")) {
-        var _indices = $$.getShapeIndices($$.isAreaType);
-
-        shape.indices.area = _indices, shape.type.area = $$.generateDrawArea ? $$.generateDrawArea(_indices, !1) : undefined;
+      if ($$.hasType(v) || $$.hasTypeOf(name) || v === "line" && ($$.hasType("bubble") || $$.hasType("scatter"))) {
+        var indices = $$.getShapeIndices($$["is" + name + "Type"]),
+            drawFn = $$["generateDraw" + name];
+        shape.indices[v] = indices, shape.type[v] = drawFn ? drawFn.bind($$)(indices, !1) : undefined;
       }
-    }
-
-    if ($$.hasType("bar")) {
-      var _indices2 = $$.getShapeIndices($$.isBarType);
-
-      shape.indices.bar = _indices2, shape.type.bar = $$.generateDrawBar ? $$.generateDrawBar(_indices2) : undefined;
-    }
-
-    if (!$$.hasArcType() || hasRadar) {
+    }), !$$.hasArcType() || hasRadar) {
       // generate circle x/y functions depending on updated params
       var cx = hasRadar ? $$.radarCircleX : isRotated ? $$.circleY : $$.circleX,
           cy = hasRadar ? $$.radarCircleY : isRotated ? $$.circleX : $$.circleY;
@@ -5680,8 +5736,8 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
     var $$ = this,
         isStackNormalized = $$.isStackNormalized();
     return function (d) {
-      var value = isStackNormalized ? $$.getRatio("index", d, !0) : $$.isBubbleZType(d) ? $$.getBubbleZData(d.value, "y") : d.value;
-      return $$.getYScaleById(d.id, isSub)(value);
+      var value = d.value;
+      return isNumber(d) ? value = d : isStackNormalized ? value = $$.getRatio("index", d, !0) : $$.isBubbleZType(d) && (value = $$.getBubbleZData(d.value, "y")), $$.getYScaleById(d.id, isSub)(value);
     };
   },
 
@@ -5756,6 +5812,35 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
         }
       }), offset;
     };
+  },
+  getBarW: function getBarW(type, axis, targetsNum) {
+    var $$ = this,
+        config = $$.config,
+        org = $$.org,
+        scale = $$.scale,
+        maxDataCount = $$.getMaxDataCount(),
+        isGrouped = type === "bar" && config.data_groups.length,
+        configName = type + "_width",
+        tickInterval = scale.zoom && !$$.axis.isCategorized() ? org.xDomain.map(function (v) {
+      return scale.zoom(v);
+    }).reduce(function (a, c) {
+      return Math.abs(a) + c;
+    }) / maxDataCount : axis.tickInterval(maxDataCount),
+        getWidth = function (id) {
+      var width = id ? config[configName][id] : config[configName],
+          ratio = id ? width.ratio : config[configName + "_ratio"],
+          max = id ? width.max : config[configName + "_max"],
+          w = isNumber(width) ? width : targetsNum ? tickInterval * ratio / targetsNum : 0;
+      return max && w > max ? max : w;
+    },
+        result = getWidth();
+
+    return !isGrouped && isObjectType(config[configName]) && (result = {
+      _$width: result,
+      _$total: []
+    }, $$.filterTargetsToShow($$.data.targets).forEach(function (v) {
+      config[configName][v.id] && (result[v.id] = getWidth(v.id), result._$total.push(result[v.id] || result._$width));
+    })), result;
   },
   isWithinShape: function isWithinShape(that, d) {
     var isWithin,
@@ -5920,7 +6005,7 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
         hasAxis = $$.state.hasAxis,
         $el = $$.$el;
     // pass 'withoutAxis' param to not animate at the init rendering
-    hasAxis && !withoutAxis && ($$.axis.x && config.axis_rotated ? ($$.axis.x.create($el.axis.x), $$.axis.subX && $$.axis.subX.create($el.axis.subX)) : ($$.axis.y && $$.axis.y.create($el.axis.y), $$.axis.y2 && $$.axis.y2.create($el.axis.y2))), $$.updateScales(withoutAxis), $$.updateSvgSize(), $$.transformAll(!1);
+    hasAxis && !withoutAxis && $$.axis.x && config.axis_rotated && $$.axis.subX && $$.axis.subX.create($el.axis.subX), $$.updateScales(withoutAxis), $$.updateSvgSize(), $$.transformAll(!1);
   },
   updateSvgSize: function updateSvgSize() {
     var $$ = this,
@@ -6047,23 +6132,33 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
     var $$ = this,
         config = $$.config,
         $el = $$.$el,
-        dataFn = $$.labelishData.bind($$),
-        classText = $$.getClass("text", "index");
-    $el.text = $el.main.selectAll("." + config_classes.texts).selectAll("." + config_classes.text).data(function (d) {
-      return $$.isRadarType(d) ? d.values : dataFn(d);
-    }), $el.text.exit().transition().duration(durationForExit).style("fill-opacity", "0").remove(), $el.text = $el.text.enter().append("text").merge($$.$el.text).attr("class", classText).attr("text-anchor", function (d) {
-      return config.axis_rotated ? d.value < 0 ? "end" : "start" : "middle";
-    }).style("fill", $$.updateTextColor.bind($$)).style("fill-opacity", "0").call(function (selection) {
-      selection.each(function (d, i, j) {
-        var value = $$.isBubbleZType(d) ? $$.getBubbleZData(d.value, "z") : d.value;
-        value = $$.dataLabelFormat(d.id)(value, d.id, i, j), isNumber(value) ? this.textContent = value : setTextValue((0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this), value);
-      });
+        classText = $$.getClass("text", "index"),
+        text = $el.main.selectAll("." + config_classes.texts).selectAll("." + config_classes.text).data($$.labelishData.bind($$));
+    text.exit().transition().duration(durationForExit).style("fill-opacity", "0").remove(), $el.text = text.enter().append("text").merge(text).attr("class", classText).attr("text-anchor", function (d) {
+      // when value is negative or
+      var isEndAnchor = d.value < 0;
+
+      if ($$.isCandlestickType(d)) {
+        var data = $$.getCandlestickData(d);
+        isEndAnchor = data && !data._isUp;
+      }
+
+      return config.axis_rotated ? isEndAnchor ? "end" : "start" : "middle";
+    }).style("fill", $$.updateTextColor.bind($$)).style("fill-opacity", "0").each(function (d, i, j) {
+      var node = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this),
+          value = d.value;
+      if ($$.isBubbleZType(d)) value = $$.getBubbleZData(value, "z");else if ($$.isCandlestickType(d)) {
+        var data = $$.getCandlestickData(d);
+        data && (value = data.close);
+      }
+      value = $$.dataLabelFormat(d.id)(value, d.id, i, j), isNumber(value) ? this.textContent = value : setTextValue(node, value);
     });
   },
   updateTextColor: function updateTextColor(d) {
     var color,
         $$ = this,
-        labelColors = $$.config.data_labels_colors,
+        config = $$.config,
+        labelColors = config.data_labels_colors,
         defaultColor = $$.isArcType(d) && !$$.isRadarType(d) ? null : $$.color(d);
     if (isString(labelColors)) color = labelColors;else if (isObject(labelColors)) {
       var _ref = d.data || d,
@@ -6071,6 +6166,16 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
 
       color = labelColors[id];
     } else isFunction(labelColors) && (color = labelColors.bind($$.api)(defaultColor, d));
+
+    if ($$.isCandlestickType(d) && !isFunction(labelColors)) {
+      var value = $$.getCandlestickData(d);
+
+      if (value && !value._isUp) {
+        var downColor = config.candlestick_color_down;
+        color = isObject(downColor) ? downColor[d.id] : downColor;
+      }
+    }
+
     return color || defaultColor;
   },
 
@@ -6085,21 +6190,15 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
    */
   redrawText: function redrawText(x, y, forFlow, withTransition) {
     var $$ = this,
-        t = getRandom(),
-        opacityForText = forFlow ? 0 : $$.opacityForText.bind($$);
+        t = getRandom(!0);
     // need to return 'true' as of being pushed to the redraw list
     // ref: getRedrawList()
-    return $$.$el.text.each(function (d, index) {
-      var text = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this); // do not apply transition for newly added text elements
-
-      (withTransition && text.attr("x") ? text.transition(t) : text).call(function (selection) {
-        selection.each(function (d) {
-          (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).style("fill", $$.updateTextColor.bind($$)).style("fill-opacity", opacityForText);
-          var posX = x.bind(this)(d, index),
-              posY = y.bind(this)(d, index);
-          this.childElementCount ? this.setAttribute("transform", "translate(" + posX + " " + posY + ")") : (this.setAttribute("x", posX), this.setAttribute("y", posY));
-        });
-      });
+    return $$.$el.text.style("fill", $$.updateTextColor.bind($$)).style("fill-opacity", forFlow ? 0 : $$.opacityForText.bind($$)).each(function (d, i) {
+      // do not apply transition for newly added text elements
+      var node = withTransition && this.getAttribute("x") ? (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).transition(t) : (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this),
+          posX = x.bind(this)(d, i),
+          posY = y.bind(this)(d, i);
+      this.childElementCount ? node.attr("transform", "translate(" + posX + " " + posY + ")") : node.attr("x", posX).attr("y", posY);
     }), !0;
   },
 
@@ -6137,7 +6236,7 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
     return $$.hasType("radar") && types.push("radar"), types.forEach(function (v) {
       points[v] = $$["generateGet" + capitalize(v) + "Points"](indices[v], !1);
     }), function (d, i) {
-      var type = $$.isAreaType(d) && "area" || $$.isBarType(d) && "bar" || $$.isRadarType(d) && "radar" || "line";
+      var type = $$.isAreaType(d) && "area" || $$.isBarType(d) && "bar" || $$.isCandlestickType(d) && "candlestick" || $$.isRadarType(d) && "radar" || "line";
       return getter.call($$, points[type](d, i), d, this);
     };
   },
@@ -6192,14 +6291,17 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
    * @private
    */
   getXForText: function getXForText(points, d, textElement) {
-    var xPos,
-        padding,
-        $$ = this,
+    var $$ = this,
         config = $$.config,
         state = $$.state,
-        isRotated = config.axis_rotated;
-    // show labels regardless of the domain if value is null
-    if (isRotated ? (padding = $$.isBarType(d) ? 4 : 6, xPos = points[2][1] + padding * (d.value < 0 ? -1 : 1)) : xPos = $$.hasType("bar") ? (points[2][0] + points[0][0]) / 2 : points[0][0], d.value === null) if (xPos > state.width) {
+        isRotated = config.axis_rotated,
+        xPos = points[0][0];
+    if ($$.hasType("candlestick")) isRotated ? xPos = $$.getCandlestickData(d)._isUp ? points[2][2] + 4 : points[2][1] - 4 : xPos += (points[1][0] - xPos) / 2;else if (isRotated) {
+      var padding = $$.isBarType(d) ? 4 : 6;
+      xPos = points[2][1] + padding * (d.value < 0 ? -1 : 1);
+    } else xPos = $$.hasType("bar") ? (points[2][0] + points[0][0]) / 2 : xPos; // show labels regardless of the domain if value is null
+
+    if (d.value === null) if (xPos > state.width) {
       var _getBoundingRect = getBoundingRect(textElement),
           width = _getBoundingRect.width;
 
@@ -6224,8 +6326,9 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
         isRotated = config.axis_rotated,
         r = config.point_r,
         rect = getBoundingRect(textElement),
+        value = d.value,
         baseY = 3;
-    if (isRotated) yPos = (points[0][0] + points[2][0] + rect.height * .6) / 2;else if (yPos = points[2][1], isNumber(r) && r > 5 && ($$.isLineType(d) || $$.isScatterType(d)) && (baseY += config.point_r / 2.3), d.value < 0 || d.value === 0 && !state.hasPositiveValue && state.hasNegativeValue) yPos += rect.height + ($$.isBarType(d) ? -baseY : baseY);else {
+    if ($$.isCandlestickType(d)) value = $$.getCandlestickData(d), isRotated ? (yPos = points[0][0], yPos += (points[1][0] - yPos) / 2 + baseY) : yPos = value && value._isUp ? points[2][2] - baseY : points[2][1] + baseY * 4;else if (isRotated) yPos = (points[0][0] + points[2][0] + rect.height * .6) / 2;else if (yPos = points[2][1], isNumber(r) && r > 5 && ($$.isLineType(d) || $$.isScatterType(d)) && (baseY += config.point_r / 2.3), value < 0 || value === 0 && !state.hasPositiveValue && state.hasNegativeValue) yPos += rect.height + ($$.isBarType(d) ? -baseY : baseY);else {
       var diff = -baseY * 2;
       $$.isBarType(d) ? diff = -baseY : $$.isBubbleType(d) && (diff = baseY), yPos += diff;
     } // show labels regardless of the domain if value is null
@@ -6528,12 +6631,23 @@ function getTextPos(pos, width) {
 
       if (!row.ratio && $$.$el.arcs && (row.ratio = $$.getRatio("arc", $$.$el.arcs.select("path." + config_classes.arc + "-" + row.id).data()[0])), param = [row.ratio, row.id, row.index, d], value = sanitise(valueFormat.apply(void 0, [getRowValue(row)].concat(param))), $$.isAreaRangeType(row)) {
         var _map2 = ["high", "low"].map(function (v) {
-          return sanitise(valueFormat.apply(void 0, [$$.getAreaRangeData(row, v)].concat(param)));
+          return sanitise(valueFormat.apply(void 0, [$$.getRangedData(row, v)].concat(param)));
         }),
             high = _map2[0],
             low = _map2[1];
 
         value = "<b>Mid:</b> " + value + " <b>High:</b> " + high + " <b>Low:</b> " + low;
+      } else if ($$.isCandlestickType(row)) {
+        var _map3 = ["open", "high", "low", "close", "volume"].map(function (v) {
+          return sanitise(valueFormat.apply(void 0, [$$.getRangedData(row, v, "candlestick")].concat(param)));
+        }),
+            open = _map3[0],
+            _high = _map3[1],
+            _low = _map3[2],
+            close = _map3[3],
+            volume = _map3[4];
+
+        value = "<b>Open:</b> " + open + " <b>High:</b> " + _high + " <b>Low:</b> " + _low + " <b>Close:</b> " + close + (volume ? " <b>Volume:</b> " + volume : "");
       }
 
       if (value !== undefined) {
@@ -6596,14 +6710,15 @@ function getTextPos(pos, width) {
         current = _state.current,
         isLegendRight = _state.isLegendRight,
         inputType = _state.inputType,
+        event = _state.event,
         hasGauge = $$.hasType("gauge") && !config.gauge_fullCircle,
         svgLeft = $$.getSvgLeft(!0),
-        _d3Mouse = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(element),
-        x = _d3Mouse[0],
-        y = _d3Mouse[1],
         chartRight = svgLeft + current.width - $$.getCurrentPaddingRight(),
         chartLeft = $$.getCurrentPaddingLeft(!0),
-        size = 20;
+        size = 20,
+        _getPointer = getPointer(event, element),
+        x = _getPointer[0],
+        y = _getPointer[1];
 
     // Determine tooltip position
     if ($$.hasArcType()) {
@@ -6730,11 +6845,12 @@ function getTextPos(pos, width) {
   _handleLinkedCharts: function _handleLinkedCharts(show, index) {
     var $$ = this,
         charts = $$.charts,
-        config = $$.config;
+        config = $$.config,
+        event = $$.state.event;
 
     // Prevent propagation among instances if isn't instantiated from the user's event
     // https://github.com/naver/billboard.js/issues/1979
-    if (external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event && external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.isTrusted && config.tooltip_linked && charts.length > 1) {
+    if (event && event.isTrusted && config.tooltip_linked && charts.length > 1) {
       var linkedName = config.tooltip_linked_name;
       charts.filter(function (c) {
         return c !== $$.api;
@@ -6869,8 +6985,7 @@ function getTextPos(pos, width) {
   hasTypeOf: function hasTypeOf(type, targets, exclude) {
     var _this = this;
 
-    return exclude === void 0 && (exclude = []), !TYPE_BY_CATEGORY[type] // @ts-ignore
-    .filter(function (v) {
+    return exclude === void 0 && (exclude = []), !!(type in TYPE_BY_CATEGORY) && !TYPE_BY_CATEGORY[type].filter(function (v) {
       return exclude.indexOf(v) === -1;
     }).every(function (v) {
       return !_this.hasType(v, targets);
@@ -6929,6 +7044,9 @@ function getTextPos(pos, width) {
   isBubbleType: function isBubbleType(d) {
     return this.isTypeOf(d, "bubble");
   },
+  isCandlestickType: function isCandlestickType(d) {
+    return this.isTypeOf(d, "candlestick");
+  },
   isScatterType: function isScatterType(d) {
     return this.isTypeOf(d, "scatter");
   },
@@ -6960,9 +7078,6 @@ function getTextPos(pos, width) {
   arcData: function arcData(d) {
     return this.isArcType(d.data) ? [d] : [];
   },
-  barData: function barData(d) {
-    return this.isBarType(d) ? d.values : [];
-  },
 
   /**
    * Get data adapt for data label showing
@@ -6971,7 +7086,9 @@ function getTextPos(pos, width) {
    * @private
    */
   labelishData: function labelishData(d) {
-    return this.isBarType(d) || this.isLineType(d) || this.isScatterType(d) || this.isBubbleType(d) || this.isRadarType(d) ? d.values : [];
+    return this.isBarType(d) || this.isLineType(d) || this.isScatterType(d) || this.isBubbleType(d) || this.isCandlestickType(d) || this.isRadarType(d) ? d.values.filter(function (v) {
+      return isNumber(v.value) || !!v.value;
+    }) : [];
   },
   barLineBubbleData: function barLineBubbleData(d) {
     return this.isBarType(d) || this.isLineType(d) || this.isBubbleType(d) ? d.values : [];
@@ -7200,7 +7317,10 @@ var ChartInternal = /*#__PURE__*/function () {
         hasAxis = _$$$state.hasAxis,
         hasRadar = _$$$state.hasRadar,
         types = [];
-    hasAxis ? ($$.hasType("bar") && types.push("Bar"), $$.hasType("bubble") && types.push("Bubble"), $$.hasTypeOf("Line") && types.push("Line")) : (!hasRadar && types.push("Arc", "Pie"), $$.hasType("gauge") ? types.push("Gauge") : hasRadar && types.push("Radar")), types.forEach(function (v) {
+    hasAxis ? ["bar", "bubble", "candlestick", "line"].forEach(function (v) {
+      var name = capitalize(v);
+      (v === "line" && $$.hasTypeOf(name) || $$.hasType(v)) && types.push(name);
+    }) : (!hasRadar && types.push("Arc", "Pie"), $$.hasType("gauge") ? types.push("Gauge") : hasRadar && types.push("Radar")), types.forEach(function (v) {
       $$["init" + v]();
     }), notEmpty($$.config.data_labels) && !$$.hasArcType(null, ["radar"]) && $$.initText();
   }, _proto.setChartElements = function setChartElements() {
@@ -7217,6 +7337,7 @@ var ChartInternal = /*#__PURE__*/function () {
         arc = _$$$$el.arcs,
         circles = _$$$$el.circle,
         bars = _$$$$el.bar,
+        candlestick = _$$$$el.candlestick,
         lines = _$$$$el.line,
         areas = _$$$$el.area,
         texts = _$$$$el.text;
@@ -7234,6 +7355,7 @@ var ChartInternal = /*#__PURE__*/function () {
       bar: {
         bars: bars
       },
+      candlestick: candlestick,
       line: {
         lines: lines,
         areas: areas
@@ -7268,7 +7390,10 @@ var ChartInternal = /*#__PURE__*/function () {
         _$$$state2 = $$.state,
         hasAxis = _$$$state2.hasAxis,
         hasRadar = _$$$state2.hasRadar;
-    $$.updateTargetsForText(targets), hasAxis ? ($$.hasType("bar") && $$.updateTargetsForBar(targets), $$.hasTypeOf("Line") && $$.updateTargetsForLine(targets), $$.updateTargetsForSubchart && $$.updateTargetsForSubchart(targets)) : $$.hasArcType(targets) && (hasRadar ? $$.updateTargetsForRadar(targets) : $$.updateTargetsForArc(targets)), ($$.hasType("bubble") || $$.hasType("scatter")) && $$.updateTargetForCircle && $$.updateTargetForCircle(), $$.showTargets();
+    $$.updateTargetsForText(targets), hasAxis ? (["bar", "candlestick", "line"].forEach(function (v) {
+      var name = capitalize(v);
+      (v === "line" && $$.hasTypeOf(name) || $$.hasType(v)) && $$["updateTargetsFor" + name](targets.filter($$["is" + name + "Type"].bind($$)));
+    }), $$.updateTargetsForSubchart && $$.updateTargetsForSubchart(targets)) : $$.hasArcType(targets) && (hasRadar ? $$.updateTargetsForRadar(targets.filter($$.isRadarType.bind($$))) : $$.updateTargetsForArc(targets.filter($$.isArcType.bind($$)))), ($$.hasType("bubble") || $$.hasType("scatter")) && $$.updateTargetForCircle && $$.updateTargetForCircle(), $$.showTargets();
   }
   /**
    * Display targeted elements
@@ -7698,6 +7823,7 @@ extend(api_data_data, {
 
 
 
+
 /**
  * Encode to base64
  * @param {string} str string to be encoded
@@ -7705,7 +7831,6 @@ extend(api_data_data, {
  * @private
  * @see https://developer.mozilla.org/ko/docs/Web/API/WindowBase64/Base64_encoding_and_decoding
  */
-
 var b64EncodeUnicode = function (str) {
   return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, function (match, p) {
     return String.fromCharCode(+("0x" + p));
@@ -7714,27 +7839,32 @@ var b64EncodeUnicode = function (str) {
 /**
  * Convert svg node to data url
  * @param {HTMLElement} node target node
- * @param {object} size object containing {width, height}
+ * @param {object} option object containing {width, height, preserveAspectRatio}
+ * @param {object} orgSize object containing {width, height}
  * @returns {string}
  * @private
  */
 
 
-function nodeToSvgDataUrl(node, size) {
-  var serializer = new XMLSerializer(),
+function nodeToSvgDataUrl(node, option, orgSize) {
+  var _ref = option || orgSize,
+      width = _ref.width,
+      height = _ref.height,
+      serializer = new XMLSerializer(),
       clone = node.cloneNode(!0),
       cssText = getCssRules(toArray(browser_doc.styleSheets)).filter(function (r) {
     return r.cssText;
   }).map(function (r) {
     return r.cssText;
   });
+
   clone.setAttribute("xmlns", external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.namespaces.xhtml);
   var nodeXml = serializer.serializeToString(clone),
       style = browser_doc.createElement("style"); // escape css for XML
 
   style.appendChild(browser_doc.createTextNode(cssText.join("\n")));
   var styleXml = serializer.serializeToString(style),
-      dataStr = ("<svg xmlns=\"" + external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.namespaces.svg + "\" width=\"" + size.width + "\" height=\"" + size.height + "\">\n\t\t\t<foreignObject width=\"100%\" height=\"100%\">\n\t\t\t\t" + styleXml + "\n\t\t\t\t" + nodeXml.replace(/(url\()[^#]+/g, "$1") + "\n\t\t\t</foreignObject></svg>").replace("/\n/g", "%0A"); // foreignObject not supported in IE11 and below
+      dataStr = ("<svg xmlns=\"" + external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.namespaces.svg + "\" width=\"" + width + "\" height=\"" + height + "\" \n\t\tviewBox=\"0 0 " + orgSize.width + " " + orgSize.height + "\" \n\t\tpreserveAspectRatio=\"" + (option && option.preserveAspectRatio === !1 ? "none" : "xMinYMid meet") + "\">\n\t\t\t<foreignObject width=\"100%\" height=\"100%\">\n\t\t\t\t" + styleXml + "\n\t\t\t\t" + nodeXml.replace(/(url\()[^#]+/g, "$1") + "\n\t\t\t</foreignObject></svg>").replace("/\n/g", "%0A"); // foreignObject not supported in IE11 and below
   // https://msdn.microsoft.com/en-us/library/hh834675(v=vs.85).aspx
 
   return "data:image/svg+xml;base64," + b64EncodeUnicode(dataStr);
@@ -7749,7 +7879,11 @@ function nodeToSvgDataUrl(node, size) {
    * @function export
    * @instance
    * @memberof Chart
-   * @param {string} [mimeType=image/png] The desired output image format. (ex. 'image/png' for png, 'image/jpeg' for jpeg format)
+   * @param {object} option Export option
+   * @param {string} [option.mimeType="image/png"] The desired output image format. (ex. 'image/png' for png, 'image/jpeg' for jpeg format)
+   * @param {number} [option.width={currentWidth}] width
+   * @param {number} [option.height={currentHeigth}] height
+   * @param {boolean} [option.preserveAspectRatio=true] Preserve aspect ratio on given size
    * @param {Function} [callback] The callback to be invoked when export is ready.
    * @returns {string} dataURI
    * @example
@@ -7757,7 +7891,7 @@ function nodeToSvgDataUrl(node, size) {
    *  // --> "data:image/svg+xml;base64,PHN..."
    *
    *  // Initialize the download automatically
-   *  chart.export("image/png", dataUrl => {
+   *  chart.export({mimeType: "image/png"}, dataUrl => {
    *     const link = document.createElement("a");
    *
    *     link.download = `${Date.now()}.png`;
@@ -7766,8 +7900,19 @@ function nodeToSvgDataUrl(node, size) {
    *
    *     document.body.appendChild(link);
    *  });
+   *
+   *  // Resize the exported image
+   *  chart.export(
+   *    {
+   *      width: 800,
+   *      height: 600,
+   *      preserveAspectRatio: false,
+   *      mimeType: "image/png"
+   *    },
+   *    dataUrl => { ... }
+   *  );
    */
-  export: function _export(mimeType, callback) {
+  export: function _export(option, callback) {
     var _this = this,
         $$ = this.internal,
         state = $$.state,
@@ -7775,7 +7920,13 @@ function nodeToSvgDataUrl(node, size) {
         _state$current = state.current,
         width = _state$current.width,
         height = _state$current.height,
-        svgDataUrl = nodeToSvgDataUrl(chart.node(), {
+        opt = mergeObj({
+      width: width,
+      height: height,
+      preserveAspectRatio: !0,
+      mimeType: "image/png"
+    }, option),
+        svgDataUrl = nodeToSvgDataUrl(chart.node(), opt, {
       width: width,
       height: height
     });
@@ -7785,7 +7936,7 @@ function nodeToSvgDataUrl(node, size) {
       img.crossOrigin = "Anonymous", img.onload = function () {
         var canvas = browser_doc.createElement("canvas"),
             ctx = canvas.getContext("2d");
-        canvas.width = width, canvas.height = height, ctx.drawImage(img, 0, 0), callback.bind(_this)(canvas.toDataURL(mimeType));
+        canvas.width = opt.width || width, canvas.height = opt.height || height, ctx.drawImage(img, 0, 0), callback.bind(_this)(canvas.toDataURL(opt.mimeType));
       }, img.src = svgDataUrl;
     }
 
@@ -8370,6 +8521,7 @@ var tooltip_tooltip = {
  * @property {d3.selection} $.circles Data point circle elements
  * @property {object} $.bar Bar element object
  * @property {d3.selection} $.bar.bars Bar elements
+ * @property {d3.selection} $.candlestick Candlestick elements
  * @property {object} $.line Line element object
  * @property {d3.selection} $.line.lines Line elements
  * @property {d3.selection} $.line.areas Areas elements
@@ -9286,7 +9438,8 @@ var AxisRenderer = /*#__PURE__*/function () {
       // update selection - data join
       var path = g.selectAll(".domain").data([0]); // enter + update selection
 
-      if (path.enter().append("path").attr("class", "domain").merge(helper.transitionise(path)).attr("d", function () {
+      if (path.enter().append("path").attr("class", "domain") // https://observablehq.com/@d3/d3-selection-2-0
+      .merge(helper.transitionise(path).selection()).attr("d", function () {
         var outerTickSized = config.outerTickSize * sign;
         return isTopBottom ? "M" + range[0] + "," + outerTickSized + "V0H" + range[1] + "V" + outerTickSized : "M" + outerTickSized + "," + range[0] + "H0V" + range[1] + "H" + outerTickSized;
       }), tickShow.tick || tickShow.text) {
@@ -10071,7 +10224,6 @@ var Axis_Axis = /*#__PURE__*/function () {
  */
 
 
-
 /* harmony default export */ var eventrect = ({
   /**
    * Initialize the area that detects the event.
@@ -10121,7 +10273,7 @@ var Axis_Axis = /*#__PURE__*/function () {
         svg = _$$$$el.svg,
         selectRect = function (context) {
       if (isMultipleX) $$.selectRectForMultipleXs(context);else {
-        var index = $$.getDataIndexFromEvent(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event);
+        var index = $$.getDataIndexFromEvent(state.event);
         $$.callOverOutForTouch(index), index === -1 ? $$.unselectRect() : $$.selectRectForSingle(context, eventRect, index);
       }
     },
@@ -10139,20 +10291,19 @@ var Axis_Axis = /*#__PURE__*/function () {
     };
 
     // bind touch events
-    eventRect.on("touchstart", function () {
-      return $$.updateEventRect();
-    }).on("touchstart.eventRect touchmove.eventRect", function () {
-      var event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event;
-
-      if (!eventRect.empty() && eventRect.classed(config_classes.eventRect)) {
+    eventRect.on("touchstart", function (event) {
+      state.event = event, $$.updateEventRect();
+    }).on("touchstart.eventRect touchmove.eventRect", function (event) {
+      if (state.event = event, !eventRect.empty() && eventRect.classed(config_classes.eventRect)) {
         // if touch points are > 1, means doing zooming interaction. In this case do not execute tooltip codes.
         if (state.dragging || state.flowing || $$.hasArcType() || event.touches.length > 1) return;
         preventEvent(event), selectRect(eventRect.node());
       } else unselectRect();
-    }, !0).on("touchend.eventRect", function () {
-      !eventRect.empty() && eventRect.classed(config_classes.eventRect) && ($$.hasArcType() || !$$.toggleShape || state.cancelClick) && state.cancelClick && (state.cancelClick = !1);
-    }, !0), svg.on("touchstart", function () {
-      var target = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.target;
+    }, !0).on("touchend.eventRect", function (event) {
+      state.event = event, !eventRect.empty() && eventRect.classed(config_classes.eventRect) && ($$.hasArcType() || !$$.toggleShape || state.cancelClick) && state.cancelClick && (state.cancelClick = !1);
+    }, !0), svg.on("touchstart", function (event) {
+      state.event = event;
+      var target = event.target;
       target && target !== eventRect.node() && unselectRect();
     });
   },
@@ -10246,7 +10397,7 @@ var Axis_Axis = /*#__PURE__*/function () {
 
     // do nothing when dragging
     if (!(state.dragging || $$.hasArcType(targetsToShow))) {
-      var mouse = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(context),
+      var mouse = getPointer(state.event, context),
           closest = $$.findClosestFromTargets(targetsToShow, mouse);
       if (state.mouseover && (!closest || closest.id !== state.mouseover.id) && (config.data_onout.call($$.api, state.mouseover), state.mouseover = undefined), !closest) return void $$.unselectRect();
       var sameXData = $$.isBubbleType(closest) || $$.isScatterType(closest) || !config.tooltip_grouped ? [closest] : $$.filterByX(targetsToShow, closest.x),
@@ -10284,30 +10435,33 @@ var Axis_Axis = /*#__PURE__*/function () {
         config = $$.config,
         state = $$.state,
         eventReceiver = state.eventReceiver,
-        rect = eventRectEnter.style("cursor", config.data_selection_enabled && config.data_selection_grouped ? "pointer" : null).on("click", function () {
+        rect = eventRectEnter.style("cursor", config.data_selection_enabled && config.data_selection_grouped ? "pointer" : null).on("click", function (event) {
+      state.event = event;
       var _eventReceiver = eventReceiver,
           currentIdx = _eventReceiver.currentIdx,
           data = _eventReceiver.data,
-          d = data[currentIdx === -1 ? $$.getDataIndexFromEvent(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event) : currentIdx];
+          d = data[currentIdx === -1 ? $$.getDataIndexFromEvent(event) : currentIdx];
       $$.clickHandlerForSingleX.bind(this)(d, $$);
     });
 
     if (state.inputType === "mouse") {
-      var getData = function () {
-        var index = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event ? $$.getDataIndexFromEvent(external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event) : eventReceiver.currentIdx;
+      var getData = function (event) {
+        var index = event ? $$.getDataIndexFromEvent(event) : eventReceiver.currentIdx;
         return index > -1 ? eventReceiver.data[index] : null;
       };
 
-      rect.on("mouseover", function () {
-        return $$.updateEventRect();
-      }).on("mousemove", function () {
-        var d = getData(); // do nothing while dragging/flowing
+      rect.on("mouseover", function (event) {
+        state.event = event, $$.updateEventRect();
+      }).on("mousemove", function (event) {
+        var d = getData(event);
 
-        if (!(state.dragging || state.flowing || $$.hasArcType() || !d || config.tooltip_grouped && d && d.index === eventReceiver.currentIdx)) {
+        // do nothing while dragging/flowing
+        if (state.event = event, !(state.dragging || state.flowing || $$.hasArcType() || !d || config.tooltip_grouped && d && d.index === eventReceiver.currentIdx)) {
           var index = d.index;
-          $$.isStepType(d) && config.line_step_type === "step-after" && (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(this)[0] < $$.scale.x($$.getXValue(d.id, index)) && (index -= 1), index !== eventReceiver.currentIdx && ($$.setOverOut(!1, eventReceiver.currentIdx), eventReceiver.currentIdx = index), index === -1 ? $$.unselectRect() : $$.selectRectForSingle(this, rect, index), $$.setOverOut(index !== -1, index);
+          $$.isStepType(d) && config.line_step_type === "step-after" && getPointer(event, this)[0] < $$.scale.x($$.getXValue(d.id, index)) && (index -= 1), index !== eventReceiver.currentIdx && ($$.setOverOut(!1, eventReceiver.currentIdx), eventReceiver.currentIdx = index), index === -1 ? $$.unselectRect() : $$.selectRectForSingle(this, rect, index), $$.setOverOut(index !== -1, index);
         }
-      }).on("mouseout", function () {
+      }).on("mouseout", function (event) {
+        state.event = event;
         // chart is destroyed
         !config || $$.hasArcType() || eventReceiver.currentIdx === -1 || ( // reset the event current index
         $$.unselectRect(), $$.setOverOut(!1, eventReceiver.currentIdx), eventReceiver.currentIdx = -1);
@@ -10336,12 +10490,13 @@ var Axis_Axis = /*#__PURE__*/function () {
    */
   generateEventRectsForMultipleXs: function generateEventRectsForMultipleXs(eventRectEnter) {
     var $$ = this,
-        inputType = $$.state.inputType;
-    eventRectEnter.on("click", function () {
-      $$.clickHandlerForMultipleXS.bind(this)($$);
-    }), inputType === "mouse" && eventRectEnter.on("mouseover mousemove", function () {
-      $$.selectRectForMultipleXs(this);
-    }).on("mouseout", function () {
+        state = $$.state;
+    eventRectEnter.on("click", function (event) {
+      state.event = event, $$.clickHandlerForMultipleXS.bind(this)($$);
+    }), state.inputType === "mouse" && eventRectEnter.on("mouseover mousemove", function (event) {
+      state.event = event, $$.selectRectForMultipleXs(this);
+    }).on("mouseout", function (event) {
+      state.event = event;
       // chart is destroyed
       !$$.config || $$.hasArcType() || $$.unselectRect();
     });
@@ -10349,10 +10504,11 @@ var Axis_Axis = /*#__PURE__*/function () {
   clickHandlerForMultipleXS: function clickHandlerForMultipleXS(ctx) {
     var $$ = ctx,
         config = $$.config,
+        state = $$.state,
         targetsToShow = $$.filterTargetsToShow($$.data.targets);
 
     if (!$$.hasArcType(targetsToShow)) {
-      var mouse = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(this),
+      var mouse = getPointer(state.event, this),
           closest = $$.findClosestFromTargets(targetsToShow, mouse);
       !closest || ($$.isBarType(closest.id) || $$.dist(closest, mouse) < config.point_sensitivity) && $$.$el.main.selectAll("." + config_classes.shapes + $$.getTargetSelectorSuffix(closest.id)).selectAll("." + config_classes.shape + "-" + closest.index).each(function () {
         (config.data_selection_grouped || $$.isWithinShape(this, closest)) && ($$.toggleShape && $$.toggleShape(this, closest, closest.index), config.data_onclick.bind($$.api)(closest, this));
@@ -10368,7 +10524,6 @@ var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack
  * Copyright (c) 2017 ~ present NAVER Corp.
  * billboard.js project is licensed under the MIT license
  */
-
 
 
 
@@ -10408,7 +10563,8 @@ var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack
    * @private
    */
   setFlowList: function setFlowList(elements, args) {
-    var $$ = this,
+    var n,
+        $$ = this,
         flow = args.flow,
         targets = args.targets,
         _flow = flow,
@@ -10418,14 +10574,12 @@ var external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_ = __webpack
         flowLength = _flow.length,
         orgDataCount = _flow.orgDataCount,
         transform = $$.getFlowTransform(targets, orgDataCount, flowIndex, flowLength),
-        wait = generateWait(),
-        gt = (0,external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_root_d3_.transition)().ease(external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_.easeLinear).duration(duration);
+        wait = generateWait();
     wait.add(Object.keys(elements).map(function (v) {
-      var n = elements[v];
-      return n = v === "axis.x" ? n.transition(gt).call(function (g) {
-        return $$.axis.x.setTransition(gt).create(g);
-      }) : v === "region.list" ? n.filter($$.isRegionOnX).transition(gt).attr("transform", transform) : n.transition(gt).attr("transform", transform), n;
-    })), gt.call(wait, function () {
+      return n = elements[v].transition().ease(external_commonjs_d3_ease_commonjs2_d3_ease_amd_d3_ease_root_d3_.easeLinear).duration(duration), n = v === "axis.x" ? n.call(function (g) {
+        $$.axis.x.setTransition(g).create(g);
+      }) : v === "region.list" ? n.filter($$.isRegionOnX).attr("transform", transform) : n.attr("transform", transform), n;
+    })), n.call(wait, function () {
       $$.cleanUpFlow(elements, args);
     });
   },
@@ -11035,7 +11189,7 @@ function smoothLines(el, type) {
     if (id === "y2" && !config.axis_y2_show) return rotatedPadding.top;
     var rotate = $$.getAxisTickRotate(id); // Calculate x/y axis height when tick rotated
 
-    return (id === "x" && !isRotated || /y2?/.test(id) && isRotated) && rotate && (h = 30 + $$.axis.getMaxTickWidth(id) * Math.cos(Math.PI * (90 - rotate) / 180), !config.axis_x_tick_multiline && current.height && h > current.height / 2 && (h = current.height / 2)), h + ($$.axis.getLabelPositionById(id).isInner ? 0 : 10) + (id !== "y2" || isRotated ? 0 : -10);
+    return (id === "x" && !isRotated || /y2?/.test(id) && isRotated) && rotate && (h = 30 + $$.axis.getMaxTickWidth(id) * Math.cos(Math.PI * (90 - Math.abs(rotate)) / 180), !config.axis_x_tick_multiline && current.height && h > current.height / 2 && (h = current.height / 2)), h + ($$.axis.getLabelPositionById(id).isInner ? 0 : 10) + (id !== "y2" || isRotated ? 0 : -10);
   },
   getEventRectWidth: function getEventRectWidth() {
     return Math.max(0, this.axis.x.tickInterval());
@@ -13407,48 +13561,49 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
         isMouse = state.inputType === "mouse";
 
     // touch events
-    if (arc.on("click", function (d, i) {
+    if (arc.on("click", function (event, d, i) {
       var arcData,
           updated = $$.updateAngle(d);
       updated && (arcData = $$.convertToArcData(updated), $$.toggleShape && $$.toggleShape(this, arcData, i), config.data_onclick.bind($$.api)(arcData, this));
-    }), isMouse && arc.on("mouseover", function (d) {
+    }), isMouse && arc.on("mouseover", function (event, d) {
       if (!state.transiting) // skip while transiting
         {
+          state.event = event;
           var updated = $$.updateAngle(d),
               arcData = updated ? $$.convertToArcData(updated) : null,
               id = arcData && arcData.id || undefined;
           selectArc(this, arcData, id), $$.setOverOut(!0, arcData);
         }
-    }).on("mouseout", function (d) {
+    }).on("mouseout", function (event, d) {
       if (!state.transiting) // skip while transiting
         {
+          state.event = event;
           var updated = $$.updateAngle(d),
               arcData = updated ? $$.convertToArcData(updated) : null;
           unselectArc(), $$.setOverOut(!1, arcData);
         }
-    }).on("mousemove", function (d) {
+    }).on("mousemove", function (event, d) {
       var updated = $$.updateAngle(d),
           arcData = updated ? $$.convertToArcData(updated) : null;
-      $$.showTooltip([arcData], this);
+      state.event = event, $$.showTooltip([arcData], this);
     }), isTouch && $$.hasArcType() && !$$.radars) {
-      var getEventArc = function () {
-        var touch = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.changedTouches[0],
+      var getEventArc = function (event) {
+        var touch = event.changedTouches[0],
             eventArc = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(browser_doc.elementFromPoint(touch.clientX, touch.clientY));
         return eventArc;
-      },
-          handler = function () {
+      };
+
+      $$.$el.svg.on("touchstart touchmove", function (event) {
         if (!state.transiting) // skip while transiting
           {
-            var eventArc = getEventArc(),
+            var eventArc = getEventArc(event),
                 datum = eventArc.datum(),
                 updated = datum && datum.data && datum.data.id ? $$.updateAngle(datum) : null,
                 arcData = updated ? $$.convertToArcData(updated) : null,
                 id = arcData && arcData.id || undefined;
             $$.callOverOutForTouch(arcData), isUndefined(id) ? unselectArc() : selectArc(this, arcData, id);
           }
-      };
-
-      $$.$el.svg.on("touchstart", handler).on("touchmove", handler);
+      });
     }
   },
   redrawArcText: function redrawArcText(duration) {
@@ -13518,19 +13673,43 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
     var $$ = this;
     return $$.config.area_linearGradient ? "url(#" + $$.state.datetimeId + "-areaGradient" + $$.getTargetSelectorSuffix(d.id) + ")" : $$.color(d);
   },
-  updateArea: function updateArea(durationForExit) {
+
+  /**
+   * Generate/Update elements
+   * @param {number} durationForExit Transition duration for exit elements
+   * @param {boolean} isSub Subchart draw
+   * @private
+   */
+  updateArea: function updateArea(durationForExit, isSub) {
+    isSub === void 0 && (isSub = !1);
     var $$ = this,
         config = $$.config,
         state = $$.state,
-        $el = $$.$el;
-    config.area_linearGradient && $$.updateAreaGradient(), $el.area = $el.main.selectAll("." + config_classes.areas).selectAll("." + config_classes.area).data($$.lineData.bind($$)), $el.area.exit().transition().duration(durationForExit).style("opacity", "0").remove(), $el.area = $el.area.enter().append("path").attr("class", $$.getClass("area", !0)).style("fill", $$.updateAreaColor.bind($$)).style("opacity", function () {
+        $el = $$.$el,
+        $root = isSub ? $el.subchart : $el;
+    config.area_linearGradient && $$.updateAreaGradient();
+    var area = $root.main.selectAll("." + config_classes.areas).selectAll("." + config_classes.area).data($$.lineData.bind($$));
+    area.exit().transition().duration(durationForExit).style("opacity", "0").remove(), $root.area = area.enter().append("path").attr("class", $$.getClass("area", !0)).style("fill", $$.updateAreaColor.bind($$)).style("opacity", function () {
       return state.orgAreaOpacity = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).style("opacity"), "0";
-    }).merge($el.area), $el.area.style("opacity", state.orgAreaOpacity);
+    }).merge(area), area.style("opacity", state.orgAreaOpacity);
   },
-  redrawArea: function redrawArea(drawArea, withTransition) {
+
+  /**
+   * Redraw function
+   * @param {Function} drawFn Retuned functino from .generateDrawCandlestick()
+   * @param {boolean} withTransition With or without transition
+   * @param {boolean} isSub Subchart draw
+   * @returns {Array}
+   */
+  redrawArea: function redrawArea(drawFn, withTransition, isSub) {
+    isSub === void 0 && (isSub = !1);
+
     var $$ = this,
+        _ref = isSub ? this.$el.subchart : this.$el,
+        area = _ref.area,
         orgAreaOpacity = $$.state.orgAreaOpacity;
-    return [(withTransition ? $$.$el.area.transition(getRandom()) : $$.$el.area).attr("d", drawArea).style("fill", $$.updateAreaColor.bind($$)).style("opacity", function (d) {
+
+    return [(withTransition ? area.transition(getRandom()) : area).attr("d", drawFn).style("fill", $$.updateAreaColor.bind($$)).style("opacity", function (d) {
       return ($$.isAreaRangeType(d) ? orgAreaOpacity / 1.75 : orgAreaOpacity) + "";
     })];
   },
@@ -13553,10 +13732,10 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
       return (isSub ? $$.subxx : $$.xx).call($$, d);
     },
         value0 = function (d, i) {
-      return $$.isGrouped(d.id) ? getPoints(d, i)[0][1] : yScale(d.id, isSub)($$.isAreaRangeType(d) ? $$.getAreaRangeData(d, "high") : $$.getShapeYMin(d.id));
+      return $$.isGrouped(d.id) ? getPoints(d, i)[0][1] : yScale(d.id, isSub)($$.isAreaRangeType(d) ? $$.getRangedData(d, "high") : $$.getShapeYMin(d.id));
     },
         value1 = function (d, i) {
-      return $$.isGrouped(d.id) ? getPoints(d, i)[1][1] : yScale(d.id, isSub)($$.isAreaRangeType(d) ? $$.getAreaRangeData(d, "low") : d.value);
+      return $$.isGrouped(d.id) ? getPoints(d, i)[1][1] : yScale(d.id, isSub)($$.isAreaRangeType(d) ? $$.getRangedData(d, "low") : d.value);
     };
 
     return function (d) {
@@ -13603,7 +13782,6 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
  */
 
 
-
 /* harmony default export */ var bar = ({
   initBar: function initBar() {
     var $el = this.$el;
@@ -13628,45 +13806,37 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
       return isSelectable && isSelectable.bind($$.api)(d) ? "pointer" : null;
     });
   },
-  updateBar: function updateBar(durationForExit) {
-    var $$ = this,
-        $el = $$.$el,
-        barData = $$.barData.bind($$),
-        classBar = $$.getClass("bar", !0),
-        initialOpacity = $$.initialOpacity.bind($$);
-    $el.bar = $el.main.selectAll("." + config_classes.bars).selectAll("." + config_classes.bar).data(barData), $el.bar.exit().transition().duration(durationForExit).style("opacity", "0").remove(), $el.bar = $el.bar.enter().append("path").attr("class", classBar).style("fill", $$.color).merge($el.bar).style("opacity", initialOpacity);
-  },
-  redrawBar: function redrawBar(drawBar, withTransition) {
-    var bar = this.$el.bar;
-    return [(withTransition ? bar.transition(getRandom()) : bar).attr("d", drawBar).style("fill", this.color).style("opacity", "1")];
-  },
-  getBarW: function getBarW(axis, barTargetsNum) {
-    var $$ = this,
-        config = $$.config,
-        org = $$.org,
-        scale = $$.scale,
-        maxDataCount = $$.getMaxDataCount(),
-        isGrouped = config.data_groups.length,
-        tickInterval = scale.zoom && !$$.axis.isCategorized() ? org.xDomain.map(function (v) {
-      return scale.zoom(v);
-    }).reduce(function (a, c) {
-      return Math.abs(a) + c;
-    }) / maxDataCount : axis.tickInterval(maxDataCount),
-        getWidth = function (id) {
-      var width = id ? config.bar_width[id] : config.bar_width,
-          ratio = id ? width.ratio : config.bar_width_ratio,
-          max = id ? width.max : config.bar_width_max,
-          w = isNumber(width) ? width : barTargetsNum ? tickInterval * ratio / barTargetsNum : 0;
-      return max && w > max ? max : w;
-    },
-        result = getWidth();
 
-    return !isGrouped && isObjectType(config.bar_width) && (result = {
-      _$width: result,
-      _$total: []
-    }, $$.filterTargetsToShow($$.data.targets).forEach(function (v) {
-      config.bar_width[v.id] && (result[v.id] = getWidth(v.id), result._$total.push(result[v.id] || result._$width));
-    })), result;
+  /**
+   * Generate/Update elements
+   * @param {number} durationForExit Transition duration for exit elements
+   * @param {boolean} isSub Subchart draw
+   * @private
+   */
+  updateBar: function updateBar(durationForExit, isSub) {
+    isSub === void 0 && (isSub = !1);
+    var $$ = this,
+        $root = isSub ? $$.$el.subchart : $$.$el,
+        classBar = $$.getClass("bar", !0),
+        initialOpacity = $$.initialOpacity.bind($$),
+        bar = $root.main.selectAll("." + config_classes.bars).selectAll("." + config_classes.bar).data($$.labelishData.bind($$));
+    bar.exit().transition().duration(durationForExit).style("opacity", "0").remove(), $root.bar = bar.enter().append("path").attr("class", classBar).style("fill", $$.color).merge(bar).style("opacity", initialOpacity);
+  },
+
+  /**
+   * Redraw function
+   * @param {Function} drawFn Retuned functino from .generateDrawCandlestick()
+   * @param {boolean} withTransition With or without transition
+   * @param {boolean} isSub Subchart draw
+   * @returns {Array}
+   */
+  redrawBar: function redrawBar(drawFn, withTransition, isSub) {
+    isSub === void 0 && (isSub = !1);
+
+    var _ref = isSub ? this.$el.subchart : this.$el,
+        bar = _ref.bar;
+
+    return [(withTransition ? bar.transition(getRandom()) : bar).attr("d", drawFn).style("fill", this.color).style("opacity", "1")];
   },
   getBars: function getBars(i, id) {
     var $$ = this,
@@ -13722,7 +13892,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
         config = $$.config,
         axis = isSub ? $$.axis.subX : $$.axis.x,
         barTargetsNum = $$.getIndicesMax(barIndices) + 1,
-        barW = $$.getBarW(axis, barTargetsNum),
+        barW = $$.getBarW("bar", axis, barTargetsNum),
         barX = $$.getShapeX(barW, barIndices, !!isSub),
         barY = $$.getShapeY(!!isSub),
         barOffset = $$.getShapeOffset($$.isBarType, barIndices, !!isSub),
@@ -13740,7 +13910,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
     };
   },
   isWithinBar: function isWithinBar(that) {
-    var mouse = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(that),
+    var mouse = getPointer(this.state.event, that),
         list = getRectSegList(that),
         _list = list,
         seg0 = _list[0],
@@ -13750,9 +13920,209 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
         offset = this.config.bar_sensitivity,
         _that$getBBox = that.getBBox(),
         width = _that$getBBox.width,
-        height = _that$getBBox.height;
+        height = _that$getBBox.height,
+        isWithin = x - offset < mouse[0] && mouse[0] < x + width + offset && y - offset < mouse[1] && mouse[1] < y + height + offset;
 
-    return x - offset < mouse[0] && mouse[0] < x + width + offset && y - offset < mouse[1] && mouse[1] < y + height + offset;
+    return isWithin;
+  }
+});
+;// CONCATENATED MODULE: ./src/ChartInternal/shape/candlestick.ts
+
+
+function candlestick_ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+
+function candlestick_objectSpread(target) { for (var source, i = 1; i < arguments.length; i++) source = arguments[i] == null ? {} : arguments[i], i % 2 ? candlestick_ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : candlestick_ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); return target; }
+
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+
+
+/* harmony default export */ var candlestick = ({
+  initCandlestick: function initCandlestick() {
+    var $el = this.$el;
+    $el.candlestick = $el.main.select("." + config_classes.chart) // should positioned at the beginning of the shape node to not overlap others
+    .append("g").attr("class", config_classes.chartCandlesticks);
+  },
+
+  /**
+   * Update targets by its data
+   * called from: ChartInternal.updateTargets()
+   * @param {Array} targets Filtered target by type
+   * @private
+   */
+  updateTargetsForCandlestick: function updateTargetsForCandlestick(targets) {
+    var $$ = this,
+        $el = $$.$el,
+        classChart = $$.getChartClass("Candlestick"),
+        classFocus = $$.classFocus.bind($$);
+    $el.candlestick || $$.initCandlestick();
+    var mainUpdate = $$.$el.main.select("." + config_classes.chartCandlesticks).selectAll("." + config_classes.chartCandlestick).data(targets).attr("class", function (d) {
+      return classChart(d) + classFocus(d);
+    });
+    mainUpdate.enter().append("g").attr("class", classChart).style("pointer-events", "none");
+  },
+
+  /**
+   * Generate/Update elements
+   * @param {number} durationForExit Transition duration for exit elements
+   * @param {boolean} isSub Subchart draw
+   * @private
+   */
+  updateCandlestick: function updateCandlestick(durationForExit, isSub) {
+    isSub === void 0 && (isSub = !1);
+    var $$ = this,
+        $el = $$.$el,
+        $root = isSub ? $el.subchart : $el,
+        classSetter = $$.getClass("candlestick", !0),
+        initialOpacity = $$.initialOpacity.bind($$),
+        candlestick = $root.main.selectAll("." + config_classes.chartCandlestick).selectAll("." + config_classes.candlestick).data($$.labelishData.bind($$));
+    candlestick.exit().transition().duration(durationForExit).style("opacity", "0").remove();
+    var candlestickEnter = candlestick.enter().filter(function (d) {
+      return d.value;
+    }).append("g").attr("class", classSetter);
+    candlestickEnter.append("line"), candlestickEnter.append("path"), $root.candlestick || ($root.candlestick = {}), $root.candlestick = candlestick.merge(candlestickEnter).style("opacity", initialOpacity);
+  },
+
+  /**
+   * Get draw function
+   * @param {object} indices Indice data
+   * @param {boolean} isSub Subchart draw
+   * @returns {Function}
+   * @private
+   */
+  generateDrawCandlestick: function generateDrawCandlestick(indices, isSub) {
+    var $$ = this,
+        config = $$.config,
+        getPoints = $$.generateGetCandlestickPoints(indices, isSub),
+        isRotated = config.axis_rotated,
+        downColor = config.candlestick_color_down;
+    return function (d, i, g) {
+      var _value,
+          points = getPoints(d, i),
+          value = $$.getCandlestickData(d),
+          isUp = (_value = value) == null ? void 0 : _value._isUp,
+          indexX = +isRotated;
+
+      g.classed && g.classed(config_classes[isUp ? "valueUp" : "valueDown"], !0);
+      var path = isRotated ? "H" + points[1][1] + " V" + points[1][0] + " H" + points[0][1] : "V" + points[1][1] + " H" + points[1][0] + " V" + points[0][1];
+      g.select("path").attr("d", "M" + points[0][indexX] + "," + points[0][+!indexX] + path + "z").style("fill", function (d) {
+        var color = isUp ? $$.color(d) : isObject(downColor) ? downColor[d.id] : downColor;
+        return color || $$.color(d);
+      });
+      // set line position
+      var line = g.select("line"),
+          pos = isRotated ? {
+        x1: points[2][1],
+        x2: points[2][2],
+        y1: points[2][0],
+        y2: points[2][0]
+      } : {
+        x1: points[2][0],
+        x2: points[2][0],
+        y1: points[2][1],
+        y2: points[2][2]
+      };
+
+      for (var x in pos) line.attr(x, pos[x]);
+    };
+  },
+
+  /**
+   * Generate shape drawing points
+   * @param {object} indices Indice data
+   * @param {boolean} isSub Subchart draw
+   * @returns {Function}
+   */
+  generateGetCandlestickPoints: function generateGetCandlestickPoints(indices, isSub) {
+    isSub === void 0 && (isSub = !1);
+    var $$ = this,
+        config = $$.config,
+        axis = isSub ? $$.axis.subX : $$.axis.x,
+        targetsNum = $$.getIndicesMax(indices) + 1,
+        barW = $$.getBarW("candlestick", axis, targetsNum),
+        x = $$.getShapeX(barW, indices, !!isSub),
+        y = $$.getShapeY(!!isSub),
+        shapeOffset = $$.getShapeOffset($$.isBarType, indices, !!isSub),
+        yScale = $$.getYScaleById.bind($$);
+    return function (d, i) {
+      var points,
+          y0 = yScale.call($$, d.id, isSub)($$.getShapeYMin(d.id)),
+          offset = shapeOffset(d, i) || y0,
+          width = isNumber(barW) ? barW : barW[d.id] || barW._$width,
+          value = $$.getCandlestickData(d);
+
+      if (value) {
+        var posX = {
+          start: x(d),
+          end: 0
+        };
+        posX.end = posX.start + width;
+        var posY = {
+          start: y(value.open),
+          end: y(value.close)
+        },
+            posLine = {
+          x: posX.start + width / 2,
+          high: y(value.high),
+          low: y(value.low)
+        };
+        config.axis_rotated && (d.value > 0 && posY.start < y0 || d.value < 0 && y0 < posY.start) && (posY.start = y0), posY.start -= y0 - offset, points = [[posX.start, posY.start], [posX.end, posY.end], [posLine.x, posLine.low, posLine.high]];
+      } else points = [[0, 0], [0, 0], [0, 0, 0]];
+
+      return points;
+    };
+  },
+
+  /**
+   * Redraw function
+   * @param {Function} drawFn Retuned functino from .generateDrawCandlestick()
+   * @param {boolean} withTransition With or without transition
+   * @param {boolean} isSub Subchart draw
+   * @returns {Array}
+   */
+  redrawCandlestick: function redrawCandlestick(drawFn, withTransition, isSub) {
+    isSub === void 0 && (isSub = !1);
+
+    var _ref = isSub ? this.$el.subchart : this.$el,
+        candlestick = _ref.candlestick,
+        rand = getRandom(!0);
+
+    return [candlestick.each(function (d, i) {
+      var g = withTransition ? (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).transition(rand) : (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this);
+      drawFn(d, i, g);
+    }).style("opacity", "1")];
+  },
+
+  /**
+   * Get candlestick data as object
+   * @param {object} param Data object
+   * @param {Array|object} param.value Data value
+   * @returns {object|null} Converted data object
+   * @private
+   */
+  getCandlestickData: function getCandlestickData(_ref2) {
+    var d,
+        value = _ref2.value;
+
+    if (isArray(value)) {
+      var open = value[0],
+          high = value[1],
+          low = value[2],
+          close = value[3],
+          _value$ = value[4],
+          volume = _value$ !== void 0 && _value$;
+      d = {
+        open: open,
+        high: high,
+        low: low,
+        close: close
+      }, volume !== !1 && (d.volume = volume);
+    } else isObject(value) && (d = candlestick_objectSpread({}, value));
+
+    return d && (d._isUp = d.close >= d.open), d || null;
   }
 });
 ;// CONCATENATED MODULE: ./src/ChartInternal/shape/gauge.ts
@@ -13902,7 +14272,6 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
 
 
 
-
 /* harmony default export */ var line = ({
   initLine: function initLine() {
     var $el = this.$el;
@@ -13928,19 +14297,41 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
     // Lines for each data
     mainLineEnter.append("g").attr("class", classLines), $$.hasTypeOf("Area") && $$.initArea(!area && mainLineEnter.empty() ? mainLineUpdate : mainLineEnter), $$.updateTargetForCircle(targets, mainLineEnter);
   },
-  updateLine: function updateLine(durationForExit) {
+
+  /**
+   * Generate/Update elements
+   * @param {number} durationForExit Transition duration for exit elements
+   * @param {boolean} isSub Subchart draw
+   * @private
+   */
+  updateLine: function updateLine(durationForExit, isSub) {
+    isSub === void 0 && (isSub = !1);
     var $$ = this,
         extraLineClasses = $$.format.extraLineClasses,
-        $el = $$.$el;
-    $el.line = $el.main.selectAll("." + config_classes.lines).selectAll("." + config_classes.line).data($$.lineData.bind($$)), $el.line.exit().transition().duration(durationForExit).style("opacity", "0").remove(), $el.line = $el.line.enter().append("path").attr("class", function (d) {
+        $el = $$.$el,
+        $root = isSub ? $el.subchart : $el,
+        line = $root.main.selectAll("." + config_classes.lines).selectAll("." + config_classes.line).data($$.lineData.bind($$));
+    line.exit().transition().duration(durationForExit).style("opacity", "0").remove(), $root.line = line.enter().append("path").attr("class", function (d) {
       return $$.getClass("line", !0)(d) + " " + (extraLineClasses(d) || "");
-    }).style("stroke", $$.color).merge($el.line).style("opacity", $$.initialOpacity.bind($$)).style("shape-rendering", function (d) {
+    }).style("stroke", $$.color).merge(line).style("opacity", $$.initialOpacity.bind($$)).style("shape-rendering", function (d) {
       return $$.isStepType(d) ? "crispEdges" : "";
     }).attr("transform", null);
   },
-  redrawLine: function redrawLine(drawLine, withTransition) {
-    var line = this.$el.line;
-    return [(withTransition ? line.transition(getRandom()) : line).attr("d", drawLine).style("stroke", this.color).style("opacity", "1")];
+
+  /**
+   * Redraw function
+   * @param {Function} drawFn Retuned functino from .generateDrawCandlestick()
+   * @param {boolean} withTransition With or without transition
+   * @param {boolean} isSub Subchart draw
+   * @returns {Array}
+   */
+  redrawLine: function redrawLine(drawFn, withTransition, isSub) {
+    isSub === void 0 && (isSub = !1);
+
+    var _ref = isSub ? this.$el.subchart : this.$el,
+        line = _ref.line;
+
+    return [(withTransition ? line.transition(getRandom()) : line).attr("d", drawFn).style("stroke", this.color).style("opacity", "1")];
   },
 
   /**
@@ -14097,7 +14488,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
     return path;
   },
   isWithinStep: function isWithinStep(that, y) {
-    return Math.abs(y - (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(that)[1]) < 30;
+    return Math.abs(y - getPointer(this.state.event, that)[1]) < 30;
   },
   shouldDrawPointsForLine: function shouldDrawPointsForLine(d) {
     var linePoint = this.config.line_point;
@@ -14178,34 +14569,36 @@ var getTransitionName = function () {
       });
     }
   },
-  updateCircle: function updateCircle() {
+  updateCircle: function updateCircle(isSub) {
+    isSub === void 0 && (isSub = !1);
     var $$ = this,
         config = $$.config,
         state = $$.state,
         $el = $$.$el,
-        focusOnly = config.point_focus_only;
+        focusOnly = config.point_focus_only,
+        $root = isSub ? $el.subchart : $el;
 
     if (config.point_show && !state.toggling) {
-      var circles = $el.main.selectAll("." + config_classes.circles).selectAll("." + config_classes.circle).data(function (d) {
+      var circles = $root.main.selectAll("." + config_classes.circles).selectAll("." + config_classes.circle).data(function (d) {
         return $$.isLineType(d) && $$.shouldDrawPointsForLine(d) || $$.isBubbleType(d) || $$.isRadarType(d) || $$.isScatterType(d) ? focusOnly ? [d.values[0]] : d.values : [];
       });
-      circles.exit().remove(), circles.enter().filter(Boolean).append($$.point("create", this, $$.pointR.bind($$), $$.color)), $el.circle = $el.main.selectAll("." + config_classes.circles + " ." + config_classes.circle).style("stroke", $$.color).style("opacity", $$.initialOpacityForCircle.bind($$));
+      circles.exit().remove(), circles.enter().filter(Boolean).append($$.point("create", this, $$.pointR.bind($$), $$.color)), $root.circle = $root.main.selectAll("." + config_classes.circles + " ." + config_classes.circle).style("stroke", $$.color).style("opacity", $$.initialOpacityForCircle.bind($$));
     }
   },
-  redrawCircle: function redrawCircle(cx, cy, withTransition, flow) {
+  redrawCircle: function redrawCircle(cx, cy, withTransition, flow, isSub) {
+    isSub === void 0 && (isSub = !1);
     var $$ = this,
         rendered = $$.state.rendered,
-        _$$$$el = $$.$el,
-        circle = _$$$$el.circle,
-        main = _$$$$el.main,
-        selectedCircles = main.selectAll("." + config_classes.selectedCircle);
+        $el = $$.$el,
+        $root = isSub ? $el.subchart : $el,
+        selectedCircles = $root.main.selectAll("." + config_classes.selectedCircle);
     if (!$$.config.point_show) return [];
     var fn = $$.point("update", $$, cx, cy, $$.color, withTransition, flow, selectedCircles),
         posAttr = $$.isCirclePoint() ? "c" : "",
         t = getRandom(),
         opacityStyleFn = $$.opacityForCircle.bind($$),
         mainCircles = [];
-    return circle.each(function (d) {
+    return $root.circle.each(function (d) {
       var result = fn.bind(this)(d);
       result = (withTransition || !rendered ? result.transition(t) : result).style("opacity", opacityStyleFn), mainCircles.push(result);
     }), [mainCircles, (withTransition ? selectedCircles.transition() : selectedCircles).attr(posAttr + "x", cx).attr(posAttr + "y", cy)];
@@ -14260,13 +14653,13 @@ var getTransitionName = function () {
   circleX: function circleX(d) {
     return this.xx(d);
   },
-  updateCircleY: function updateCircleY() {
+  updateCircleY: function updateCircleY(isSub) {
+    isSub === void 0 && (isSub = !1);
     var $$ = this,
-        getPoints = $$.generateGetLinePoints($$.getShapeIndices($$.isLineType), !1);
-
-    $$.circleY = function (d, i) {
+        getPoints = $$.generateGetLinePoints($$.getShapeIndices($$.isLineType), isSub);
+    return function (d, i) {
       var id = d.id;
-      return $$.isGrouped(id) ? getPoints(d, i)[0][1] : $$.getYScaleById(id)($$.getBaseValue(d));
+      return $$.isGrouped(id) ? getPoints(d, i)[0][1] : $$.getYScaleById(id, isSub)($$.getBaseValue(d));
     };
   },
   getCircles: function getCircles(i, id) {
@@ -14321,7 +14714,7 @@ var getTransitionName = function () {
     return isFunction(selectR) ? selectR(d) : selectR || $$.pointR(d) * 4;
   },
   isWithinCircle: function isWithinCircle(node, r) {
-    var mouse = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(node),
+    var mouse = getPointer(this.state.event, node),
         element = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(node),
         prefix = this.isCirclePoint(node) ? "c" : "",
         cx = +element.attr(prefix + "x"),
@@ -14679,33 +15072,35 @@ var cacheKey = KEY.radarPoints;
   bindEvent: function bindEvent() {
     var $$ = this,
         config = $$.config,
-        _$$$state2 = $$.state,
-        inputType = _$$$state2.inputType,
-        transiting = _$$$state2.transiting,
+        state = $$.state,
         _$$$$el2 = $$.$el,
         radar = _$$$$el2.radar,
         svg = _$$$$el2.svg,
-        focusOnly = config.point_focus_only;
+        focusOnly = config.point_focus_only,
+        _state = state,
+        inputType = _state.inputType,
+        transiting = _state.transiting;
 
     if (config.interaction_enabled) {
       var isMouse = inputType === "mouse",
-          getIndex = function () {
-        var target = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.target; // in case of multilined axis text
+          getIndex = function (event) {
+        var target = event.target; // in case of multilined axis text
 
         /tspan/i.test(target.tagName) && (target = target.parentNode);
         var d = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(target).datum();
         return d && Object.keys(d).length === 1 ? d.index : undefined;
       },
-          hide = function () {
-        var index = getIndex(),
+          hide = function (event) {
+        var index = getIndex(event),
             noIndex = isUndefined(index);
         (isMouse || noIndex) && ($$.hideTooltip(), focusOnly ? $$.hideCircleFocus() : $$.unexpandCircles(), isMouse ? $$.setOverOut(!1, index) : noIndex && $$.callOverOutForTouch());
       };
 
-      radar.axes.selectAll("text").on(isMouse ? "mouseover " : "touchstart", function () {
+      radar.axes.selectAll("text").on(isMouse ? "mouseover " : "touchstart", function (event) {
         if (!transiting) // skip while transiting
           {
-            var index = getIndex();
+            state.event = event;
+            var index = getIndex(event);
             $$.selectRectForSingle(svg.node(), null, index), isMouse ? $$.setOverOut(!0, index) : $$.callOverOutForTouch(index);
           }
       }).on("mouseout", isMouse ? hide : null), isMouse || svg.on("touchstart", hide);
@@ -15033,6 +15428,68 @@ var cacheKey = KEY.radarPoints;
    */
   bubble_maxR: 35,
   bubble_zerobased: !1
+});
+;// CONCATENATED MODULE: ./src/config/Options/shape/candlestick.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+/**
+ * candlestick config options
+ */
+/* harmony default export */ var shape_candlestick = ({
+  /**
+   * Set candlestick options
+   * @name candlestick
+   * @memberof Options
+   * @type {object}
+   * @property {object} candlestick Candlestick object
+   * @property {number} [candlestick.width] Change the width.
+   * @property {number} [candlestick.width.ratio=0.6] Change the width by ratio.
+   * @property {number} [candlestick.width.max] The maximum width value for ratio.
+   * @property {number} [candlestick.width.dataname] Change the width for indicated dataset only.
+   * @property {number} [candlestick.width.dataname.ratio=0.6] Change the width of bar chart by ratio.
+   * @property {number} [candlestick.width.dataname.max] The maximum width value for ratio.
+   * @property {object} [candlestick.color] Color setting.
+   * @property {string|object} [candlestick.color.down] Change down(bearish) value color.
+   * @property {string} [candlestick.color.down.dataname] Change down value color for indicated dataset only.
+   *
+   * @see [Demo](https://naver.github.io/billboard.js/demo/##Chart.CandlestickChart)
+   * @example
+   *  candlestick: {
+   *      width: 10,
+   *
+   *      // or
+   *      width: {
+   *         	ratio: 0.2,
+   *         	max: 20
+   *      },
+   *
+   *      // or specify width per dataset
+   *      width: {
+   *         	data1: 20,
+   *         	data2: {
+   *         	    ratio: 0.2,
+   *         		max: 20
+   *         	}
+   *      },
+   *      color: {
+   *  	  	// spcify bearish color
+   *  	  	down: "red",
+   *
+   *  	  	// or specify color per dataset
+   *  	  	down: {
+   *  	  		data1: "red",
+   *  	  		data2: "blue",
+   *  	  	}
+   *      }
+   *  }
+   */
+  candlestick_width: undefined,
+  candlestick_width_ratio: .6,
+  candlestick_width_max: undefined,
+  candlestick_color_down: "red"
 });
 ;// CONCATENATED MODULE: ./src/config/Options/shape/line.ts
 /**
@@ -15575,7 +16032,9 @@ var cacheKey = KEY.radarPoints;
 
 
 
+
  // Options
+
 
 
 
@@ -15694,6 +16153,11 @@ var _area = function area() {
     return TYPE.BUBBLE;
   })();
 },
+    resolver_shape_candlestick = function () {
+  return extendAxis([candlestick], [shape_candlestick]), (resolver_shape_candlestick = function () {
+    return TYPE.CANDLESTICK;
+  })();
+},
     shape_scatter = function () {
   return extendAxis([point], [common_point, scatter]), (shape_scatter = function () {
     return TYPE.SCATTER;
@@ -15805,6 +16269,85 @@ var _area = function area() {
       // line/area selection not supported yet
       shape.classed(config_classes.line) || shape.classed(config_classes.area) || isTargetId && isTargetIndex && config.data_selection_isselectable.bind($$.api)(d) && isSelected && toggle(!1, shape.classed(config_classes.SELECTED, !1), d, i);
     });
+  }
+});
+;// CONCATENATED MODULE: ./src/Chart/api/subchart.ts
+/**
+ * Copyright (c) 2017 ~ present NAVER Corp.
+ * billboard.js project is licensed under the MIT license
+ */
+
+/* harmony default export */ var subchart = ({
+  subchart: {
+    /**
+     * Show subchart
+     * - **NOTE:** for ESM imports, needs to import 'subchart' exports and instantiate it by calling `subchart()`.
+     * @function subchart․show
+     * @instance
+     * @memberof Chart
+     * @example
+     * // for ESM imports, needs to import 'subchart' and must be instantiated first to enable subchart's API.
+     * import {subchart} from "billboard.js";
+     *
+     * const chart = bb.generate({
+     *   ...
+     *   subchart: {
+     *     // need to be instantiated by calling 'subchart()'
+     *     enabled: subchart()
+     *
+     *     // in case don't want subchart to be shown at initialization, instantiate with '!subchart()'
+     *     enabled: !subchart()
+     *     }
+     * });
+     *
+     * chart.subchart.show();
+     */
+    show: function () {
+      var $$ = this.internal,
+          subchart = $$.$el.subchart,
+          config = $$.config,
+          show = config.subchart_show;
+
+      if (!show) {
+        config.subchart_show = !show, subchart.main || $$.initSubchart();
+        var $target = subchart.main.selectAll("." + config_classes.target); // need to cover when new data has been loaded
+
+        $$.data.targets.length !== $target.size() && ($$.updateSizes(), $$.updateTargetsForSubchart($$.data.targets), $target = subchart.main.selectAll("." + config_classes.target)), $target.style("opacity", "1"), subchart.main.style("display", null), this.flush();
+      }
+    },
+
+    /**
+     * Hide generated subchart
+     * - **NOTE:** for ESM imports, needs to import 'subchart' exports and instantiate it by calling `subchart()`.
+     * @function subchart․hide
+     * @instance
+     * @memberof Chart
+     * @example
+     *  chart.subchart.hide();
+     */
+    hide: function hide() {
+      var $$ = this.internal,
+          subchart = $$.$el.subchart,
+          config = $$.config;
+      config.subchart_show && subchart.main.style("display") !== "none" && (config.subchart_show = !1, subchart.main.style("display", "none"), this.flush());
+    },
+
+    /**
+     * Toggle the visiblity of subchart
+     * - **NOTE:** for ESM imports, needs to import 'subchart' exports and instantiate it by calling `subchart()`.
+     * @function subchart․toggle
+     * @instance
+     * @memberof Chart
+     * @example
+     * // When subchart is hidden, will be shown
+     * // When subchart is shown, will be hidden
+     * chart.subchart.toggle();
+     */
+    toggle: function toggle() {
+      var $$ = this.internal,
+          config = $$.config;
+      this.subchart[config.subchart_show ? "hide" : "show"]();
+    }
   }
 });
 // EXTERNAL MODULE: external {"commonjs":"d3-zoom","commonjs2":"d3-zoom","amd":"d3-zoom","root":"d3"}
@@ -16252,7 +16795,7 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
 
 
 
-/* harmony default export */ var subchart = ({
+/* harmony default export */ var interactions_subchart = ({
   /**
    * Initialize the brush.
    * @private
@@ -16336,7 +16879,15 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
           clipPath = $$.getClipPath(clipId);
       clip.idSubchart = clipId, $$.appendClip(defs, clipId), $$.initBrush(), subchart.main = svg.append("g").classed(config_classes.subchart, !0).attr("transform", $$.getTranslate("context"));
       var main = subchart.main;
-      main.style("visibility", visibility), main.append("g").attr("clip-path", clipPath).attr("class", config_classes.chart), $$.hasType("bar") && main.select("." + config_classes.chart).append("g").attr("class", config_classes.chartBars), main.select("." + config_classes.chart).append("g").attr("class", config_classes.chartLines), main.append("g").attr("clip-path", clipPath).attr("class", config_classes.brush).call($$.brush), axis.subX = main.append("g").attr("class", config_classes.axisX).attr("transform", $$.getTranslate("subX")).attr("clip-path", config.axis_rotated ? "" : clip.pathXAxis).style("visibility", config.subchart_axis_x_show ? visibility : "hidden");
+      main.style("visibility", visibility), main.append("g").attr("clip-path", clipPath).attr("class", config_classes.chart), ["bar", "line", "bubble", "candlestick", "scatter"].forEach(function (v) {
+        var type = capitalize(/^(bubble|scatter)$/.test(v) ? "circle" : v);
+
+        if ($$.hasType(v) || $$.hasTypeOf(type)) {
+          var chart = main.select("." + config_classes.chart),
+              chartClassName = config_classes["chart" + type + "s"];
+          chart.select("." + chartClassName).empty() && chart.append("g").attr("class", chartClassName);
+        }
+      }), main.append("g").attr("clip-path", clipPath).attr("class", config_classes.brush).call($$.brush), axis.subX = main.append("g").attr("class", config_classes.axisX).attr("transform", $$.getTranslate("subX")).attr("clip-path", config.axis_rotated ? "" : clip.pathXAxis).style("visibility", config.subchart_axis_x_show ? visibility : "hidden");
     }
   },
 
@@ -16349,97 +16900,26 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
     var $$ = this,
         config = $$.config,
         state = $$.state,
-        main = $$.$el.subchart.main,
-        classChartBar = $$.getChartClass("Bar"),
-        classBars = $$.getClass("bars", !0),
-        classChartLine = $$.getChartClass("Line"),
-        classLines = $$.getClass("lines", !0),
-        classAreas = $$.getClass("areas", !0);
+        main = $$.$el.subchart.main;
+    config.subchart_show && (["bar", "line", "bubble", "candlestick", "scatter"].filter(function (v) {
+      return $$.hasType(v) || $$.hasTypeOf(capitalize(v));
+    }).forEach(function (v) {
+      var isPointType = /^(bubble|scatter)$/.test(v),
+          name = capitalize(isPointType ? "circle" : v),
+          chartClass = $$.getChartClass(name, !0),
+          shapeClass = $$.getClass(isPointType ? "circles" : v + "s", !0),
+          shapeChart = main.select("." + config_classes["chart" + (name + "s")]);
 
-    if (config.subchart_show) {
-      // -- Bar --//
-      var barUpdate = main.select("." + config_classes.chartBars).selectAll("." + config_classes.chartBar).data(targets).attr("class", classChartBar),
-          barEnter = barUpdate.enter().append("g").style("opacity", "0").attr("class", classChartBar).merge(barUpdate);
-      barEnter.append("g").attr("class", classBars);
-      // -- Line --//
-      var lineUpdate = main.select("." + config_classes.chartLines).selectAll("." + config_classes.chartLine).data(targets).attr("class", classChartLine),
-          lineEnter = lineUpdate.enter().append("g").style("opacity", "0").attr("class", classChartLine).merge(lineUpdate);
-      // Lines for each data
-      // Area
-      // -- Brush --//
-      lineEnter.append("g").attr("class", classLines), $$.hasTypeOf("Area") && lineEnter.append("g").attr("class", classAreas), main.selectAll("." + config_classes.brush + " rect").attr(config.axis_rotated ? "width" : "height", config.axis_rotated ? state.width2 : state.height2);
-    }
-  },
-
-  /**
-   * Update the bar of the sub chart
-   * @param {object} durationForExit Transition duration
-   * @private
-   */
-  updateBarForSubchart: function updateBarForSubchart(durationForExit) {
-    var $$ = this,
-        subchart = $$.$el.subchart;
-    subchart.bar = subchart.main.selectAll("." + config_classes.bars).selectAll("." + config_classes.bar).data($$.barData.bind($$)), subchart.bar.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.bar = subchart.bar.enter().append("path").attr("class", $$.getClass("bar", !0)).style("stroke", "none").style("fill", $$.color).merge(subchart.bar).style("opacity", $$.initialOpacity.bind($$));
-  },
-
-  /**
-   * Redraw the bar of the subchart
-   * @param {string} drawBarOnSub path in subchart line
-   * @param {boolean} withTransition whether or not to transition
-   * @param {number} duration transition duration
-   * @private
-   */
-  redrawBarForSubchart: function redrawBarForSubchart(drawBarOnSub, withTransition, duration) {
-    var bar = this.$el.subchart.bar;
-    (withTransition ? bar.transition(getRandom()).duration(duration) : bar).attr("d", drawBarOnSub).style("opacity", "1");
-  },
-
-  /**
-   * Update the line of the sub chart
-   * @param {number} durationForExit Fade-out transition duration
-   * @private
-   */
-  updateLineForSubchart: function updateLineForSubchart(durationForExit) {
-    var $$ = this,
-        subchart = $$.$el.subchart;
-    subchart.line = subchart.main.selectAll("." + config_classes.lines).selectAll("." + config_classes.line).data($$.lineData.bind($$)), subchart.line.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.line = subchart.line.enter().append("path").attr("class", $$.getClass("line", !0)).style("stroke", $$.color).merge(subchart.line).style("opacity", $$.initialOpacity.bind($$));
-  },
-
-  /**
-   * Redraw the line of the subchart
-   * @private
-   * @param {string} drawLineOnSub path in subchart line
-   * @param {boolean} withTransition whether or not to transition
-   * @param {number} duration transition duration
-   */
-  redrawLineForSubchart: function redrawLineForSubchart(drawLineOnSub, withTransition, duration) {
-    var line = this.$el.subchart.line;
-    (withTransition ? line.transition(getRandom()).duration(duration) : line).attr("d", drawLineOnSub).style("opacity", "1");
-  },
-
-  /**
-   * Update the area of the sub chart
-   * @param {number} durationForExit Fade-out transition duration
-   * @private
-   */
-  updateAreaForSubchart: function updateAreaForSubchart(durationForExit) {
-    var $$ = this,
-        subchart = $$.$el.subchart;
-    subchart.area = subchart.main.selectAll("." + config_classes.areas).selectAll("." + config_classes.area).data($$.lineData.bind($$)), subchart.area.exit().transition().duration(durationForExit).style("opacity", "0").remove(), subchart.area = subchart.area.enter().append("path").attr("class", $$.getClass("area", !0)).style("fill", $$.color).style("opacity", function () {
-      return $$.state.orgAreaOpacity = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).style("opacity"), "0";
-    }).merge(subchart.area).style("opacity", "0");
-  },
-
-  /**
-   * Redraw the area of the subchart
-   * @private
-   * @param {string} drawAreaOnSub path in subchart line
-   * @param {boolean} withTransition whether or not to transition
-   * @param {number} duration transition duration
-   */
-  redrawAreaForSubchart: function redrawAreaForSubchart(drawAreaOnSub, withTransition, duration) {
-    var area = this.$el.subchart.area;
-    (withTransition ? area.transition(getRandom()).duration(duration) : area).attr("d", drawAreaOnSub).style("fill", this.color).style("opacity", this.state.orgAreaOpacity);
+      if (isPointType) {
+        var circle = shapeChart.selectAll("." + config_classes.circles).data(targets.filter($$["is" + capitalize(v) + "Type"].bind($$))).attr("class", shapeClass);
+        circle.exit().remove(), circle.enter().append("g").attr("class", shapeClass);
+      } else {
+        var shapeUpdate = shapeChart.selectAll("." + config_classes["chart" + name]).attr("class", chartClass).data(targets.filter($$["is" + name + "Type"].bind($$))),
+            shapeEnter = shapeUpdate.enter().append("g").style("opacity", "0").attr("class", chartClass).append("g").attr("class", shapeClass);
+        // Area
+        shapeUpdate.exit().remove(), v === "line" && $$.hasTypeOf("Area") && shapeEnter.append("g").attr("class", $$.getClass("areas", !0));
+      }
+    }), main.selectAll("." + config_classes.brush + " rect").attr(config.axis_rotated ? "width" : "height", config.axis_rotated ? state.width2 : state.height2));
   },
 
   /**
@@ -16452,12 +16932,21 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
   redrawSubchart: function redrawSubchart(withSubchart, duration, shape) {
     var $$ = this,
         config = $$.config,
-        main = $$.$el.subchart.main;
-    main.style("visibility", config.subchart_show ? "visible" : "hidden"), config.subchart_show && (external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event && external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.type === "zoom" && $$.brush.update(), withSubchart && (!brushEmpty($$) && $$.brush.update(), Object.keys(shape.type).forEach(function (v) {
+        main = $$.$el.subchart.main,
+        state = $$.state,
+        withTransition = !!duration;
+
+    // subchart
+    if (main.style("visibility", config.subchart_show ? "visible" : "hidden"), config.subchart_show && (state.event && state.event.type === "zoom" && $$.brush.update(), withSubchart && (brushEmpty($$) || $$.brush.update(), Object.keys(shape.type).forEach(function (v) {
       var name = capitalize(v),
-          draw = $$["generateDraw" + name](shape.indices[v], !0);
-      $$["update" + name + "ForSubchart"](duration), $$["redraw" + name + "ForSubchart"](draw, duration, duration);
-    })));
+          drawFn = $$["generateDraw" + name](shape.indices[v], !0);
+      $$["update" + name](duration, !0), $$["redraw" + name](drawFn, withTransition, !0);
+    }), $$.hasType("bubble") || $$.hasType("scatter")))) // update subchart elements if needed
+      {
+        var cx = shape.pos.cx,
+            cy = $$.updateCircleY(!0);
+        $$.updateCircle(!0), $$.redrawCircle(cx, cy, withTransition, undefined, !0);
+      }
   },
 
   /**
@@ -16586,24 +17075,25 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
 
   /**
    * 'start' event listener
+   * @param {object} event Event object
    * @private
    */
-  onZoomStart: function onZoomStart() {
+  onZoomStart: function onZoomStart(event) {
     var $$ = this,
-        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.sourceEvent;
-    event && ($$.zoom.startEvent = event, $$.state.zooming = !0, callFn($$.config.zoom_onzoomstart, $$.api, event));
+        sourceEvent = event.sourceEvent;
+    sourceEvent && ($$.zoom.startEvent = sourceEvent, $$.state.zooming = !0, callFn($$.config.zoom_onzoomstart, $$.api, event));
   },
 
   /**
    * 'zoom' event listener
+   * @param {object} event Event object
    * @private
    */
-  onZoom: function onZoom() {
+  onZoom: function onZoom(event) {
     var $$ = this,
         config = $$.config,
         scale = $$.scale,
         org = $$.org,
-        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event,
         sourceEvent = event.sourceEvent;
 
     if (config.zoom_enabled && event.sourceEvent && $$.filterTargetsToShow($$.data.targets).length !== 0 && (scale.zoom || !(sourceEvent.type.indexOf("touch") > -1) || sourceEvent.touches.length !== 1)) {
@@ -16624,17 +17114,18 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
 
   /**
    * 'end' event listener
+   * @param {object} event Event object
    * @private
    */
-  onZoomEnd: function onZoomEnd() {
+  onZoomEnd: function onZoomEnd(event) {
     var $$ = this,
         config = $$.config,
         scale = $$.scale,
         startEvent = $$.zoom.startEvent,
-        event = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event && external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.sourceEvent;
-    startEvent && startEvent.type.indexOf("touch") > -1 && (startEvent = startEvent.changedTouches[0], event = event.changedTouches[0]);
+        e = event && event.sourceEvent;
+    startEvent && startEvent.type.indexOf("touch") > -1 && (startEvent = startEvent.changedTouches[0], e = e.changedTouches[0]);
     // if click, do nothing. otherwise, click interaction will be canceled.
-    !startEvent || event && startEvent.clientX === event.clientX && startEvent.clientY === event.clientY || ($$.redrawEventRect(), $$.updateZoom(), $$.state.zooming = !1, callFn(config.zoom_onzoomend, $$.api, scale[scale.zoom ? "zoom" : "subX"].domain()));
+    !startEvent || e && startEvent.clientX === e.clientX && startEvent.clientY === e.clientY || ($$.redrawEventRect(), $$.updateZoom(), $$.state.zooming = !1, callFn(config.zoom_onzoomend, $$.api, scale[scale.zoom ? "zoom" : "subX"].domain()));
   },
 
   /**
@@ -16682,7 +17173,9 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
   bindZoomOnEventRect: function bindZoomOnEventRect(eventRects, type) {
     var $$ = this,
         behaviour = type === "drag" ? $$.zoomBehaviour : $$.zoom;
-    eventRects.call(behaviour).on("dblclick.zoom", null);
+    // Since Chrome 89, wheel zoom not works properly
+    // Applying the workaround: https://github.com/d3/d3-zoom/issues/231#issuecomment-802305692
+    $$.$el.svg.on("wheel", function () {}), eventRects.call(behaviour).on("dblclick.zoom", null);
   },
 
   /**
@@ -16702,23 +17195,20 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
       attr: isRotated ? "height" : "width",
       index: isRotated ? 1 : 0
     };
-    $$.zoomBehaviour = (0,external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_.drag)().clickDistance(4).on("start", function () {
-      // @ts-ignore
-      $$.setDragStatus(!0), $$.unselectRect(), zoomRect || (zoomRect = $$.$el.main.append("rect").attr("clip-path", state.clip.path).attr("class", config_classes.zoomBrush).attr("width", isRotated ? state.width : 0).attr("height", isRotated ? 0 : state.height)), start = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(this)[prop.index], end = start, zoomRect.attr(prop.axis, start).attr(prop.attr, 0), $$.onZoomStart();
-    }).on("drag", function () {
-      // @ts-ignore
-      end = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.mouse)(this)[prop.index], zoomRect.attr(prop.axis, Math.min(start, end)).attr(prop.attr, Math.abs(end - start));
-    }).on("end", function () {
+    $$.zoomBehaviour = (0,external_commonjs_d3_drag_commonjs2_d3_drag_amd_d3_drag_root_d3_.drag)().clickDistance(4).on("start", function (event) {
+      state.event = event, $$.setDragStatus(!0), $$.unselectRect(), zoomRect || (zoomRect = $$.$el.main.append("rect").attr("clip-path", state.clip.path).attr("class", config_classes.zoomBrush).attr("width", isRotated ? state.width : 0).attr("height", isRotated ? 0 : state.height)), start = getPointer(event, this)[prop.index], end = start, zoomRect.attr(prop.axis, start).attr(prop.attr, 0), $$.onZoomStart(event);
+    }).on("drag", function (event) {
+      end = getPointer(event, this)[prop.index], zoomRect.attr(prop.axis, Math.min(start, end)).attr(prop.attr, Math.abs(end - start));
+    }).on("end", function (event) {
       var _ref,
           scale = $$.scale.zoom || $$.scale.x;
 
-      if ($$.setDragStatus(!1), zoomRect.attr(prop.axis, 0).attr(prop.attr, 0), start > end && (_ref = [end, start], start = _ref[0], end = _ref[1], _ref), start < 0 && (end += Math.abs(start), start = 0), start !== end) $$.api.zoom([start, end].map(function (v) {
+      if (state.event = event, $$.setDragStatus(!1), zoomRect.attr(prop.axis, 0).attr(prop.attr, 0), start > end && (_ref = [end, start], start = _ref[0], end = _ref[1], _ref), start < 0 && (end += Math.abs(start), start = 0), start !== end) $$.api.zoom([start, end].map(function (v) {
         return scale.invert(v);
-      })), $$.onZoomEnd();else if ($$.isMultipleX()) $$.clickHandlerForMultipleXS.bind(this)($$);else {
-        var _event3 = external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event.sourceEvent || external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.event,
-            _ref2 = "clientX" in _event3 ? [_event3.clientX, _event3.clientY] : [_event3.x, _event3.y],
-            x = _ref2[0],
-            y = _ref2[1],
+      })), $$.onZoomEnd(event);else if ($$.isMultipleX()) $$.clickHandlerForMultipleXS.bind(this)($$);else {
+        var _getPointer = getPointer(event),
+            x = _getPointer[0],
+            y = _getPointer[1],
             target = browser_doc.elementFromPoint(x, y);
 
         $$.clickHandlerForSingleX.bind(target)((0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(target).datum(), $$);
@@ -17035,6 +17525,7 @@ function selection_objectSpread(target) { for (var source, i = 1; i < arguments.
  // Chart
 
 
+
  // ChartInternal
 
 
@@ -17052,7 +17543,7 @@ var _selectionModule = function selectionModule() {
   })();
 },
     subchartModule = function () {
-  return extend(ChartInternal.prototype, subchart), Options.setOptions([interaction_subchart]), (subchartModule = function () {
+  return extend(ChartInternal.prototype, interactions_subchart), extend(Chart.prototype, subchart), Options.setOptions([interaction_subchart]), (subchartModule = function () {
     return !0;
   })();
 },
@@ -17079,7 +17570,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "2.2.6",
+  version: "3.0.2",
 
   /**
    * Generate chart
@@ -17207,7 +17698,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 2.2.6
+ * @version 3.0.2
  */
 ;// CONCATENATED MODULE: ./src/index.ts
 /**

@@ -6,15 +6,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>D3 Dashboard Charts</title>
-    <link href="css/billboard.css" rel="stylesheet">
-    <link href="css/responsive-grid.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
+    <link href="build/d3dashboard.pkgd.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
-    <script src="js/lib/d3.js"></script>
-    <script src="js/lib/nbillboard.js"></script>
     <script src="js/bridge.js"></script>
-    <script src="js/script.js"></script>
     <script src="data/data.js"></script>
+    <script src="build/d3dashboard.pkgd.min.js"></script>
     <script>
         function ajaxSimulation(ajaxID, pItems, pOptions) {
             setTimeout(function() {
@@ -25,7 +21,7 @@
     </script>
 </head>
 
-<body onload="apexDashboardChart(bridge).initialize('chart',null,'No Data found.',null, {}, {},null,true);">
+<body onload="apexDashboardChart(bridge, $).initialize('chart',null,'No Data found.',null, {}, {},null,true);">
     <div id="chart">
         <div class="d3dc-root"></div>
     </div>
