@@ -3,7 +3,7 @@ var apexDashboardChart = function (apex, $) {
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.8",
+            scriptVersion: "2.6.6.9",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -327,9 +327,7 @@ var apexDashboardChart = function (apex, $) {
                     /* try to bind APEX refreh event if "APEX" exists */
                     try {
                         $(parentID).bind("apexrefresh", function () {
-                            if ($(parentID).is(':visible')) {
-                                getData(configJSON);
-                            }
+                            getData(configJSON);
                         });
                     } catch (e) {
                         util.errorMessage.show(parentID, configJSON.errorMessage);
@@ -1159,24 +1157,24 @@ var apexDashboardChart = function (apex, $) {
 
                 apex.server.plugin(
                     pAjaxID, {
-                        pageItems: submitItems
-                    }, {
-                        success: function (pData) {
-                            prepareData(pData, pDefaultConfig)
-                        },
-                        error: function (d) {
-                            $(parentID).empty();
-                            util.errorMessage.show(parentID, pDefaultConfig.errorMessage);
-                            apex.debug.error({
-                                "fct": util.featureDetails.name + " - " + "getData",
-                                "msg": "Error while loading AJAX data",
-                                "err": d,
-                                "featureDetails": util.featureDetails
-                            });
-                            util.loader.stop(parentID);
-                        },
-                        dataType: "json"
-                    });
+                    pageItems: submitItems
+                }, {
+                    success: function (pData) {
+                        prepareData(pData, pDefaultConfig)
+                    },
+                    error: function (d) {
+                        $(parentID).empty();
+                        util.errorMessage.show(parentID, pDefaultConfig.errorMessage);
+                        apex.debug.error({
+                            "fct": util.featureDetails.name + " - " + "getData",
+                            "msg": "Error while loading AJAX data",
+                            "err": d,
+                            "featureDetails": util.featureDetails
+                        });
+                        util.loader.stop(parentID);
+                    },
+                    dataType: "json"
+                });
             }
         }
     }
