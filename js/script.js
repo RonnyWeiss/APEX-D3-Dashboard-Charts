@@ -3,7 +3,7 @@ var apexDashboardChart = function (apex, $) {
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.9",
+            scriptVersion: "2.6.6.10",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -516,8 +516,30 @@ var apexDashboardChart = function (apex, $) {
                 var isGauge = false;
                 var isPie = false;
                 var isDonut = false;
-                var seriesData = util.groupObjectArray(pValuesData, 'seriesID');
                 var specialStr = "\u200b";
+
+                // sort pValuesData by Time
+                function sortArrByTime(pArr, pFormat) {
+
+                    function customeSort(pFirstValue, pSecondValue) {
+                        var parseTime = d3.timeParse(pFormat);
+                        var fD = parseTime(pFirstValue.x);
+                        var sD = parseTime(pSecondValue.x);
+                        return new Date(fD).getTime() - new Date(sD).getTime();
+                    }
+
+                    try {
+                        return pArr.sort(customeSort);
+                    }
+                    catch (e) {
+                        apex.debug.error({
+                            "fct": util.featureDetails.name + " - " + "drawChart",
+                            "msg": "Error while try sort JSON Array by Time Value",
+                            "err": e,
+                            "featureDetails": util.featureDetails
+                        });
+                    }
+                }
 
                 /* search link from data and set window.location.href */
                 function executeLink(pData) {
@@ -655,6 +677,8 @@ var apexDashboardChart = function (apex, $) {
                     if (xType == "timeseries") {
                         xAxisTimeFormat = setObjectParameter(pConfigData.xTimeFormat, pDefaultConfig.d3chart.x.timeFormat);
                         xTickTimeFormat = setObjectParameter(pConfigData.xTickTimeFormat, pDefaultConfig.d3chart.x.tick.timeFormat);
+                        // sort data because of tooltip index
+                        sortArrByTime(pValuesData, xAxisTimeFormat);
                     }
 
                     /* cut string if category names are to long */
@@ -720,6 +744,7 @@ var apexDashboardChart = function (apex, $) {
                     var namesJSON = {};
                     var groupJSON = {};
                     var seriesCnt = 0;
+                    var seriesData = util.groupObjectArray(pValuesData, 'seriesID');
 
                     if (seriesData) {
                         /* Add Categories or time values to x Axis when correct type is set */
@@ -929,11 +954,6 @@ var apexDashboardChart = function (apex, $) {
                                 donut: {
                                     label: {
                                         format: absoluteFormatting,
-                                        threshold: 0.05
-                                    }
-                                },
-                                bar: {
-                                    label: {
                                         threshold: 0.05
                                     }
                                 },
