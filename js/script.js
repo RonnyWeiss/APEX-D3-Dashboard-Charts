@@ -3,7 +3,7 @@ var apexDashboardChart = function (apex, $) {
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.10",
+            scriptVersion: "2.6.6.11",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -218,6 +218,7 @@ var apexDashboardChart = function (apex, $) {
             /* default d3 billboard charts options */
             var stdChartConfigJSON = {
                 "axisLabelPosition": "inner3",
+                "background": null,
                 "chartTitle": null,
                 "gauge": {
                     "min": 0,
@@ -295,7 +296,6 @@ var apexDashboardChart = function (apex, $) {
                     "rescale": false
                 }
             };
-
 
             /* get parent */
             var parentID = "#" + pRegionID;
@@ -562,6 +562,14 @@ var apexDashboardChart = function (apex, $) {
                     var ownTooltip = false;
 
                     var chartTitle = setObjectParameter(pConfigData.chartTitle, pDefaultConfig.d3chart.chartTitle || "").toString();
+                    var background = setObjectParameter(pConfigData.background, pDefaultConfig.d3chart.background);
+                    var backJSON = null;
+
+                    if (util.isDefinedAndNotNull(background)) {
+                        backJSON = {
+                            color: background
+                        };
+                    }
 
                     /* line */
                     var lineStep = setObjectParameter(pConfigData.lineStep, pDefaultConfig.d3chart.line.step);
@@ -925,6 +933,7 @@ var apexDashboardChart = function (apex, $) {
 
                             var bbData = {
                                 bindto: chartContIDSel,
+                                background: backJSON,
                                 title: {
                                     text: chartTitle
                                 },
@@ -1103,7 +1112,7 @@ var apexDashboardChart = function (apex, $) {
                                 resize();
                             });
 
-                            /* dirty workaround because in apex sometimes chart renders in wrong size hope apexDev Team will bring us layout change events also for tabs, collapsible so on */
+                            /* dirty workaround because in APEX sometimes chart renders in wrong size hope apexDev Team will bring us layout change events also for tabs, collapsible so on */
                             function stopResizeWA() {
                                 if (timers.innerItemsIntervals && timers.innerItemsIntervals[pItemSel]) {
                                     clearInterval(timers.innerItemsIntervals[pItemSel]);
