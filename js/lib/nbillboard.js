@@ -5,7 +5,7 @@
  * billboard.js, JavaScript chart library
  * https://naver.github.io/billboard.js/
  *
- * @version 3.0.3-nightly-20210529004705
+ * @version 3.1.1
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
@@ -1268,6 +1268,7 @@ function _defineProperty(obj, key, value) {
    *  - `i` is the index of the data point where the label is shown.
    *  - `j` is the sub index of the data point where the label is shown.<br><br>
    * Formatter function can be defined for each data by specifying as an object and D3 formatter function can be set (ex. d3.format('$'))
+   * @property {string|object} [data.labels.backgroundColors] Set label text background colors.
    * @property {string|object|Function} [data.labels.colors] Set label text colors.
    * @property {object} [data.labels.position] Set each dataset position, relative the original.
    * @property {number} [data.labels.position.x=0] x coordinate position, relative the original.
@@ -1302,6 +1303,15 @@ function _defineProperty(obj, key, value) {
    *     // align text to center of the 'bar' shape (works only for 'bar' type)
    *     centered: true,
    *
+   *     // apply backgound color for label texts
+   *     backgroundColors: "red",
+   *
+   *     // set differenct backround colors per dataset
+   *     backgroundColors: {
+   *          data1: "green",
+   *          data2: "yellow"
+   *     }
+   *
    *     // apply for all label texts
    *     colors: "red",
    *
@@ -1335,6 +1345,7 @@ function _defineProperty(obj, key, value) {
    * }
    */
   data_labels: {},
+  data_labels_backgroundColors: undefined,
   data_labels_colors: undefined,
   data_labels_position: {},
 
@@ -1438,6 +1449,40 @@ function _defineProperty(obj, key, value) {
    * }
    */
   data_onout: function data_onout() {},
+
+  /**
+   * Set a callback for when data is shown.<br>
+   * The callback will receive shown data ids in array.
+   * @name data․onshown
+   * @memberof Options
+   * @type {Function}
+   * @default undefined
+   * @example
+   *  data: {
+   *    onshown: function(ids) {
+   *      // ids - ["data1", "data2", ...]
+   *      ...
+   *    }
+   *  }
+   */
+  data_onshown: undefined,
+
+  /**
+   * Set a callback for when data is hidden.<br>
+   * The callback will receive hidden data ids in array.
+   * @name data․onhidden
+   * @memberof Options
+   * @type {Function}
+   * @default undefined
+   * @example
+   *  data: {
+   *    onhidden: function(ids) {
+   *      // ids - ["data1", "data2", ...]
+   *      ...
+   *    }
+   *  }
+   */
+  data_onhidden: undefined,
 
   /**
    * Set a callback for minimum data
@@ -2358,14 +2403,16 @@ function callFn(fn) {
 
 
 function endall(transition, cb) {
-  var n = 0;
-  transition.each(function () {
-    return ++n;
-  }).on("end", function () {
+  var n = 0,
+      end = function () {
     for (var _len2 = arguments.length, args = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) args[_key2] = arguments[_key2];
 
     --n || cb.apply.apply(cb, [this].concat(args));
-  });
+  };
+
+  "duration" in transition ? transition.each(function () {
+    return ++n;
+  }).on("end", end) : (++n, transition.call(end));
 }
 /**
  * Replace tag sign to html entity
@@ -3278,7 +3325,9 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
         return v.x;
       }).every(function (v) {
         return config.axis_x_categories.indexOf(v) > -1;
-      });
+      }),
+          isDataAppend = data.__append__,
+          xIndex = xKey === null && isDataAppend ? $$.api.data.values(id).length : 0;
       return {
         id: convertedId,
         id_org: id,
@@ -3286,7 +3335,7 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
           var x,
               rawX = d[xKey],
               value = d[id];
-          return value = value === null || isNaN(value) || isObject(value) ? isArray(value) || isObject(value) ? value : null : +value, (isCategory || state.hasRadar) && index === 0 && !isUndefined(rawX) ? (!hasCategory && index === 0 && i === 0 && (config.axis_x_categories = []), x = config.axis_x_categories.indexOf(rawX), x === -1 && (x = config.axis_x_categories.length, config.axis_x_categories.push(rawX))) : x = $$.generateTargetX(rawX, id, i), (isUndefined(value) || $$.data.xs[id].length <= i) && (x = undefined), {
+          return value = value === null || isNaN(value) || isObject(value) ? isArray(value) || isObject(value) ? value : null : +value, (isCategory || state.hasRadar) && index === 0 && !isUndefined(rawX) ? (!hasCategory && index === 0 && i === 0 && !isDataAppend && (config.axis_x_categories = []), x = config.axis_x_categories.indexOf(rawX), x === -1 && (x = config.axis_x_categories.length, config.axis_x_categories.push(rawX))) : x = $$.generateTargetX(rawX, id, xIndex + i), (isUndefined(value) || $$.data.xs[id].length <= i) && (x = undefined), {
             x: x,
             value: value,
             id: convertedId
@@ -3667,21 +3716,46 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
       return +x;
     })), sortValue(xs);
   },
+
+  /**
+   * Add to the state target Ids
+   * @param {string} type State's prop name
+   * @param {Array|string} targetIds Target ids array
+   * @private
+   */
+  addTargetIds: function addTargetIds(type, targetIds) {
+    var state = this.state,
+        ids = isArray(targetIds) ? targetIds : [targetIds];
+    ids.forEach(function (v) {
+      state[type].indexOf(v) < 0 && state[type].push(v);
+    });
+  },
+
+  /**
+   * Remove from the state target Ids
+   * @param {string} type State's prop name
+   * @param {Array|string} targetIds Target ids array
+   * @private
+   */
+  removeTargetIds: function removeTargetIds(type, targetIds) {
+    var state = this.state,
+        ids = isArray(targetIds) ? targetIds : [targetIds];
+    ids.forEach(function (v) {
+      var index = state[type].indexOf(v);
+      index >= 0 && state[type].splice(index, 1);
+    });
+  },
   addHiddenTargetIds: function addHiddenTargetIds(targetIds) {
-    this.state.hiddenTargetIds = this.state.hiddenTargetIds.concat(targetIds);
+    this.addTargetIds("hiddenTargetIds", targetIds);
   },
   removeHiddenTargetIds: function removeHiddenTargetIds(targetIds) {
-    this.state.hiddenTargetIds = this.state.hiddenTargetIds.filter(function (id) {
-      return targetIds.indexOf(id) < 0;
-    });
+    this.removeTargetIds("hiddenTargetIds", targetIds);
   },
   addHiddenLegendIds: function addHiddenLegendIds(targetIds) {
-    this.state.hiddenLegendIds = this.state.hiddenLegendIds.concat(targetIds);
+    this.addTargetIds("hiddenLegendIds", targetIds);
   },
   removeHiddenLegendIds: function removeHiddenLegendIds(targetIds) {
-    this.state.hiddenLegendIds = this.state.hiddenLegendIds.filter(function (id) {
-      return targetIds.indexOf(id) < 0;
-    });
+    this.removeTargetIds("hiddenLegendIds", targetIds);
   },
   getValuesAsIdKeyed: function getValuesAsIdKeyed(targets) {
     var $$ = this,
@@ -4068,6 +4142,7 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
 /* harmony default export */ var load = ({
   load: function load(rawTargets, args) {
     var $$ = this,
+        append = args.append,
         targets = rawTargets;
     // Set targets
     // Redraw with new targets
@@ -4077,7 +4152,7 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
       $$.setTargetType(t.id, type);
     }), $$.data.targets.forEach(function (d) {
       for (var i = 0; i < targets.length; i++) if (d.id === targets[i].id) {
-        d.values = targets[i].values, targets.splice(i, 1);
+        d.values = append ? d.values.concat(targets[i].values) : targets[i].values, targets.splice(i, 1);
         break;
       }
     }), $$.data.targets = $$.data.targets.concat(targets)), $$.updateTargets($$.data.targets), $$.redraw({
@@ -4094,27 +4169,29 @@ var external_commonjs_d3_dsv_commonjs2_d3_dsv_amd_d3_dsv_root_d3_ = __webpack_re
       var data = args.data || $$.convertData(args, function (d) {
         return $$.load($$.convertDataToTargets(d), args);
       });
-      data && $$.load($$.convertDataToTargets(data), args);
+      args.append && (data.__append__ = !0), data && $$.load($$.convertDataToTargets(data), args);
     } // reset internally cached data
 
   },
   unload: function unload(rawTargetIds, customDoneCb) {
     var $$ = this,
+        config = $$.config,
         state = $$.state,
         $el = $$.$el,
         done = customDoneCb,
         targetIds = rawTargetIds;
     // If no target, call done and return
-    return $$.cache.reset(), done || (done = function () {}), targetIds = targetIds.filter(function (id) {
+    if ($$.cache.reset(), done || (done = function () {}), targetIds = targetIds.filter(function (id) {
       return $$.hasTarget($$.data.targets, id);
-    }), targetIds && targetIds.length !== 0 ? void ( // Update current state chart type and elements list after redraw
-    $el.svg.selectAll(targetIds.map(function (id) {
+    }), !targetIds || targetIds.length === 0) return void done();
+    var targets = $el.svg.selectAll(targetIds.map(function (id) {
       return $$.selectorTarget(id);
-    })).transition().style("opacity", "0").remove().call(endall, done), targetIds.forEach(function (id) {
+    }));
+    (config.transition_duration ? targets.transition().style("opacity", "0") : targets).remove().call(endall, done), targetIds.forEach(function (id) {
       state.withoutFadeIn[id] = !1, $el.legend && $el.legend.selectAll("." + config_classes.legendItem + $$.getTargetSelectorSuffix(id)).remove(), $$.data.targets = $$.data.targets.filter(function (t) {
         return t.id !== id;
       });
-    }), $$.updateTypesElements()) : void done();
+    }), $$.updateTypesElements();
   }
 });
 // EXTERNAL MODULE: external {"commonjs":"d3-drag","commonjs2":"d3-drag","amd":"d3-drag","root":"d3"}
@@ -4515,6 +4592,26 @@ var colorizePattern = function (pattern, color, id) {
 
       return color;
     } : null;
+  },
+
+  /**
+   * Append data backgound color filter definition
+   * @private
+   */
+  generateDataLabelBackgroundColorFilter: function generateDataLabelBackgroundColorFilter() {
+    var $$ = this,
+        $el = $$.$el,
+        config = $$.config,
+        state = $$.state,
+        backgroundColors = config.data_labels_backgroundColors;
+
+    if (backgroundColors) {
+      var ids = [];
+      isString(backgroundColors) ? ids.push("") : isObject(backgroundColors) && (ids = Object.keys(backgroundColors)), ids.forEach(function (v) {
+        var id = state.datetimeId + "-labels-bg" + $$.getTargetSelectorSuffix(v);
+        $el.defs.append("filter").attr("x", "0").attr("y", "0").attr("width", "1").attr("height", "1").attr("id", id).html("<feFlood flood-color=\"" + (v === "" ? backgroundColors : backgroundColors[v]) + "\" /><feComposite in=\"SourceGraphic\"/>");
+      });
+    }
   },
 
   /**
@@ -5445,6 +5542,7 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
  */
 
 
+
 /**
  * Get scale
  * @param {string} [type='linear'] Scale type
@@ -5453,7 +5551,6 @@ var external_commonjs_d3_transition_commonjs2_d3_transition_amd_d3_transition_ro
  * @returns {d3.scaleLinear|d3.scaleTime} scale
  * @private
  */
-
 function getScale(type, min, max) {
   type === void 0 && (type = "linear"), min === void 0 && (min = 0), max === void 0 && (max = 1);
   var scale = {
@@ -5606,15 +5703,18 @@ function getScale(type, min, max) {
     var $$ = this,
         axis = $$.axis,
         config = $$.config,
-        x = $$.scale.x,
+        _$$$scale2 = $$.scale,
+        x = _$$$scale2.x,
+        zoom = _$$$scale2.zoom,
+        fn = config.zoom_enabled && zoom ? zoom : x,
         value = $$.getBaseValue(d);
-    return axis.isTimeSeries() ? value = parseDate.call($$, value) : axis.isCategorized() && isString(value) && (value = config.axis_x_categories.indexOf(value)), Math.ceil(x(value));
+    return axis.isTimeSeries() ? value = parseDate.call($$, value) : axis.isCategorized() && isString(value) && (value = config.axis_x_categories.indexOf(value)), Math.ceil(fn(value));
   },
   yv: function yv(d) {
     var $$ = this,
-        _$$$scale2 = $$.scale,
-        y = _$$$scale2.y,
-        y2 = _$$$scale2.y2,
+        _$$$scale3 = $$.scale,
+        y = _$$$scale3.y,
+        y2 = _$$$scale3.y2,
         yScale = d.axis && d.axis === "y2" ? y2 : y;
     return Math.ceil(yScale($$.getBaseValue(d)));
   },
@@ -6154,8 +6254,8 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
    */
   updateText: function updateText(durationForExit) {
     var $$ = this,
-        config = $$.config,
         $el = $$.$el,
+        config = $$.config,
         classText = $$.getClass("text", "index"),
         text = $el.main.selectAll("." + config_classes.texts).selectAll("." + config_classes.text).data($$.labelishData.bind($$));
     text.exit().transition().duration(durationForExit).style("fill-opacity", "0").remove(), $el.text = text.enter().append("text").merge(text).attr("class", classText).attr("text-anchor", function (d) {
@@ -6204,6 +6304,28 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
   },
 
   /**
+   * Update data label text background color
+   * @param {object} d Data object
+   * @returns {string|null}
+   * @private
+   */
+  updateTextBacgroundColor: function updateTextBacgroundColor(d) {
+    var $$ = this,
+        $el = $$.$el,
+        config = $$.config,
+        backgroundColor = config.data_labels_backgroundColors,
+        color = "";
+
+    if (isString(backgroundColor) || isObject(backgroundColor)) {
+      var id = isString(backgroundColor) ? "" : $$.getTargetSelectorSuffix("id" in d ? d.id : d.data.id),
+          filter = $el.defs.select(["filter[id*='labels-bg", "']"].join(id));
+      filter.size() && (color = "url(#" + filter.attr("id") + ")");
+    }
+
+    return color || null;
+  },
+
+  /**
    * Redraw chartText
    * @param {Function} x Positioning function for x
    * @param {Function} y Positioning function for y
@@ -6217,7 +6339,7 @@ var external_commonjs_d3_shape_commonjs2_d3_shape_amd_d3_shape_root_d3_ = __webp
         t = getRandom(!0);
     // need to return 'true' as of being pushed to the redraw list
     // ref: getRedrawList()
-    return $$.$el.text.style("fill", $$.updateTextColor.bind($$)).style("fill-opacity", forFlow ? 0 : $$.opacityForText.bind($$)).each(function (d, i) {
+    return $$.$el.text.style("fill", $$.updateTextColor.bind($$)).attr("filter", $$.updateTextBacgroundColor.bind($$)).style("fill-opacity", forFlow ? 0 : $$.opacityForText.bind($$)).each(function (d, i) {
       // do not apply transition for newly added text elements
       var node = withTransition && this.getAttribute("x") ? (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this).transition(t) : (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this),
           posX = x.bind(this)(d, i),
@@ -7310,9 +7432,9 @@ var ChartInternal = /*#__PURE__*/function () {
     config.svg_classname && $el.svg.attr("class", config.svg_classname);
     // Define defs
     var hasColorPatterns = isFunction(config.color_tiles) && $$.patterns;
-    (hasAxis || hasColorPatterns) && ($el.defs = $el.svg.append("defs"), hasAxis && ["id", "idXAxis", "idYAxis", "idGrid"].forEach(function (v) {
+    (hasAxis || hasColorPatterns || config.data_labels_backgroundColors) && ($el.defs = $el.svg.append("defs"), hasAxis && ["id", "idXAxis", "idYAxis", "idGrid"].forEach(function (v) {
       $$.appendClip($el.defs, state.clip[v]);
-    }), hasColorPatterns && $$.patterns.forEach(function (p) {
+    }), $$.generateDataLabelBackgroundColorFilter(), hasColorPatterns && $$.patterns.forEach(function (p) {
       return $el.defs.append(function () {
         return p.node;
       });
@@ -8131,6 +8253,7 @@ var legend_legend = {
  * billboard.js project is licensed under the MIT license
  */
 
+
 /* harmony default export */ var api_load = ({
   /**
    * Load data to the chart.<br><br>
@@ -8149,6 +8272,7 @@ var legend_legend = {
    *    | --- | --- |
    *    | - url<br>- json<br>- rows<br>- columns | The data will be loaded. If data that has the same target id is given, the chart will be updated. Otherwise, new target will be added |
    *    | data | Data objects to be loaded. Checkout the example. |
+   *    | append | Load data appending it to the current dataseries.<br>If the existing chart has`x` value, should provide with corresponding `x` value for newly loaded data.  |
    *    | names | Same as data.names() |
    *    | xs | Same as data.xs option  |
    *    | classes | The classes specified by data.classes will be updated. classes must be Object that has target id as keys. |
@@ -8172,6 +8296,48 @@ var legend_legend = {
    *    unload: ["data2", "data3"],
    *    url: "...",
    *    done: function() { ... }
+   * });
+   * @example
+   * const chart = bb.generate({
+   *   data: {
+   *     columns: [
+   *       ["data1", 20, 30, 40]
+   *     ]
+   *   }
+   * });
+   *
+   * chart.load({
+   *    columns: [
+   *        // with 'append' option, the 'data1' will have `[20,30,40,50,60]`.
+   *        ["data1", 50, 60]
+   *    ],
+   *    append: true
+   * });
+   * @example
+   * const chart = bb.generate({
+   *   data: {
+   *     x: "x",
+   *     xFormat: "%Y-%m-%dT%H:%M:%S",
+   *     columns: [
+   *       ["x", "2021-01-03T03:00:00", "2021-01-04T12:00:00", "2021-01-05T21:00:00"],
+   *       ["data1", 36, 30, 24]
+   *     ]
+   *   },
+   *   axis: {
+   *     x: {
+   *       type: "timeseries"
+   *     }
+   *   }
+   * };
+   *
+   * chart.load({
+   *   columns: [
+   *     // when existing chart has `x` value, should provide correponding 'x' value.
+   *     // with 'append' option, the 'data1' will have `[36,30,24,37]`.
+   *     ["x", "2021-02-01T08:00:00"],
+   *     ["data1", 37]
+   *   ],
+   *   append: true
    * });
    * @example
    * // myAPI.json
@@ -8226,7 +8392,11 @@ var legend_legend = {
     }), "colors" in args && Object.keys(args.colors).forEach(function (id) {
       config.data_colors[id] = args.colors[id];
     }), "unload" in args && args.unload !== !1 ? $$.unload($$.mapToTargetIds(args.unload === !0 ? null : args.unload), function () {
-      return $$.loadFromArgs(args);
+      // to mitigate improper rendering for multiple consecutive calls
+      // https://github.com/naver/billboard.js/issues/2121
+      win.requestIdleCallback(function () {
+        return $$.loadFromArgs(args);
+      });
     }) : $$.loadFromArgs(args);
   },
 
@@ -8288,14 +8458,18 @@ var legend_legend = {
  */
 
 function showHide(show, targetIdsValue, options) {
-  var $$ = this.internal,
-      targetIds = $$.mapToTargetIds(targetIdsValue);
+  var _this = this,
+      $$ = this.internal,
+      targetIds = $$.mapToTargetIds(targetIdsValue),
+      hiddenIds = $$.state.hiddenTargetIds.map(function (v) {
+    return targetIds.indexOf(v) > -1 && v;
+  }).filter(Boolean);
+
   $$.state.toggling = !0, $$[(show ? "remove" : "add") + "HiddenTargetIds"](targetIds);
   var targets = $$.$el.svg.selectAll($$.selectorTargets(targetIds)),
       opacity = show ? null : "0";
-  show && targets.style("display", null), targets.transition().style("opacity", opacity, "important").call(endall, function () {
-    // https://github.com/naver/billboard.js/issues/1758
-    show || targets.style("display", "none"), targets.style("opacity", opacity);
+  show && hiddenIds.length && (targets.style("display", null), callFn($$.config.data_onshown, this, hiddenIds)), targets.transition().style("opacity", opacity, "important").call(endall, function () {
+    show || hiddenIds.length !== 0 || (targets.style("display", "none"), callFn($$.config.data_onhidden, _this, targetIds)), targets.style("opacity", opacity);
   }), options.withLegend && $$[(show ? "show" : "hide") + "Legend"](targetIds), $$.redraw({
     withUpdateOrgXDomain: !0,
     withUpdateXDomain: !0,
@@ -8370,7 +8544,7 @@ function showHide(show, targetIdsValue, options) {
    * chart.toggle(["data1", "data3"]);
    */
   toggle: function toggle(targetIds, options) {
-    var _this = this;
+    var _this2 = this;
 
     options === void 0 && (options = {});
     var $$ = this.internal,
@@ -8384,7 +8558,7 @@ function showHide(show, targetIdsValue, options) {
     $$.mapToTargetIds(targetIds).forEach(function (id) {
       return targets[$$.isTargetToShow(id) ? "hide" : "show"].push(id);
     }), targets.show.length && this.show(targets.show, options), targets.hide.length && setTimeout(function () {
-      return _this.hide(targets.hide, options);
+      return _this2.hide(targets.hide, options);
     }, 0);
   }
 });
@@ -8583,8 +8757,9 @@ var Chart = function Chart(options) {
     Object.keys(fn).forEach(function (key) {
       var isFunc = isFunction(fn[key]),
           isChild = target !== argThis,
-          hasChild = Object.keys(fn[key]).length > 0;
-      isFunc && (!isChild && hasChild || isChild) ? target[key] = fn[key].bind(argThis) : !isFunc && (target[key] = {}), hasChild && bindThis(fn[key], target[key], argThis);
+          isNotNil = notEmpty(fn[key]),
+          hasChild = isNotNil && Object.keys(fn[key]).length > 0;
+      target[key] = isFunc && (!isChild && hasChild || isChild) ? fn[key].bind(argThis) : isNotNil && !isFunc ? {} : fn[key], hasChild && bindThis(fn[key], target[key], argThis);
     });
   }(Chart.prototype, this, this), loadConfig.call($$, options), $$.beforeInit(), $$.init();
 }; // extend common APIs as part of Chart class
@@ -13251,10 +13426,12 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
         radius = config.gauge_fullCircle ? $$.getArcLength() : gStart * -2;
 
     if (d.data && $$.isGaugeType(d.data) && !$$.hasMultiArcGauge()) {
-      // to prevent excluding total data sum during the init(when data.hide option is used), use $$.rendered state value
-      var totalSum = $$.getTotalDataSum(state.rendered),
-          gEnd = radius * (totalSum / (config.gauge_max - config.gauge_min));
-      pie = pie.startAngle(gStart).endAngle(gEnd + gStart);
+      var _config = config,
+          min = _config.gauge_min,
+          max = _config.gauge_max,
+          totalSum = $$.getTotalDataSum(state.rendered); // to prevent excluding total data sum during the init(when data.hide option is used), use $$.rendered state value
+
+      pie = pie.startAngle(gStart).endAngle(radius * ((totalSum - min) / (max - min)) + gStart);
     }
 
     if (pie($$.filterTargetsToShow()).forEach(function (t, i) {
@@ -13360,7 +13537,7 @@ var external_commonjs_d3_interpolate_commonjs2_d3_interpolate_amd_d3_interpolate
   textForArcLabel: function textForArcLabel(selection) {
     var $$ = this,
         hasGauge = $$.hasType("gauge");
-    $$.shouldShowArcLabel() && selection.style("fill", $$.updateTextColor.bind($$)).each(function (d) {
+    $$.shouldShowArcLabel() && selection.style("fill", $$.updateTextColor.bind($$)).attr("filter", $$.updateTextBacgroundColor.bind($$)).each(function (d) {
       var node = (0,external_commonjs_d3_selection_commonjs2_d3_selection_amd_d3_selection_root_d3_.select)(this),
           updated = $$.updateAngle(d),
           ratio = $$.getRatio("arc", updated),
@@ -14164,7 +14341,7 @@ function candlestick_objectSpread(target) { for (var source, i = 1; i < argument
         state = $$.state,
         hasMultiGauge = $$.hasMultiArcGauge(),
         max = hasMultiGauge ? $$.getMinMaxData().max[0].value : $$.getTotalDataSum(state.rendered);
-    max > config.gauge_max && (config.gauge_max = max);
+    max + config.gauge_min * (config.gauge_min > 0 ? -1 : 1) > config.gauge_max && (config.gauge_max = max - config.gauge_min);
   },
   redrawMultiArcGauge: function redrawMultiArcGauge() {
     var $$ = this,
@@ -15742,7 +15919,11 @@ var cacheKey = KEY.radarPoints;
    * @property {boolean} [gauge.background=""] Set background color. (The `.bb-chart-arcs-background` element)
    * @property {boolean} [gauge.fullCircle=false] Show full circle as donut. When set to 'true', the max label will not be showed due to start and end points are same location.
    * @property {boolean} [gauge.label.show=true] Show or hide label on gauge.
-   * @property {Function} [gauge.label.format] Set formatter for the label on gauge. Label text can be multilined with `\n` character.
+   * @property {Function} [gauge.label.format] Set formatter for the label on gauge. Label text can be multilined with `\n` character.<br>
+   * Will pass following arguments to the given function:
+   * - value {number}: absolute value
+   * - ratio {number}: value's ratio
+   * - id {string}: data's id value
    * @property {Function} [gauge.label.extents] Set customized min/max label text.
    * @property {number} [gauge.label.threshold=0] Set threshold ratio to show/hide labels.
    * @property {boolean} [gauge.expand=true] Enable or disable expanding gauge.
@@ -15784,7 +15965,7 @@ var cacheKey = KEY.radarPoints;
    *      fullCircle: false,
    *      label: {
    *          show: false,
-   *          format: function(value, ratio) {
+   *          format: function(value, ratio, id) {
    *              return value;
    *
    *              // to multiline, return with '\n' character
@@ -17617,7 +17798,7 @@ var _defaults = {},
    *    bb.version;  // "1.0.0"
    * @memberof bb
    */
-  version: "3.0.3",
+  version: "3.1.1",
 
   /**
    * Generate chart
@@ -17745,7 +17926,7 @@ var _defaults = {},
 };
 /**
  * @namespace bb
- * @version 3.0.3
+ * @version 3.1.1
  */
 ;// CONCATENATED MODULE: ./src/index.ts
 /**
