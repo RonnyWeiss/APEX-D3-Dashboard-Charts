@@ -3,7 +3,7 @@ var apexDashboardChart = function (apex, $) {
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.16",
+            scriptVersion: "2.6.6.17",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -420,7 +420,9 @@ var apexDashboardChart = function (apex, $) {
                                 "featureDetails": util.featureDetails
                             });
 
-                            drawChartCol(idx, item.height, row, colSpan, item.title, itemConfigJSON, pDefaultConfig, item.itemData);
+                            var height = item.height || configJSON.height
+
+                            drawChartCol(idx, height, row, colSpan, item.title, itemConfigJSON, pDefaultConfig, item.itemData);
 
                             if (chartNum >= 12) {
                                 row = drawRow(container);
