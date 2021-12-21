@@ -3,7 +3,7 @@ var apexDashboardChart = function (apex, $) {
     var util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.17",
+            scriptVersion: "2.6.6.19",
             utilVersion: "1.4",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
@@ -250,6 +250,7 @@ var apexDashboardChart = function (apex, $) {
                 "showDataLabels": false,
                 "showDataPoints": true,
                 "showAbsoluteValues": false,
+                "threshold": 0.05,
                 "tooltip": {
                     "grouped": true,
                     "show": true
@@ -728,6 +729,8 @@ var apexDashboardChart = function (apex, $) {
                     var zoomType = setObjectParameter(pConfigData.zoomType, pDefaultConfig.d3chart.zoom.type);
                     var showSubChart = false;
 
+                    var charThreshold = setObjectParameter(pConfigData.threshold, pDefaultConfig.d3chart.threshold);
+
                     if (zoomEnabled) {
                         if (zoomType == "scroll") {
                             showSubChart = false;
@@ -912,12 +915,13 @@ var apexDashboardChart = function (apex, $) {
                                             index = 0
                                         }
                                         if (seriesData[key][index] && util.isDefinedAndNotNull(seriesData[key][index].tooltip)) {
+                                            var subDiv = $("<div>");
                                             var ttS = seriesData[key][index].tooltip;
                                             if (pRequireHTMLEscape !== false) {
                                                 ttS = util.escapeHTML(ttS);
                                             }
-                                            div.append(ttS);
-                                            div.append("<br>");
+                                            subDiv.append(ttS);
+                                            div.append(subDiv);
                                         }
                                     }
                                 });
@@ -959,13 +963,13 @@ var apexDashboardChart = function (apex, $) {
                                 pie: {
                                     label: {
                                         format: absoluteFormatting,
-                                        threshold: 0.05
+                                        threshold: charThreshold
                                     }
                                 },
                                 donut: {
                                     label: {
                                         format: absoluteFormatting,
-                                        threshold: 0.05
+                                        threshold: charThreshold
                                     }
                                 },
                                 line: {
@@ -976,7 +980,7 @@ var apexDashboardChart = function (apex, $) {
                                 gauge: {
                                     label: {
                                         format: absoluteFormatting,
-                                        threshold: (gaugeType === "single") ? 0.05 : null
+                                        threshold: charThreshold
                                     },
                                     fullCircle: gaugeFullCircle,
                                     min: gaugeMin,
