@@ -4,11 +4,11 @@
 
 Create with only one SQL statement one or more D3 charts with different configurations and different chart types. Possible are among other things: Bar, line, area, pie, gauge, donut, step and stack charts.
 
-All things such as chart type, number of series, colors, size, data points and chart configurations can be adjusted at runtime by the SQL statement and reset again and again by refresh. Examples can be found in the Sample App:
+All things such as chart type, number of series, colors, size, data points and chart configurations can be adjusted at runtime by the SQL statement and reset again and again by refresh.
 
-https://apex.oracle.com/pls/apex/f?p=103428
+For working Demo just click on:
 
-The Code is also running without APEX. For test just start index.html!
+https://APEX.oracle.com/pls/APEX/f?p=103428
 
 If you like my stuff, donate me a coffee
 
