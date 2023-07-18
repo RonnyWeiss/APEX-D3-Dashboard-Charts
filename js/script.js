@@ -1,180 +1,202 @@
-var apexDashboardChart = function (apex, $) {
+// eslint-disable-next-line no-unused-vars
+const apexDashboardChart = function ( apex, $ ) {
     "use strict";
-    var util = {
+    const util = {
         featureDetails: {
             name: "APEX-D3Dashboard-Charts",
-            scriptVersion: "2.6.6.20",
-            utilVersion: "1.4",
+            scriptVersion: "23.07.18",
+            utilVersion: "22.11.28",
             url: "https://github.com/RonnyWeiss",
             url2: "https://ronnyweiss.app",
-            license: "MIT"
+            license: "MIT License"
         },
-        isDefinedAndNotNull: function (pInput) {
-            if (typeof pInput !== "undefined" && pInput !== null && pInput != "") {
+        isDefinedAndNotNull: function ( pInput ) {
+            if ( typeof pInput !== "undefined" && pInput !== null && pInput !== "" ) {
                 return true;
             } else {
                 return false;
             }
         },
-        groupObjectArray: function (objectArr, jSONKey) {
-            if (objectArr && Array.isArray(objectArr)) {
-                return objectArr.reduce(function (retVal, x) {
-                    var key = x[jSONKey];
-                    if (key) {
+        groupObjectArray: function ( objectArr, jSONKey ) {
+            if ( objectArr && Array.isArray( objectArr ) ) {
+                return objectArr.reduce( function ( retVal, x ) {
+                    let key = x[jSONKey];
+                    if ( key ) {
                         /* workaround for object sort of numbers */
                         key = "\u200b" + key;
-                        (retVal[key] = retVal[key] || []).push(x);
+                        ( retVal[key] = retVal[key] || [] ).push( x );
                     }
                     return retVal;
-                }, {});
+                }, {} );
             } else {
                 return [];
             }
         },
-        link: function (link, tabbed) {
-            if (tabbed) {
-                window.open(link, "_blank");
-            } else {
-                return window.parent.location.href = link;
+        link: function ( pLink, pTarget = "_parent" ) {
+            if ( typeof pLink !== "undefined" && pLink !== null && pLink !== "" ) {
+                window.open( pLink, pTarget );
             }
         },
-        escapeHTML: function (str) {
-            if (str === null) {
+        escapeHTML: function ( str ) {
+            if ( str === null ) {
                 return null;
             }
-            if (typeof str === "undefined") {
+            if ( typeof str === "undefined" ) {
                 return;
             }
-            if (typeof str === "object") {
+            if ( typeof str === "object" ) {
                 try {
-                    str = JSON.stringify(str);
-                } catch (e) {
+                    str = JSON.stringify( str );
+                } catch ( e ) {
                     /*do nothing */
                 }
             }
-            return apex.util.escapeHTML(String(str));
+            return apex.util.escapeHTML( String( str ) );
         },
         loader: {
-            start: function (id, setMinHeight) {
-                if (setMinHeight) {
-                    $(id).css("min-height", "100px");
+            start: function ( id, setMinHeight ) {
+                if ( setMinHeight ) {
+                    $( id ).css( "min-height", "100px" );
                 }
-                apex.util.showSpinner($(id));
+                apex.util.showSpinner( $( id ) );
             },
-            stop: function (id, removeMinHeight) {
-                if (removeMinHeight) {
-                    $(id).css("min-height", "");
+            stop: function ( id, removeMinHeight ) {
+                if ( removeMinHeight ) {
+                    $( id ).css( "min-height", "" );
                 }
-                $(id + " > .u-Processing").remove();
-                $(id + " > .ct-loader").remove();
+                $( id + " > .u-Processing" ).remove();
+                $( id + " > .ct-loader" ).remove();
             }
         },
-        jsonSaveExtend: function (srcConfig, targetConfig) {
-            var finalConfig = {};
-            var tmpJSON = {};
+        jsonSaveExtend: function ( srcConfig, targetConfig ) {
+            let finalConfig = {};
+            let tmpJSON = {};
             /* try to parse config json when string or just set */
-            if (typeof targetConfig === 'string') {
+            if ( typeof targetConfig === 'string' ) {
                 try {
-                    tmpJSON = JSON.parse(targetConfig);
-                } catch (e) {
-                    apex.debug.error({
+                    tmpJSON = JSON.parse( targetConfig );
+                } catch ( e ) {
+                    apex.debug.error( {
                         "module": "util.js",
                         "msg": "Error while try to parse targetConfig. Please check your Config JSON. Standard Config will be used.",
                         "err": e,
                         "targetConfig": targetConfig
-                    });
+                    } );
                 }
             } else {
-                tmpJSON = $.extend(true, {}, targetConfig);
+                tmpJSON = $.extend( true, {}, targetConfig );
             }
             /* try to merge with standard if any attribute is missing */
             try {
-                finalConfig = $.extend(true, {}, srcConfig, tmpJSON);
-            } catch (e) {
-                finalConfig = $.extend(true, {}, srcConfig);
-                apex.debug.error({
+                finalConfig = $.extend( true, {}, srcConfig, tmpJSON );
+            } catch ( e ) {
+                finalConfig = $.extend( true, {}, srcConfig );
+                apex.debug.error( {
                     "module": "util.js",
                     "msg": "Error while try to merge 2 JSONs into standard JSON if any attribute is missing. Please check your Config JSON. Standard Config will be used.",
                     "err": e,
                     "finalConfig": finalConfig
-                });
+                } );
             }
             return finalConfig;
         },
         printDOMMessage: {
-            show: function (id, text, icon, color) {
-                var div = $("<div></div>")
-                    .css("margin", "12px")
-                    .css("text-align", "center")
-                    .css("padding", "35px 0")
-                    .addClass("dominfomessagediv");
-
-                var subDiv = $("<div></div>");
-
-                var subDivSpan = $("<span></span>")
-                    .addClass("fa")
-                    .addClass(icon || "fa-info-circle-o")
-                    .addClass("fa-2x")
-                    .css("height", "32px")
-                    .css("width", "32px")
-                    .css("color", "#D0D0D0")
-                    .css("margin-bottom", "16px")
-                    .css("color", color || "inhherit");
-
-                subDiv.append(subDivSpan);
-
-                var span = $("<span></span>")
-                    .text(text)
-                    .css("display", "block")
-                    .css("color", "#707070")
-                    .css("text-overflow", "ellipsis")
-                    .css("overflow", "hidden")
-                    .css("white-space", "nowrap")
-                    .css("font-size", "12px");
-
-                div
-                    .append(subDiv)
-                    .append(span);
-
-                $(id).append(div);
+            show: function ( id, text, icon, color ) {
+                const div =$( "<div>" );
+                if ( $( id ).height() >= 150 ) {
+                    const subDiv = $( "<div></div>" );
+    
+                    const iconSpan = $( "<span></span>" )
+                        .addClass( "fa" )
+                        .addClass( icon || "fa-info-circle-o" )
+                        .addClass( "fa-2x" )
+                        .css( "height", "32px" )
+                        .css( "width", "32px" )
+                        .css( "margin-bottom", "16px" )
+                        .css( "color", color || "#D0D0D0" );
+    
+                    subDiv.append( iconSpan );
+    
+                    const textSpan = $( "<span></span>" )
+                        .text( text )
+                        .css( "display", "block" )
+                        .css( "color", "#707070" )
+                        .css( "text-overflow", "ellipsis" )
+                        .css( "overflow", "hidden" )
+                        .css( "white-space", "nowrap" )
+                        .css( "font-size", "12px" );
+    
+                    div
+                        .css( "margin", "12px" )
+                        .css( "text-align", "center" )
+                        .css( "padding", "10px 0" )
+                        .addClass( "dominfomessagediv" )
+                        .append( subDiv )
+                        .append( textSpan );
+                } else {  
+                    const iconSpan = $( "<span></span>" )
+                        .addClass( "fa" )
+                        .addClass( icon || "fa-info-circle-o" )
+                        .css( "font-size", "22px" )
+                        .css( "line-height", "26px" )
+                        .css( "margin-right", "5px" )
+                        .css( "color", color || "#D0D0D0" );
+    
+                    const textSpan = $( "<span></span>" )
+                        .text( text )
+                        .css( "color", "#707070" )
+                        .css( "text-overflow", "ellipsis" )
+                        .css( "overflow", "hidden" )
+                        .css( "white-space", "nowrap" )
+                        .css( "font-size", "12px" )
+                        .css( "line-height", "20px" );
+    
+                    div
+                        .css( "margin", "10px" )
+                        .css( "text-align", "center" )
+                        .addClass( "dominfomessagediv" )
+                        .append( iconSpan )
+                        .append( textSpan );
+                }
+                $( id ).append( div );
             },
-            hide: function (id) {
-                $(id).children('.dominfomessagediv').remove();
+            hide: function ( id ) {
+                $( id ).children( '.dominfomessagediv' ).remove();
             }
         },
         noDataMessage: {
-            show: function (id, text) {
-                util.printDOMMessage.show(id, text, "fa-search");
+            show: function ( id, text ) {
+                util.printDOMMessage.show( id, text, "fa-search" );
             },
-            hide: function (id) {
-                util.printDOMMessage.hide(id);
+            hide: function ( id ) {
+                util.printDOMMessage.hide( id );
             }
         },
         errorMessage: {
-            show: function (id, text) {
-                util.printDOMMessage.show(id, text, "fa-exclamation-triangle", "#FFCB3D");
+            show: function ( id, text ) {
+                util.printDOMMessage.show( id, text, "fa-exclamation-triangle", "#FFCB3D" );
             },
-            hide: function (id) {
-                util.printDOMMessage.hide(id);
+            hide: function ( id ) {
+                util.printDOMMessage.hide( id );
             }
         },
-        cutString: function (text, textLength) {
+        cutString: function ( text, textLength ) {
             try {
-                if (textLength < 0) return text;
+                if ( textLength < 0 ) {return text;}
                 else {
-                    return (text.length > textLength) ?
-                        text.substring(0, textLength - 3) + "..." :
-                        text
+                    return ( text.length > textLength ) ?
+                        text.substring( 0, textLength - 3 ) + "..." :
+                        text;
                 }
-            } catch (e) {
+            } catch ( e ) {
                 return text;
             }
         },
-        isBetween: function (pValue, pValue2, pRange) {
-            var range = pRange || 0;
-            var min = pValue2 - range;
-            var max = pValue2 + range;
-            return (pValue >= min && pValue <= max);
+        isBetween: function ( pValue, pValue2, pRange ) {
+            const range = pRange || 0,
+                  min = pValue2 - range,
+                  max = pValue2 + range;
+            return ( pValue >= min && pValue <= max );
         }
     };
 
@@ -183,10 +205,10 @@ var apexDashboardChart = function (apex, $) {
      ** Used to set parameter from data or from config 
      **
      ***********************************************************************/
-    function setObjectParameter(srcValue, cfgValue, convData2Bool) {
-        if (convData2Bool) {
-            if (typeof srcValue !== "undefined" && srcValue != null) {
-                if (srcValue == 1 || srcValue === 'true') {
+    function setObjectParameter( srcValue, cfgValue, convData2Bool ) {
+        if ( convData2Bool ) {
+            if ( typeof srcValue !== "undefined" && srcValue != null ) {
+                if ( srcValue === 1 || srcValue === 'true' ) {
                     return true;
                 } else {
                     return false;
@@ -195,8 +217,8 @@ var apexDashboardChart = function (apex, $) {
                 return cfgValue;
             }
         } else {
-            if (util.isDefinedAndNotNull(srcValue)) {
-                return srcValue
+            if ( util.isDefinedAndNotNull( srcValue ) ) {
+                return srcValue;
             } else {
                 return cfgValue;
             }
@@ -204,9 +226,8 @@ var apexDashboardChart = function (apex, $) {
     }
 
     return {
-        initialize: function (pRegionID, pAjaxID, pNoDataMsg, pErrorMsg, pDefaultConfigJSON, pChartConfigJSON, pItems2Submit, pRequireHTMLEscape) {
+        initialize: function ( pRegionID, pAjaxID, pNoDataMsg, pErrorMsg, pDefaultConfigJSON, pChartConfigJSON, pItems2Submit, pRequireHTMLEscape ) {
             var timers = {};
-            var resizeRange = 5;
 
             /* this default json is used if something is missing in cofig */
             var stdConfigJSON = {
@@ -300,80 +321,80 @@ var apexDashboardChart = function (apex, $) {
 
             /* get parent */
             var parentID = "#" + pRegionID;
-            var parent = $(parentID).find(".d3dc-root");
-            apex.debug.info({
-                "fct": util.featureDetails.name + " - " + "initialize",
+            var parent = $( parentID ).find( ".d3dc-root" );
+            apex.debug.info( {
+                "fct": `${util.featureDetails.name} - initialize`,
                 "msg": "Load...",
                 "featureDetails": util.featureDetails
-            });
-            if (parentID) {
-                if (parent.length > 0) {
+            } );
+            if ( parentID ) {
+                if ( parent.length > 0 ) {
                     var configJSON = {};
                     var chartConfigJSON = {};
-                    configJSON = util.jsonSaveExtend(stdConfigJSON, pDefaultConfigJSON);
+                    configJSON = util.jsonSaveExtend( stdConfigJSON, pDefaultConfigJSON );
 
-                    chartConfigJSON = util.jsonSaveExtend(stdChartConfigJSON, pChartConfigJSON);
+                    chartConfigJSON = util.jsonSaveExtend( stdChartConfigJSON, pChartConfigJSON );
 
-                    configJSON.d3chart = chartConfigJSON;
+                    configJSON.d3JSchart = chartConfigJSON;
 
                     configJSON.noDataMessage = pNoDataMsg;
                     configJSON.errorMessage = pErrorMsg;
 
                     /* define container and add it to parent */
-                    var container = drawContainer(parent);
+                    let container = drawContainer( parent );
 
                     /* get data and draw */
-                    getData(configJSON);
+                    getData( configJSON, container );
 
                     /* try to bind APEX refreh event if "APEX" exists */
                     try {
-                        $(parentID).bind("apexrefresh", function () {
-                            getData(configJSON);
-                        });
-                    } catch (e) {
-                        util.errorMessage.show(parentID, configJSON.errorMessage);
-                        apex.debug.error({
-                            "fct": util.featureDetails.name + " - " + "initialize",
+                        $( parentID ).bind( "apexrefresh", function () {
+                            getData( configJSON, container );
+                        } );
+                    } catch ( e ) {
+                        util.errorMessage.show( parentID, configJSON.errorMessage );
+                        apex.debug.error( {
+                            "fct": `${util.featureDetails.name} - initialize`,
                             "msg": "Can't bind refresh event on " + parentID + ". Apex is missing",
                             "err": e,
                             "featureDetails": util.featureDetails
-                        });
+                        } );
                     }
 
                     /* Used to set a refresh via json configuration */
-                    if (configJSON.refresh > 0) {
-                        setInterval(function () {
-                            if ($(parentID).is(':visible')) {
-                                getData(configJSON);
+                    if ( configJSON.refresh > 0 ) {
+                        setInterval( function () {
+                            if ( $( parentID ).is( ':visible' ) ) {
+                                getData( configJSON );
                             }
-                        }, configJSON.refresh * 1000);
+                        }, configJSON.refresh * 1000 );
                     }
                 } else {
-                    apex.debug.error({
-                        "fct": util.featureDetails.name + " - " + "initialize",
+                    apex.debug.error( {
+                        "fct": `${util.featureDetails.name} - initialize`,
                         "msg": "Can't find element with class d3dc-root in element with id: " + pRegionID,
                         "featureDetails": util.featureDetails
-                    });
+                    } );
                 }
             } else {
-                apex.debug.error({
-                    "fct": util.featureDetails.name + " - " + "initialize",
+                apex.debug.error( {
+                    "fct": `${util.featureDetails.name} - initialize`,
                     "msg": "Can't find pRegionID: " + pRegionID,
                     "featureDetails": util.featureDetails
-                });
+                } );
             }
             /***********************************************************************
              **
              ** Used to draw a container
              **
              ***********************************************************************/
-            function drawContainer(pParent) {
-                var div = $("<div></div>");
-                div.addClass("d3dc-container");
-                div.attr("id", pRegionID + "-c");
-                div.css("min-height", "100px");
-                pParent.append(div);
-                return (div);
+            function drawContainer( pParent ) {
+                var div = $( "<div></div>" );
+                div.addClass( "d3dc-container" );
+                div.attr( "id", pRegionID + "-c" );
+                div.css( "min-height", "100px" );
+                pParent.append( div );
+                return ( div );
             }
 
             /************************************************************************
@@ -381,75 +402,76 @@ var apexDashboardChart = function (apex, $) {
              ** Used to prepare Data from ajax
              **
              ***********************************************************************/
-            function prepareData(pAjaxResponse, pDefaultConfig) {
-                apex.debug.info({
-                    "fct": util.featureDetails.name + " - " + "prepareData",
+            function prepareData( pAjaxResponse, pDefaultConfig, pContainer ) {
+                apex.debug.info( {
+                    "fct": `${util.featureDetails.name} - prepareData`,
                     "msg": "AJAX Finished",
                     "pAjaxResponse": pAjaxResponse,
                     "featureDetails": util.featureDetails
-                });
+                } );
 
                 /* clear timers */
-                if (timers.innerItemsIntervals) {
-                    $.each(timers.innerItemsIntervals, function (key, val) {
-                        clearInterval(val);
-                    });
+                if ( timers.innerItemsIntervals ) {
+                    $.each( timers.innerItemsIntervals, function ( key, val ) {
+                        clearInterval( val );
+                    } );
                 }
                 timers.innerItemsIntervals = {};
 
                 /* empty container for new stuff */
-                container.empty();
+                pContainer.empty();
                 /* draw charts and add it to the container */
-                if (pAjaxResponse.items && pAjaxResponse.items.length > 0) {
+                if ( pAjaxResponse.items && pAjaxResponse.items.length > 0 ) {
                     try {
-                        var row = drawRow(container);
-                        var chartNum = 0;
+                        let row = drawRow( pContainer ),
+                            chartNum = 0,
+                            itemConfigJSON;
 
-                        $.each(pAjaxResponse.items, function (idx, item) {
-                            if (item.itemConfig) {
-                                var itemConfigJSON = item.itemConfig;
+                        $.each( pAjaxResponse.items, function ( idx, item ) {
+                            if ( item.itemConfig ) {
+                                itemConfigJSON = item.itemConfig;
                             } else {
-                                var itemConfigJSON = {};
+                                itemConfigJSON = {};
                             }
 
-                            var colSpan = item.colSpan || configJSON.colSpan;
+                            var colSpan = item.colSpan || pDefaultConfig.colSpan;
                             chartNum = chartNum + colSpan;
                             /* draw each chart in a col */
-                            apex.debug.info({
-                                "fct": util.featureDetails.name + " - " + "prepareData",
+                            apex.debug.info( {
+                                "fct": `${util.featureDetails.name} - prepareData`,
                                 "msg": "Render chart  - Col " + idx,
                                 "featureDetails": util.featureDetails
-                            });
+                            } );
 
-                            var height = item.height || configJSON.height
+                            var height = item.height || pDefaultConfig.height;
 
-                            drawChartCol(idx, height, row, colSpan, item.title, itemConfigJSON, pDefaultConfig, item.itemData);
+                            drawChartCol( idx, height, row, colSpan, item.title, itemConfigJSON, pDefaultConfig, item.itemData, pContainer );
 
-                            if (chartNum >= 12) {
-                                row = drawRow(container);
+                            if ( chartNum >= 12 ) {
+                                row = drawRow( pContainer );
                                 chartNum = 0;
                             }
 
-                        });
-                    } catch (e) {
-                        util.errorMessage.show(container, pDefaultConfig.errorMessage);
-                        apex.debug.error({
-                            "fct": util.featureDetails.name + " - " + "prepareData",
+                        } );
+                    } catch ( e ) {
+                        util.errorMessage.show( pContainer, pDefaultConfig.errorMessage );
+                        apex.debug.error( {
+                            "fct": `${util.featureDetails.name} - prepareData`,
                             "msg": "Error while prepare data for chart",
                             "err": e,
                             "featureDetails": util.featureDetails
-                        });
+                        } );
                     }
                 } else {
-                    container.css("min-height", "");
-                    util.noDataMessage.show(container, pDefaultConfig.noDataMessage);
+                    pContainer.css( "min-height", "" );
+                    util.noDataMessage.show( pContainer, pDefaultConfig.noDataMessage );
                 }
-                util.loader.stop(parentID);
-                apex.debug.info({
-                    "fct": util.featureDetails.name + " - " + "prepareData",
+                util.loader.stop( parentID );
+                apex.debug.info( {
+                    "fct": `${util.featureDetails.name} - prepareData`,
                     "msg": "Finished",
                     "featureDetails": util.featureDetails
-                });
+                } );
             }
 
             /***********************************************************************
@@ -457,11 +479,11 @@ var apexDashboardChart = function (apex, $) {
              ** Used to draw a row
              **
              ***********************************************************************/
-            function drawRow(pParent) {
-                var div = $("<div></div>");
-                div.addClass("d3dc-row");
-                pParent.append(div);
-                return (div);
+            function drawRow( pParent ) {
+                var div = $( "<div></div>" );
+                div.addClass( "d3dc-row" );
+                pParent.append( div );
+                return ( div );
             }
 
             /***********************************************************************
@@ -469,32 +491,32 @@ var apexDashboardChart = function (apex, $) {
              ** Used to draw one chart column
              **
              ***********************************************************************/
-            function drawChartCol(pColIndex, pHeight, pParent, pColSpan, pTitle, pItemConfig, pDefaultConfig, pItemData) {
+            function drawChartCol( pColIndex, pHeight, pParent, pColSpan, pTitle, pItemConfig, pDefaultConfig, pItemData, pContainer ) {
                 var colID = pRegionID + "-c-" + pColIndex;
 
                 /* define new column for rows */
-                var col = $("<div></div>");
-                col.attr("id", colID);
-                col.addClass("d3dc-col-" + pColSpan);
-                col.addClass("d3chartcol");
-                pParent.append(col);
+                var col = $( "<div></div>" );
+                col.attr( "id", colID );
+                col.addClass( "d3dc-col-" + pColSpan );
+                col.addClass( "d3chartcol" );
+                pParent.append( col );
 
-                if (pItemData) {
-                    drawChart("#" + colID, pHeight, pItemConfig, pItemData, pDefaultConfig);
+                if ( pItemData ) {
+                    drawChart( "#" + colID, pHeight, pItemConfig, pItemData, pDefaultConfig, pContainer );
                 } else {
-                    util.noDataMessage.show(col, pDefaultConfig.noDataMessage);
+                    util.noDataMessage.show( col, pDefaultConfig.noDataMessage );
                 }
 
-                if (util.isDefinedAndNotNull(pTitle)) {
-                    var title = $("<h4></h4>");
-                    title.css("text-align", "center");
-                    if (pRequireHTMLEscape !== false) {
-                        title.text(pTitle);
+                if ( util.isDefinedAndNotNull( pTitle ) ) {
+                    var title = $( "<h4></h4>" );
+                    title.css( "text-align", "center" );
+                    if ( pRequireHTMLEscape !== false ) {
+                        title.text( pTitle );
                     } else {
-                        title.html(pTitle);
+                        title.html( pTitle );
                     }
 
-                    col.prepend(title);
+                    col.prepend( title );
                 }
             }
 
@@ -503,241 +525,245 @@ var apexDashboardChart = function (apex, $) {
              ** function to render chart
              **
              ***********************************************************************/
-            function drawChart(pItemSel, pItemHeight, pConfigData, pValuesData, pDefaultConfig) {
+            function drawChart( pItemSel, pItemHeight, pConfigData, pValuesData, pDefaultConfig, pContainer ) {
 
-                apex.debug.info({
-                    "fct": util.featureDetails.name + " - " + "drawChart",
+                apex.debug.info( {
+                    "fct": `${util.featureDetails.name} - drawChart`,
                     "pItemSel": pItemSel,
                     "pItemHeight": pItemHeight,
                     "pConfigData": pConfigData,
                     "pValuesData": pValuesData,
                     "pDefaultConfig": pDefaultConfig,
                     "featureDetails": util.featureDetails
-                });
+                } );
 
-                var aTypeCharts = ["pie", "donut", "gauge"];
-                var isGauge = false;
-                var isPie = false;
-                var isDonut = false;
-                var specialStr = "\u200b";
+                // eslint-disable-next-line no-undef
+                const d3JS = d3;
+
+                const aTypeCharts = ["pie", "donut", "gauge"],
+                      specialStr = "\u200b",
+                      seriesData = util.groupObjectArray( pValuesData, 'seriesID' );
+
+                let isGauge = false,
+                    isPie = false,
+                    isDonut = false;
 
                 // sort pValuesData by Time
-                function sortArrByTime(pArr, pFormat) {
+                function sortArrByTime( pArr, pFormat ) {
 
-                    function customeSort(pFirstValue, pSecondValue) {
-                        var parseTime = d3.timeParse(pFormat);
-                        var fD = parseTime(pFirstValue.x);
-                        var sD = parseTime(pSecondValue.x);
-                        return new Date(fD).getTime() - new Date(sD).getTime();
+                    function customeSort( pFirstValue, pSecondValue ) {
+                        const parseTime = d3JS.timeParse( pFormat ),
+                              fD = parseTime( pFirstValue.x ),
+                              sD = parseTime( pSecondValue.x );
+                        return new Date( fD ).getTime() - new Date( sD ).getTime();
                     }
 
                     try {
-                        return pArr.sort(customeSort);
+                        return pArr.sort( customeSort );
                     }
-                    catch (e) {
-                        apex.debug.error({
-                            "fct": util.featureDetails.name + " - " + "drawChart",
+                    catch ( e ) {
+                        apex.debug.error( {
+                            "fct": `${util.featureDetails.name} - drawChart`,
                             "msg": "Error while try sort JSON Array by Time Value",
                             "err": e,
                             "featureDetails": util.featureDetails
-                        });
+                        } );
                     }
                 }
 
                 /* search link from data and set window.location.href */
-                function executeLink(pData) {
-                    var key = specialStr + unescape(pData.id);
-                    var index = pData.index;
+                function executeLink( pData ) {
+                    const key = specialStr + unescape( pData.id );
+                    let index = pData.index;
 
-                    if (seriesData[key]) {
-                        var seriesObj = seriesData[key];
-                        if (seriesObj.length === 1) {
-                            index = 0
+                    if ( seriesData[key] ) {
+                        const seriesObj = seriesData[key];
+                        if ( seriesObj.length === 1 ) {
+                            index = 0;
                         }
 
-                        if (seriesData[key][index] && seriesData[key][index].link) {
-                            util.link(seriesData[key][index].link);
+                        if ( seriesData[key][index] && seriesData[key][index].link ) {
+                            util.link( seriesData[key][index].link, seriesData[key][index].linkTarget );
                         }
                     }
                 }
 
                 try {
-                    var ownTooltip = false;
+                    const chartTitle = setObjectParameter( pConfigData.chartTitle, pDefaultConfig.d3JSchart.chartTitle || "" ).toString(),
+                          background = setObjectParameter( pConfigData.background, pDefaultConfig.d3JSchart.background );
+                    let backJSON = null,
+                        ownTooltip = false;
 
-                    var chartTitle = setObjectParameter(pConfigData.chartTitle, pDefaultConfig.d3chart.chartTitle || "").toString();
-                    var background = setObjectParameter(pConfigData.background, pDefaultConfig.d3chart.background);
-                    var backJSON = null;
-
-                    if (util.isDefinedAndNotNull(background)) {
+                    if ( util.isDefinedAndNotNull( background ) ) {
                         backJSON = {
                             color: background
                         };
                     }
 
                     /* line */
-                    var lineStep = setObjectParameter(pConfigData.lineStep, pDefaultConfig.d3chart.line.step);
+                    const lineStep = setObjectParameter( pConfigData.lineStep, pDefaultConfig.d3JSchart.line.step );
 
                     /* gauge */
-                    var gaugeMin = setObjectParameter(pConfigData.gaugeMin, pDefaultConfig.d3chart.gauge.min);
-                    var gaugeMax = setObjectParameter(pConfigData.gaugeMax, pDefaultConfig.d3chart.gauge.max);
-                    var gaugeType = setObjectParameter(pConfigData.gaugeType, pDefaultConfig.d3chart.gauge.type);
-                    var gaugeWidth = setObjectParameter(pConfigData.gaugeWidth, pDefaultConfig.d3chart.gauge.width);
-                    var gaugeArcMinWidth = setObjectParameter(pConfigData.gaugeArcMinWidth, pDefaultConfig.d3chart.gauge.arcMinWidth);
-                    var gaugeFullCircle = setObjectParameter(pConfigData.gaugeFullCircle, pDefaultConfig.d3chart.gauge.fullCircle, true);
-                    var gaugeTitle = setObjectParameter(pConfigData.gaugeTitle, pDefaultConfig.d3chart.gauge.title || "").toString();
+                    const gaugeMin = setObjectParameter( pConfigData.gaugeMin, pDefaultConfig.d3JSchart.gauge.min ),
+                          gaugeMax = setObjectParameter( pConfigData.gaugeMax, pDefaultConfig.d3JSchart.gauge.max ),
+                          gaugeType = setObjectParameter( pConfigData.gaugeType, pDefaultConfig.d3JSchart.gauge.type ),
+                          gaugeWidth = setObjectParameter( pConfigData.gaugeWidth, pDefaultConfig.d3JSchart.gauge.width ),
+                          gaugeArcMinWidth = setObjectParameter( pConfigData.gaugeArcMinWidth, pDefaultConfig.d3JSchart.gauge.arcMinWidth ),
+                          gaugeFullCircle = setObjectParameter( pConfigData.gaugeFullCircle, pDefaultConfig.d3JSchart.gauge.fullCircle, true ),
+                          gaugeTitle = setObjectParameter( pConfigData.gaugeTitle, pDefaultConfig.d3JSchart.gauge.title || "" ).toString();
 
                     /* Grid */
-                    var gridX = setObjectParameter(pConfigData.gridX, pDefaultConfig.d3chart.grid.x, true);
-                    var gridY = setObjectParameter(pConfigData.gridY, pDefaultConfig.d3chart.grid.y, true);
+                    const gridX = setObjectParameter( pConfigData.gridX, pDefaultConfig.d3JSchart.grid.x, true ),
+                          gridY = setObjectParameter( pConfigData.gridY, pDefaultConfig.d3JSchart.grid.y, true );
 
                     /* heights */
-                    var heightXAxis = setObjectParameter(pConfigData.xAxisHeight, pDefaultConfig.d3chart.x.axisHeight);
+                    const heightXAxis = setObjectParameter( pConfigData.xAxisHeight, pDefaultConfig.d3JSchart.x.axisHeight );
 
                     /* Legend */
-                    var legendShow = setObjectParameter(pConfigData.legendShow, pDefaultConfig.d3chart.legend.show, true);
-                    var legendPosition = setObjectParameter(pConfigData.legendPosition, pDefaultConfig.d3chart.legend.position);
+                    const legendShow = setObjectParameter( pConfigData.legendShow, pDefaultConfig.d3JSchart.legend.show, true ),
+                          legendPosition = setObjectParameter( pConfigData.legendPosition, pDefaultConfig.d3JSchart.legend.position );
 
                     /* padding */
-                    var chartPadding = util.jsonSaveExtend(null, pDefaultConfig.d3chart.padding);
+                    const chartPadding = util.jsonSaveExtend( null, pDefaultConfig.d3JSchart.padding );
 
-                    if (util.isDefinedAndNotNull(pConfigData.paddingBottom)) {
+                    if ( util.isDefinedAndNotNull( pConfigData.paddingBottom ) ) {
                         chartPadding.bottom = pConfigData.paddingBottom;
                     }
 
-                    if (util.isDefinedAndNotNull(pConfigData.paddingLeft)) {
+                    if ( util.isDefinedAndNotNull( pConfigData.paddingLeft ) ) {
                         chartPadding.left = pConfigData.paddingLeft;
                     }
 
-                    if (util.isDefinedAndNotNull(pConfigData.paddingRight)) {
+                    if ( util.isDefinedAndNotNull( pConfigData.paddingRight ) ) {
                         chartPadding.right = pConfigData.paddingRight;
                     }
 
-                    if (util.isDefinedAndNotNull(pConfigData.paddingTop)) {
+                    if ( util.isDefinedAndNotNull( pConfigData.paddingTop ) ) {
                         chartPadding.top = pConfigData.paddingTop;
                     }
 
                     /* Axis */
-                    var rotateAxis = setObjectParameter(pConfigData.rotateAxis, pDefaultConfig.d3chart.rotateAxis, true);
-                    var axisLabelPosition = setObjectParameter(pConfigData.axisLabelPosition, pDefaultConfig.d3chart.axisLabelPosition);
+                    const rotateAxis = setObjectParameter( pConfigData.rotateAxis, pDefaultConfig.d3JSchart.rotateAxis, true ),
+                          axisLabelPosition = setObjectParameter( pConfigData.axisLabelPosition, pDefaultConfig.d3JSchart.axisLabelPosition );
 
-                    var xAxisLabelPosition = null;
-                    var yAxisLabelPosition = null;
+                    let xAxisLabelPosition = null,
+                        yAxisLabelPosition = null;
 
-                    switch (axisLabelPosition) {
-                        case "inner1":
-                            xAxisLabelPosition = "inner-left";
-                            yAxisLabelPosition = "inner-bottom";
-                            break;
-                        case "inner2":
-                            xAxisLabelPosition = "inner-center";
-                            yAxisLabelPosition = "inner-middle";
-                            break;
-                        case "inner3":
-                            xAxisLabelPosition = "inner-right";
-                            yAxisLabelPosition = "inner-top";
-                            break;
-                        case "outer1":
-                            xAxisLabelPosition = "outer-left";
-                            yAxisLabelPosition = "outer-bottom";
-                            break;
-                        case "outer2":
-                            xAxisLabelPosition = "outer-center";
-                            yAxisLabelPosition = "outer-middle";
-                            break;
-                        case "outer3":
-                            xAxisLabelPosition = "outer-right";
-                            yAxisLabelPosition = "outer-top";
-                            break;
-                        default:
-                            break;
+                    switch ( axisLabelPosition ) {
+                    case "inner1":
+                        xAxisLabelPosition = "inner-left";
+                        yAxisLabelPosition = "inner-bottom";
+                        break;
+                    case "inner2":
+                        xAxisLabelPosition = "inner-center";
+                        yAxisLabelPosition = "inner-middle";
+                        break;
+                    case "inner3":
+                        xAxisLabelPosition = "inner-right";
+                        yAxisLabelPosition = "inner-top";
+                        break;
+                    case "outer1":
+                        xAxisLabelPosition = "outer-left";
+                        yAxisLabelPosition = "outer-bottom";
+                        break;
+                    case "outer2":
+                        xAxisLabelPosition = "outer-center";
+                        yAxisLabelPosition = "outer-middle";
+                        break;
+                    case "outer3":
+                        xAxisLabelPosition = "outer-right";
+                        yAxisLabelPosition = "outer-top";
+                        break;
+                    default:
+                        break;
                     }
 
-                    if (rotateAxis) {
-                        var xAxisLabelPositionTmp = xAxisLabelPosition;
+                    if ( rotateAxis ) {
+                        const xAxisLabelPositionTmp = xAxisLabelPosition;
                         xAxisLabelPosition = yAxisLabelPosition;
                         yAxisLabelPosition = xAxisLabelPositionTmp;
                     }
 
                     /* tooltip */
-                    var tooltipShow = setObjectParameter(pConfigData.tooltipShow, pDefaultConfig.d3chart.tooltip.show, true);
-                    var tooltipGrouped = setObjectParameter(pConfigData.tooltipGrouped, pDefaultConfig.d3chart.tooltip.grouped, true);
+                    const tooltipShow = setObjectParameter( pConfigData.tooltipShow, pDefaultConfig.d3JSchart.tooltip.show, true ),
+                          tooltipGrouped = setObjectParameter( pConfigData.tooltipGrouped, pDefaultConfig.d3JSchart.tooltip.grouped, true );
 
                     /* Transition duration */
-                    var transitionDuration = setObjectParameter(pConfigData.transitionDuration || pDefaultConfig.d3chart.transitionDuration);
+                    const transitionDuration = setObjectParameter( pConfigData.transitionDuration || pDefaultConfig.d3JSchart.transitionDuration );
 
                     /* x Axis */
-                    var xShow = setObjectParameter(pConfigData.xShow, pDefaultConfig.d3chart.x.show, true);
-                    var xLabel = setObjectParameter(pConfigData.xLabel, pDefaultConfig.d3chart.x.label || "").toString();
-                    var xType = setObjectParameter(pConfigData.xType, pDefaultConfig.d3chart.x.type);
-                    var xAxisTimeFormat = null;
-                    var xName = null;
+                    const xShow = setObjectParameter( pConfigData.xShow, pDefaultConfig.d3JSchart.x.show, true ),
+                          xLabel = setObjectParameter( pConfigData.xLabel, pDefaultConfig.d3JSchart.x.label || "" ).toString();
+                    let xType = setObjectParameter( pConfigData.xType, pDefaultConfig.d3JSchart.x.type ),
+                        xAxisTimeFormat = null,
+                        xName = null;
 
                     /* x ticks */
-                    var xTickCutAfter = setObjectParameter(pConfigData.xTickCutAfter, pDefaultConfig.d3chart.x.tick.cutAfter);
-                    var xTickMaxNumber = setObjectParameter(pConfigData.xTickMaxNumber, pDefaultConfig.d3chart.x.tick.maxNumber);
-                    var xTickRotation = setObjectParameter(pConfigData.xTickRotation, pDefaultConfig.d3chart.x.tick.rotation);
-                    var xTickMultiline = setObjectParameter(pConfigData.xTickMultiline, pDefaultConfig.d3chart.x.tick.multiline, true);
-                    var xTickFit = setObjectParameter(pConfigData.xTickFit, pDefaultConfig.d3chart.x.tick.fit, true);
-                    var xTickAutoRotate = setObjectParameter(pConfigData.xTickAutoRotate, pDefaultConfig.d3chart.x.tick.autoRotate, true);
-                    var xTickTimeFormat = null;
+                    const xTickCutAfter = setObjectParameter( pConfigData.xTickCutAfter, pDefaultConfig.d3JSchart.x.tick.cutAfter ),
+                          xTickMaxNumber = setObjectParameter( pConfigData.xTickMaxNumber, pDefaultConfig.d3JSchart.x.tick.maxNumber ),
+                          xTickRotation = setObjectParameter( pConfigData.xTickRotation, pDefaultConfig.d3JSchart.x.tick.rotation ),
+                          xTickMultiline = setObjectParameter( pConfigData.xTickMultiline, pDefaultConfig.d3JSchart.x.tick.multiline, true ),
+                          xTickFit = setObjectParameter( pConfigData.xTickFit, pDefaultConfig.d3JSchart.x.tick.fit, true ),
+                          xTickAutoRotate = setObjectParameter( pConfigData.xTickAutoRotate, pDefaultConfig.d3JSchart.x.tick.autoRotate, true );
+                    let xTickTimeFormat = null;
 
-                    if (xType == "category" || xType == "timeseries") {
+                    if ( xType === "category" || xType === "timeseries" ) {
                         xName = "x";
                     }
 
-                    if (xType == "timeseries") {
-                        xAxisTimeFormat = setObjectParameter(pConfigData.xTimeFormat, pDefaultConfig.d3chart.x.timeFormat);
-                        xTickTimeFormat = setObjectParameter(pConfigData.xTickTimeFormat, pDefaultConfig.d3chart.x.tick.timeFormat);
+                    if ( xType === "timeseries" ) {
+                        xAxisTimeFormat = setObjectParameter( pConfigData.xTimeFormat, pDefaultConfig.d3JSchart.x.timeFormat );
+                        xTickTimeFormat = setObjectParameter( pConfigData.xTickTimeFormat, pDefaultConfig.d3JSchart.x.tick.timeFormat );
                         // sort data because of tooltip index
-                        sortArrByTime(pValuesData, xAxisTimeFormat);
+                        sortArrByTime( pValuesData, xAxisTimeFormat );
                     }
 
                     /* cut string if category names are to long */
-                    if (xType == "category") {
-                        xTickTimeFormat = function (index, categoryName) {
-                            return util.cutString(categoryName, xTickCutAfter);
+                    if ( xType === "category" ) {
+                        xTickTimeFormat = function ( index, categoryName ) {
+                            return util.cutString( categoryName, xTickCutAfter );
                         };
                     }
 
                     /* y Axis */
-                    var yLabel = setObjectParameter(pConfigData.yLabel, pDefaultConfig.d3chart.y.label || "").toString();
-                    var yLog = setObjectParameter(pConfigData.yLog, pDefaultConfig.d3chart.y.log, true);
-                    var yType = null;
-                    if (yLog) {
+                    const yLabel = setObjectParameter( pConfigData.yLabel, pDefaultConfig.d3JSchart.y.label || "" ).toString(),
+                          yLog = setObjectParameter( pConfigData.yLog, pDefaultConfig.d3JSchart.y.log, true );
+                    let yType = null;
+                    if ( yLog ) {
                         yType = "log";
                     }
-                    var yMin = pConfigData.yMin || pDefaultConfig.d3chart.y.min;
-                    var yMax = pConfigData.yMax || pDefaultConfig.d3chart.y.max;
-                    var yCulling = pConfigData.yTickMaxNumber || pDefaultConfig.d3chart.y.tick.maxNumber;
-                    var yUnit = pConfigData.yUnit || pDefaultConfig.d3chart.y.unit;
+                    const yMin = pConfigData.yMin || pDefaultConfig.d3JSchart.y.min,
+                          yMax = pConfigData.yMax || pDefaultConfig.d3JSchart.y.max,
+                          yCulling = pConfigData.yTickMaxNumber || pDefaultConfig.d3JSchart.y.tick.maxNumber,
+                          yUnit = pConfigData.yUnit || pDefaultConfig.d3JSchart.y.unit;
 
                     /* y2 Axis */
-                    var y2Show = false;
-                    var y2Label = setObjectParameter(pConfigData.y2Label, pDefaultConfig.d3chart.y2.label || "").toString();
-                    var y2Log = setObjectParameter(pConfigData.y2Log, pDefaultConfig.d3chart.y2.log, true);
-                    var y2Type = null;
-                    if (y2Log) {
+                    const y2Label = setObjectParameter( pConfigData.y2Label, pDefaultConfig.d3JSchart.y2.label || "" ).toString(),
+                          y2Log = setObjectParameter( pConfigData.y2Log, pDefaultConfig.d3JSchart.y2.log, true );
+                    let y2Type = null,
+                        y2Show = false;
+                    if ( y2Log ) {
                         y2Type = "log";
                     }
-                    var y2Min = setObjectParameter(pConfigData.y2Min, pDefaultConfig.d3chart.y2.min);
-                    var y2Max = setObjectParameter(pConfigData.y2Max, pDefaultConfig.d3chart.y2.max);
-                    var y2Culling = setObjectParameter(pConfigData.y2TickMaxNumber, pDefaultConfig.d3chart.y2.tick.maxNumber);
-                    var y2Unit = setObjectParameter(pConfigData.y2Unit, pDefaultConfig.d3chart.y2.unit);
+                    const y2Min = setObjectParameter( pConfigData.y2Min, pDefaultConfig.d3JSchart.y2.min ),
+                          y2Max = setObjectParameter( pConfigData.y2Max, pDefaultConfig.d3JSchart.y2.max ),
+                          y2Culling = setObjectParameter( pConfigData.y2TickMaxNumber, pDefaultConfig.d3JSchart.y2.tick.maxNumber ),
+                          y2Unit = setObjectParameter( pConfigData.y2Unit, pDefaultConfig.d3JSchart.y2.unit );
 
                     /* Zoom and Subchart */
-                    var zoomEnabled = setObjectParameter(pConfigData.zoomEnabled, pDefaultConfig.d3chart.zoom.enabled, true);
-                    var zoomType = setObjectParameter(pConfigData.zoomType, pDefaultConfig.d3chart.zoom.type);
-                    var showSubChart = false;
+                    const zoomType = setObjectParameter( pConfigData.zoomType, pDefaultConfig.d3JSchart.zoom.type );
+                    let showSubChart = false,
+                        zoomEnabled = setObjectParameter( pConfigData.zoomEnabled, pDefaultConfig.d3JSchart.zoom.enabled, true );
 
-                    var charThreshold = setObjectParameter(pConfigData.threshold, pDefaultConfig.d3chart.threshold);
+                    const charThreshold = setObjectParameter( pConfigData.threshold, pDefaultConfig.d3JSchart.threshold );
 
-                    if (zoomEnabled) {
-                        if (zoomType == "scroll") {
+                    if ( zoomEnabled ) {
+                        if ( zoomType === "scroll" ) {
                             showSubChart = false;
-                        } else if (zoomType == "subchart") {
+                        } else if ( zoomType === "subchart" ) {
                             showSubChart = true;
                             zoomEnabled = false;
-                        } else if (zoomType == "drag") {
+                        } else if ( zoomType === "drag" ) {
                             zoomEnabled = true;
                             showSubChart = false;
                         }
@@ -745,199 +771,194 @@ var apexDashboardChart = function (apex, $) {
                         showSubChart = false;
                     }
 
-                    var zoomRescale = setObjectParameter(pConfigData.zoomRescale, pDefaultConfig.d3chart.zoom.rescale, true);
+                    const zoomRescale = setObjectParameter( pConfigData.zoomRescale, pDefaultConfig.d3JSchart.zoom.rescale, true );
 
                     /* Prepare Data for Render */
-                    var dataArr = [];
-                    var categoriesArr = [];
-                    var groupsArr = [];
-                    var colorsJSON = {};
-                    var typesJSON = {};
-                    var axesJSON = {};
-                    var namesJSON = {};
-                    var groupJSON = {};
-                    var seriesCnt = 0;
-                    var seriesData = util.groupObjectArray(pValuesData, 'seriesID');
+                    const dataArr = [],
+                          categoriesArr = [],
+                          groupsArr = [],
+                          colorsJSON = {},
+                          typesJSON = {},
+                          axesJSON = {},
+                          namesJSON = {},
+                          groupJSON = {},
+                          xCatObj = util.groupObjectArray( pValuesData, "x" );
 
-                    if (seriesData) {
+                    let seriesCnt = 0;
+
+                    if ( seriesData ) {
                         /* Add Categories or time values to x Axis when correct type is set */
-                        if (xType == "category" || xType == "timeseries") {
-                            categoriesArr.push("x");
-                            var xCatObj = util.groupObjectArray(pValuesData, "x");
-                            var xCatArr = Object.keys(xCatObj);
+                        if ( xType === "category" || xType === "timeseries" ) {
+                            categoriesArr.push( "x" );
+                            const xCatArr = Object.keys( xCatObj );
 
-                            $.each(xCatArr, function (dIdx, dataValues) {
-                                categoriesArr.push((setObjectParameter(dataValues.replace(specialStr, ""), null)));
-                            });
+                            $.each( xCatArr, function ( dIdx, dataValues ) {
+                                categoriesArr.push( ( setObjectParameter( dataValues.replace( specialStr, "" ), null ) ) );
+                            } );
                         }
 
-                        dataArr.push(categoriesArr);
+                        dataArr.push( categoriesArr );
 
                         /* Transform data for billboard.js */
-                        $.each(seriesData, function (idx, seriesData) {
-                            var series;
-                            seriesCnt++;
-                            if (seriesData[0] && seriesData[0].seriesID) {
+                        $.each( seriesData, function ( idx, seriesData ) {
+                            let series;
+                            seriesCnt += 1;
+                            if ( seriesData[0] && seriesData[0].seriesID ) {
                                 series = seriesData[0];
-                                var dataKey = escape(series.seriesID);
+                                const dataKey = escape( series.seriesID );
                                 colorsJSON[dataKey] = series.color;
                                 typesJSON[dataKey] = series.type;
 
                                 /* check if atypechart*/
-                                if (aTypeCharts.indexOf(series.type) >= 0) {
+                                if ( aTypeCharts.indexOf( series.type ) >= 0 ) {
                                     zoomEnabled = false;
                                 }
 
-                                if (series.type === "gauge") {
+                                if ( series.type === "gauge" ) {
                                     isGauge = true;
                                 }
 
-                                if (series.type === "pie") {
+                                if ( series.type === "pie" ) {
                                     isPie = true;
                                 }
 
-                                if (series.type === "donut") {
+                                if ( series.type === "donut" ) {
                                     isDonut = true;
                                 }
 
-                                if (util.isDefinedAndNotNull(series.tooltip)) {
+                                if ( util.isDefinedAndNotNull( series.tooltip ) ) {
                                     ownTooltip = true;
                                 }
 
-                                axesJSON[dataKey] = (series.yAxis || "y");
-                                if (util.isDefinedAndNotNull(series.groupID)) {
-                                    var groupID = escape(series.groupID.toString());
-                                    if (groupJSON[groupID]) {
-                                        groupJSON[groupID].push(dataKey);
+                                axesJSON[dataKey] = ( series.yAxis || "y" );
+                                if ( util.isDefinedAndNotNull( series.groupID ) ) {
+                                    const groupID = escape( series.groupID.toString() );
+                                    if ( groupJSON[groupID] ) {
+                                        groupJSON[groupID].push( dataKey );
                                     } else {
                                         groupJSON[groupID] = [];
-                                        groupJSON[groupID].push(dataKey);
+                                        groupJSON[groupID].push( dataKey );
                                     }
                                 }
 
-                                if (series.yAxis == "y2") {
+                                if ( series.yAxis === "y2" ) {
                                     y2Show = true;
                                 }
-                                namesJSON[dataKey] = (setObjectParameter(series.label, dataKey));
+                                namesJSON[dataKey] = ( setObjectParameter( series.label, dataKey ) );
 
-                                var arr = [];
-                                arr.push(dataKey);
-                                if (xType == "category" || xType == "timeseries") {
-                                    $.each(xCatObj, function (dIdx, dataValues) {
-                                        var setValueY = null;
-                                        var setValueZ = null;
-                                        $.each(dataValues, function (sIDx, sDataValues) {
-                                            if (escape(sDataValues.seriesID) == dataKey) {
+                                const arr = [];
+                                arr.push( dataKey );
+                                if ( xType === "category" || xType === "timeseries" ) {
+                                    $.each( xCatObj, function ( dIdx, dataValues ) {
+                                        let setValueY = null,
+                                            setValueZ = null;
+                                        $.each( dataValues, function ( sIDx, sDataValues ) {
+                                            if ( escape( sDataValues.seriesID ) === dataKey ) {
                                                 setValueY = sDataValues.y;
-                                                if (sDataValues.z) {
+                                                if ( sDataValues.z ) {
                                                     setValueZ = sDataValues.z;
                                                 }
                                             }
-                                        });
-                                        if (setValueZ !== null) {
-                                            arr.push({
+                                        } );
+                                        if ( setValueZ !== null ) {
+                                            arr.push( {
                                                 "y": setValueY,
                                                 "z": setValueZ
-                                            });
+                                            } );
                                         } else {
-                                            arr.push(setValueY);
+                                            arr.push( setValueY );
                                         }
-                                    });
+                                    } );
                                 } else {
-                                    $.each(seriesData, function (dIdx, dataValues) {
-                                        var setValueY = setObjectParameter(dataValues.y, null);
-                                        if (dataValues.z) {
-                                            var setValueZ = dataValues.z;
-                                            arr.push({
+                                    $.each( seriesData, function ( dIdx, dataValues ) {
+                                        const setValueY = setObjectParameter( dataValues.y, null );
+                                        if ( dataValues.z ) {
+                                            const setValueZ = dataValues.z;
+                                            arr.push( {
                                                 "y": setValueY,
                                                 "z": setValueZ
-                                            });
+                                            } );
                                         } else {
-                                            arr.push(setValueY);
+                                            arr.push( setValueY );
                                         }
-                                    });
+                                    } );
                                 }
 
-                                dataArr.push(arr);
+                                dataArr.push( arr );
 
                             } else {
-                                util.errorMessage.show(pItemSel, pDefaultConfig.errorMessage);
-                                apex.debug.error({
-                                    "fct": util.featureDetails.name + " - " + "drawChart",
+                                util.errorMessage.show( pItemSel, pDefaultConfig.errorMessage );
+                                apex.debug.error( {
+                                    "fct": `${util.featureDetails.name} - drawChart`,
                                     "msg": "No seriesID found in seriesID Cursor",
                                     "featureDetails": util.featureDetails
-                                });
+                                } );
                             }
 
-                        });
+                        } );
 
                         /* Group JSON to Array */
-                        $.each(groupJSON, function (dIdx, jsonObj) {
-                            groupsArr.push(jsonObj);
-                        });
+                        $.each( groupJSON, function ( dIdx, jsonObj ) {
+                            groupsArr.push( jsonObj );
+                        } );
 
                         /* Labels and Datapoints */
-                        var dataLabels = setObjectParameter(pConfigData.showDataLabels, pDefaultConfig.d3chart.showDataLabels, true);
+                        let dataLabels = setObjectParameter( pConfigData.showDataLabels, pDefaultConfig.d3JSchart.showDataLabels, true );
 
-                        if (isPie || isDonut) {
+                        if ( isPie || isDonut ) {
                             dataLabels = {
                                 colors: "white"
                             };
-                        } else if (isGauge) {
+                        } else if ( isGauge ) {
                             dataLabels = {
-                                colors: (gaugeType === "single" && seriesCnt > 1) ? "white" : "inherit"
+                                colors: ( gaugeType === "single" && seriesCnt > 1 ) ? "white" : "inherit"
                             };
                         }
-                        var showDataPoints = setObjectParameter(pConfigData.showDataPoints, pDefaultConfig.d3chart.showDataPoints, true);
+                        const showDataPoints = setObjectParameter( pConfigData.showDataPoints, pDefaultConfig.d3JSchart.showDataPoints, true ),
+                              showAbsoluteValues = setObjectParameter( pConfigData.showAbsoluteValues, pDefaultConfig.d3JSchart.showAbsoluteValues );
+                        let absoluteFormatting;
 
-                        var showAbsoluteValues = setObjectParameter(pConfigData.showAbsoluteValues, pDefaultConfig.d3chart.showAbsoluteValues);
-                        var absoluteFormatting;
-
-                        if (showAbsoluteValues) {
-                            absoluteFormatting = function (value, ratio, id) {
+                        if ( showAbsoluteValues ) {
+                            absoluteFormatting = function ( value ) {
                                 return value + yUnit;
-                            }
+                            };
                         }
 
-                        var ttContent;
-                        if (ownTooltip) {
-                            ttContent = function (d) {
-                                var div = $("<div></div>");
-                                div.addClass("bb-tooltip");
-                                div.addClass("bida-chart-tooltip-custome");
-                                $.each(d, function (i, pData) {
-                                    var key = specialStr + unescape(pData.id);
-                                    var index = pData.index;
+                        let ttContent;
+                        if ( ownTooltip ) {
+                            ttContent = function ( d ) {
+                                const div = $( "<div></div>" );
+                                div.addClass( "bb-tooltip" );
+                                div.addClass( "bida-chart-tooltip-custome" );
+                                $.each( d, function ( i, pData ) {
+                                    const key = specialStr + unescape( pData.id ),
+                                          seriesObj = seriesData[key],
+                                          index = pData.index;
+                                    
+                                    if ( seriesObj && seriesObj[index] && util.isDefinedAndNotNull( seriesObj[index].tooltip ) && util.isDefinedAndNotNull( pData.value ) ) {
+                                        const subDiv = $( "<div>" );
 
-                                    if (seriesData[key]) {
-                                        var seriesObj = seriesData[key];
-                                        if (seriesObj.length === 1) {
-                                            index = 0
+                                        let ttS = seriesObj[index].tooltip;
+                                        if ( pRequireHTMLEscape !== false ) {
+                                            ttS = util.escapeHTML( ttS );
                                         }
-                                        if (seriesData[key][index] && util.isDefinedAndNotNull(seriesData[key][index].tooltip)) {
-                                            var subDiv = $("<div>");
-                                            var ttS = seriesData[key][index].tooltip;
-                                            if (pRequireHTMLEscape !== false) {
-                                                ttS = util.escapeHTML(ttS);
-                                            }
-                                            subDiv.append(ttS);
-                                            div.append(subDiv);
-                                        }
+                                        subDiv.append( ttS );
+                                        div.append( subDiv );
                                     }
-                                });
+                                } );
                                 return div[0].outerHTML;
-                            }
+                            };
                         }
 
                         try {
-                            var chartContIDSel = pItemSel + "bbc";
-                            var chartContID = chartContIDSel.replace("#", "");
-                            var chartCont = $("<div></div>");
-                            chartCont.attr("id", chartContID);
+                            const chartContIDSel = pItemSel + "bbc",
+                                  chartContID = chartContIDSel.replace( "#", "" ),
+                                  chartCont = $( "<div></div>" );
+                            chartCont.attr( "id", chartContID );
 
-                            $(pItemSel).append(chartCont);
+                            $( pItemSel ).append( chartCont );
 
-                            var bbData = {
+                            const bbData = {
                                 bindto: chartContIDSel,
                                 background: backJSON,
                                 title: {
@@ -956,8 +977,8 @@ var apexDashboardChart = function (apex, $) {
                                     labels: dataLabels,
                                     axes: axesJSON,
                                     names: namesJSON,
-                                    onclick: function (pData) {
-                                        executeLink(pData);
+                                    onclick: function ( pData ) {
+                                        executeLink( pData );
                                     }
                                 },
                                 pie: {
@@ -1061,8 +1082,8 @@ var apexDashboardChart = function (apex, $) {
                                             culling: {
                                                 max: yCulling
                                             },
-                                            format: function (d) {
-                                                return d + yUnit
+                                            format: function ( d ) {
+                                                return d + yUnit;
                                             }
                                         }
                                     },
@@ -1079,8 +1100,8 @@ var apexDashboardChart = function (apex, $) {
                                             culling: {
                                                 max: y2Culling
                                             },
-                                            format: function (d) {
-                                                return d + y2Unit
+                                            format: function ( d ) {
+                                                return d + y2Unit;
                                             }
                                         }
                                     }
@@ -1088,97 +1109,52 @@ var apexDashboardChart = function (apex, $) {
                                 padding: chartPadding
                             };
 
-                            apex.debug.info({
-                                "fct": util.featureDetails.name + " - " + "drawChart",
+                            apex.debug.info( {
+                                "fct": `${util.featureDetails.name} - drawChart`,
                                 "finalChartData": bbData,
                                 "featureDetails": util.featureDetails
-                            });
+                            } );
 
-                            var chart = bb.generate(bbData);
+                            // eslint-disable-next-line no-undef
+                            const chart = bb.generate( bbData );
 
                             /* reset zoom on right click */
-                            if (zoomEnabled) {
-                                $(chartContIDSel).contextmenu(function (evt) {
+                            if ( zoomEnabled ) {
+                                $( chartContIDSel ).contextmenu( function ( evt ) {
                                     evt.preventDefault();
                                     chart.unzoom();
-                                });
+                                } );
                             }
 
                             /* execute resize */
-                            function resize() {
-                                if (!document.hidden && chartCont.is(":visible")) {
-                                    chart.resize({
-                                        height: pItemHeight
-                                    });
-                                }
-                            }
+                            pContainer.on( "resize", function() {
+                                chart.resize( {
+                                    height: pItemHeight
+                                } );
+                            } );
 
-                            // bind resize events
-                            $(window).resize(function () {
-                                resize();
-                            });
-
-                            /* dirty workaround because in APEX sometimes chart renders in wrong size hope apexDev Team will bring us layout change events also for tabs, collapsible so on */
-                            function stopResizeWA() {
-                                if (timers.innerItemsIntervals && timers.innerItemsIntervals[pItemSel]) {
-                                    clearInterval(timers.innerItemsIntervals[pItemSel]);
-                                }
-                            }
-
-                            function startResizeWA() {
-                                timers.innerItemsIntervals[pItemSel] = setInterval(function () {
-                                    if ($(pItemSel).length === 0) {
-                                        clearInterval(timers.innerItemsIntervals[pItemSel]);
-                                    } else {
-                                        if (chartCont.is(":visible")) {
-                                            if (!util.isBetween(chartCont.width(), chartCont.find("svg").width(), resizeRange)) {
-                                                apex.debug.info({
-                                                    "fct": util.featureDetails.name + " - " + "drawChart",
-                                                    "msg": "Chart has resize problem",
-                                                    "featureDetails": util.featureDetails
-                                                });
-                                                resize();
-                                            }
-
-                                        }
-                                    }
-                                }, timers.defTime);
-                            }
-
-                            stopResizeWA();
-                            startResizeWA();
-
-                            /* stop when tab is not active */
-                            document.addEventListener("visibilitychange", function () {
-                                if (document.hidden) {
-                                    stopResizeWA();
-                                } else {
-                                    startResizeWA();
-                                }
-                            });
-
-                        } catch (e) {
-                            $(pItemSel).empty();
-                            util.errorMessage.show(pItemSel, pDefaultConfig.errorMessage);
-                            apex.debug.error({
-                                "fct": util.featureDetails.name + " - " + "drawChart",
+                        } catch ( e ) {
+                            $( pItemSel ).empty();
+                            util.errorMessage.show( pItemSel, pDefaultConfig.errorMessage );
+                            apex.debug.error( {
+                                "fct": `${util.featureDetails.name} - drawChart`,
                                 "msg": "Error while try to render chart",
                                 "err": e,
                                 "featureDetails": util.featureDetails
-                            });
+                            } );
                         }
                     } else {
-                        util.noDataMessage.show(pItemSel, pDefaultConfig.noDataMessage);
+                        util.noDataMessage.show( pItemSel, pDefaultConfig.noDataMessage );
                     }
-                } catch (e) {
-                    $(pItemSel).empty();
-                    util.errorMessage.show(pItemSel, pDefaultConfig.errorMessage);
-                    apex.debug.error({
-                        "fct": util.featureDetails.name + " - " + "drawChart",
+                } catch ( e ) {
+                    $( pItemSel ).empty();
+                    util.errorMessage.show( pItemSel, pDefaultConfig.errorMessage );
+                    apex.debug.error( {
+                        "fct": `${util.featureDetails.name} - drawChart`,
                         "msg": "Error while prepare data for chart",
                         "err": e,
                         "featureDetails": util.featureDetails
-                    });
+                    } );
                 }
             }
             /***********************************************************************
@@ -1186,31 +1162,31 @@ var apexDashboardChart = function (apex, $) {
              ** function to get data from APEX
              **
              ***********************************************************************/
-            function getData(pDefaultConfig) {
-                util.loader.start(parentID);
+            function getData( pDefaultConfig, pContainer ) {
+                util.loader.start( parentID );
                 var submitItems = pItems2Submit;
 
                 apex.server.plugin(
                     pAjaxID, {
-                    pageItems: submitItems
-                }, {
-                    success: function (pData) {
-                        prepareData(pData, pDefaultConfig)
-                    },
-                    error: function (d) {
-                        $(parentID).empty();
-                        util.errorMessage.show(parentID, pDefaultConfig.errorMessage);
-                        apex.debug.error({
-                            "fct": util.featureDetails.name + " - " + "getData",
-                            "msg": "Error while loading AJAX data",
-                            "err": d,
-                            "featureDetails": util.featureDetails
-                        });
-                        util.loader.stop(parentID);
-                    },
-                    dataType: "json"
-                });
+                        pageItems: submitItems
+                    }, {
+                        success: function ( pData ) {
+                            prepareData( pData, pDefaultConfig, pContainer );
+                        },
+                        error: function ( d ) {
+                            $( parentID ).empty();
+                            util.errorMessage.show( parentID, pDefaultConfig.errorMessage );
+                            apex.debug.error( {
+                                "fct": `${util.featureDetails.name} - getData`,
+                                "msg": "Error while loading AJAX data",
+                                "err": d,
+                                "featureDetails": util.featureDetails
+                            } );
+                            util.loader.stop( parentID );
+                        },
+                        dataType: "json"
+                    } );
             }
         }
-    }
+    };
 };

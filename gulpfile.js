@@ -11,7 +11,7 @@ var concat = require('gulp-concat');
 var uglify = require('gulp-uglify');
 var uglifycss = require('gulp-uglifycss');
 
-function concatmainjs() {
+function concatjs() {
   return gulp.src([
     './js/lib/d3.js',
     './js/lib/nbillboard.js',
@@ -28,5 +28,5 @@ function concatcss() {
     .pipe(gulp.dest('./build/'))
 }
 
-exports.concatmainjs = concatmainjs;
+exports.concatmainjs = concatjs;
 exports.concatcss = concatcss;
