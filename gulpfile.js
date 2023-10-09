@@ -28,5 +28,11 @@ function concatcss() {
     .pipe(gulp.dest('./build/'))
 }
 
+async function concatall() {
+  concatjs();
+  concatcss();
+}
+
 exports.concatmainjs = concatjs;
 exports.concatcss = concatcss;
+exports.concatall = concatall;
