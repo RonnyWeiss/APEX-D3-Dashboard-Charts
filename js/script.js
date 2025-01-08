@@ -932,10 +932,12 @@ const apexDashboardChart = function ( apex, $ ) {
                                 const div = $( "<div></div>" );
                                 div.addClass( "bb-tooltip" );
                                 div.addClass( "bida-chart-tooltip-custome" );
+                                const stackedBars = d.length == 1 ? false : true;
+
                                 $.each( d, function ( i, pData ) {
                                     const key = specialStr + unescape( pData.id ),
                                           seriesObj = seriesData[key],
-                                          index = pData.index;
+                                          index = stackedBars ? pData.index : 0;
                                     
                                     if ( seriesObj && seriesObj[index] && util.isDefinedAndNotNull( seriesObj[index].tooltip ) && util.isDefinedAndNotNull( pData.value ) ) {
                                         const subDiv = $( "<div>" );
