@@ -13,11 +13,12 @@ whenever sqlerror exit sql.sqlcode rollback
 --------------------------------------------------------------------------------
 begin
 wwv_flow_api.import_begin (
- p_version_yyyy_mm_dd=>'2016.08.24'
-,p_release=>'5.1.3.00.05'
-,p_default_workspace_id=>21717127411908241868
+ p_version_yyyy_mm_dd=>'2021.10.15'
+,p_release=>'21.2.5'
+,p_default_workspace_id=>100000
 ,p_default_application_id=>103428
-,p_default_owner=>'RD_DEV'
+,p_default_id_offset=>0
+,p_default_owner=>'RONNY'
 );
 end;
 /
@@ -27,12 +28,12 @@ prompt APPLICATION 103428 - Ronny's Demo App
 -- Application Export:
 --   Application:     103428
 --   Name:            Ronny's Demo App
---   Date and Time:   22:35 Monday October 9, 2023
+--   Date and Time:   21:31 Monday March 17, 2025
 --   Exported By:     RONNY
 --   Flashback:       0
 --   Export Type:     Component Export
 --   Manifest
---     PLUGIN: 54299331908005645450
+--     PLUGIN: 54355150029254833954
 --   Manifest End
 --   Version:         21.2.5
 --   Instance ID:     900134127207897
@@ -46,7 +47,7 @@ end;
 prompt --application/shared_components/plugins/region_type/apex_d3_dashboard_charts
 begin
 wwv_flow_api.create_plugin(
- p_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(54355150029254833954)
 ,p_plugin_type=>'REGION TYPE'
 ,p_name=>'APEX.D3.DASHBOARD.CHARTS'
 ,p_display_name=>'APEX D3 Dashboard Charts'
@@ -227,13 +228,13 @@ wwv_flow_api.create_plugin(
 'Create with only one SQL statement one or more D3 charts with different configurations and different chart types. Possible are among other things: Bar, line, area, pie, gauge, donut, step and stack charts.',
 '',
 'All things such as chart type, number of series, colors, size, data points and chart configurations can be adjusted at runtime by the SQL statement and reset again and again by refresh.'))
-,p_version_identifier=>'23.10.09'
+,p_version_identifier=>'25.03.17'
 ,p_about_url=>'https://github.com/RonnyWeiss/APEX-D3-Dashboard-Charts'
-,p_files_version=>2260
+,p_files_version=>2264
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(54299333958212645458)
-,p_plugin_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(54355152079461833962)
+,p_plugin_id=>wwv_flow_api.id(54355150029254833954)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>1
 ,p_display_sequence=>10
@@ -266,8 +267,8 @@ wwv_flow_api.create_plugin_attribute(
 '</ul>'))
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(54575130443851815191)
-,p_plugin_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(54630948565101003695)
+,p_plugin_id=>wwv_flow_api.id(54355150029254833954)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>2
 ,p_display_sequence=>20
@@ -462,8 +463,8 @@ wwv_flow_api.create_plugin_attribute(
 ||'ing left</li><li><b>right (num): </b>Padding right</li><li><b>top (num): </b>Padding top</li></ul></li></ul>'))
 );
 wwv_flow_api.create_plugin_attribute(
- p_id=>wwv_flow_api.id(27120458486313174373)
-,p_plugin_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(27176276607562362877)
+,p_plugin_id=>wwv_flow_api.id(54355150029254833954)
 ,p_attribute_scope=>'COMPONENT'
 ,p_attribute_sequence=>3
 ,p_display_sequence=>30
@@ -475,8 +476,8 @@ wwv_flow_api.create_plugin_attribute(
 ,p_help_text=>'This message is shown when any error is occured. Please check Browser console for debug information when this text is shown.'
 );
 wwv_flow_api.create_plugin_std_attribute(
- p_id=>wwv_flow_api.id(54299334881878645469)
-,p_plugin_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(54355153003127833973)
+,p_plugin_id=>wwv_flow_api.id(54355150029254833954)
 ,p_name=>'SOURCE_SQL'
 ,p_default_value=>wwv_flow_string.join(wwv_flow_t_varchar2(
 'WITH CT AS (SELECT DECODE(ROWNUM,1,''area-spline'',2,''bar'',3,''pie'',4,''line'',5,''bubble'',6,''donut'') AS CHART_TYPE FROM DUAL CONNECT BY ROWNUM<=6)',
@@ -709,7 +710,7 @@ end;
 /
 begin
 wwv_flow_api.g_varchar2_table := wwv_flow_api.empty_varchar2_table;
-wwv_flow_api.g_varchar2_table(1) := '4D4954204C6963656E73650A0A436F7079726967687420286329203230323320526F6E6E792057656973730A0A5065726D697373696F6E20697320686572656279206772616E7465642C2066726565206F66206368617267652C20746F20616E79207065';
+wwv_flow_api.g_varchar2_table(1) := '4D4954204C6963656E73650A0A436F7079726967687420286329203230323520526F6E6E792057656973730A0A5065726D697373696F6E20697320686572656279206772616E7465642C2066726565206F66206368617267652C20746F20616E79207065';
 wwv_flow_api.g_varchar2_table(2) := '72736F6E206F627461696E696E67206120636F70790A6F66207468697320736F66747761726520616E64206173736F63696174656420646F63756D656E746174696F6E2066696C657320287468652022536F66747761726522292C20746F206465616C0A';
 wwv_flow_api.g_varchar2_table(3) := '696E2074686520536F66747761726520776974686F7574207265737472696374696F6E2C20696E636C7564696E6720776974686F7574206C696D69746174696F6E20746865207269676874730A746F207573652C20636F70792C206D6F646966792C206D';
 wwv_flow_api.g_varchar2_table(4) := '657267652C207075626C6973682C20646973747269627574652C207375626C6963656E73652C20616E642F6F722073656C6C0A636F70696573206F662074686520536F6674776172652C20616E6420746F207065726D697420706572736F6E7320746F20';
@@ -725,8 +726,8 @@ end;
 /
 begin
 wwv_flow_api.create_plugin_file(
- p_id=>wwv_flow_api.id(54299335286441645474)
-,p_plugin_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(54355153407690833978)
+,p_plugin_id=>wwv_flow_api.id(54355150029254833954)
 ,p_file_name=>'LICENSE'
 ,p_mime_type=>'application/octet-stream'
 ,p_file_charset=>'utf-8'
@@ -769,8 +770,8 @@ end;
 /
 begin
 wwv_flow_api.create_plugin_file(
- p_id=>wwv_flow_api.id(54299335636838645474)
-,p_plugin_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(54355153758087833978)
+,p_plugin_id=>wwv_flow_api.id(54355150029254833954)
 ,p_file_name=>'LICENSE4LIBS'
 ,p_mime_type=>'application/octet-stream'
 ,p_file_charset=>'utf-8'
@@ -860,8 +861,8 @@ end;
 /
 begin
 wwv_flow_api.create_plugin_file(
- p_id=>wwv_flow_api.id(54299336846695645475)
-,p_plugin_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(54355154967944833979)
+,p_plugin_id=>wwv_flow_api.id(54355150029254833954)
 ,p_file_name=>'d3dashboard.pkgd.min.css'
 ,p_mime_type=>'text/css'
 ,p_file_charset=>'utf-8'
@@ -6497,8 +6498,8 @@ end;
 /
 begin
 wwv_flow_api.create_plugin_file(
- p_id=>wwv_flow_api.id(54299337246651645475)
-,p_plugin_id=>wwv_flow_api.id(54299331908005645450)
+ p_id=>wwv_flow_api.id(54355155367900833979)
+,p_plugin_id=>wwv_flow_api.id(54355150029254833954)
 ,p_file_name=>'d3dashboard.pkgd.min.js'
 ,p_mime_type=>'application/javascript'
 ,p_file_charset=>'utf-8'
