@@ -929,25 +929,28 @@ const apexDashboardChart = function (apex, $) {
                         let ttContent;
                         if (ownTooltip) {
                             ttContent = function (d) {
-                                const isStacked = d.length === 1 ? false : true;
+                                const div = $("<div></div>")
+                                    .addClass("bb-tooltip bida-chart-tooltip-custome");
 
-                                const div = $("<div></div>");
-                                div.addClass("bb-tooltip");
-                                div.addClass("bida-chart-tooltip-custome");
                                 $.each(d, function (i, pData) {
                                     const key = specialStr + unescape(pData.id),
-                                        seriesObj = seriesData[key],
-                                        index = isStacked ? pData.index : 0;
+                                        seriesObj = seriesData[key];
+                                    // Skip if data is missing
+                                    if (!seriesObj || !seriesObj.length) { return; }
 
-                                    if (seriesObj && seriesObj[index] && util.isDefinedAndNotNull(seriesObj[index].tooltip) && util.isDefinedAndNotNull(pData.value)) {
-                                        const subDiv = $( "<div>" );
-                                        let ttS = seriesObj[index].tooltip;
+                                    // Use a safe index inside the available data
+                                    const safeIndex = Math.min(pData.index, seriesObj.length - 1);
 
-                                        if ( pRequireHTMLEscape !== false ) {
-                                            ttS = util.escapeHTML( ttS );
+                                    if (
+                                        seriesObj[safeIndex] &&
+                                        util.isDefinedAndNotNull(seriesObj[safeIndex].tooltip) &&
+                                        util.isDefinedAndNotNull(pData.value)
+                                    ) {
+                                        let ttS = seriesObj[safeIndex].tooltip;
+                                        if (pRequireHTMLEscape !== false) {
+                                            ttS = util.escapeHTML(ttS);
                                         }
-                                        subDiv.append(ttS);
-                                        div.append(subDiv);
+                                        div.append($("<div>").append(ttS));
                                     }
                                 });
                                 return div[0].outerHTML;
@@ -974,6 +977,7 @@ const apexDashboardChart = function (apex, $) {
                                 data: {
                                     x: xName,
                                     xFormat: xAxisTimeFormat,
+                                    order: null,
                                     columns: dataArr,
                                     types: typesJSON,
                                     groups: groupsArr,
@@ -1134,7 +1138,7 @@ const apexDashboardChart = function (apex, $) {
                             }
 
                             /* execute resize */
-                            container.on("resize", function () {
+                            pContainer.on("resize", function () {
                                 chart.resize({
                                     height: pItemHeight
                                 });

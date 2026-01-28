@@ -2,13 +2,13 @@
 npm install -g gulp-cli
 npm install gulp --save-dev
 npm install gulp-concat --save-dev
-npm install gulp-uglify --save-dev
 npm install gulp-uglifycss --save-dev
+npm install gulp-terser --save-dev
 */
 
 var gulp = require('gulp');
 var concat = require('gulp-concat');
-var uglify = require('gulp-uglify');
+var terser = require('gulp-terser');
 var uglifycss = require('gulp-uglifycss');
 
 function concatjs() {
@@ -17,7 +17,7 @@ function concatjs() {
     './js/lib/nbillboard.js',
     './js/script.js'])
     .pipe(concat('d3dashboard.pkgd.min.js'))
-    .pipe(uglify().on('error', function (e) { console.log(e); }))
+    .pipe(terser().on('error', function (e) { console.log(e); }))
     .pipe(gulp.dest('./build/'));
 }
 
