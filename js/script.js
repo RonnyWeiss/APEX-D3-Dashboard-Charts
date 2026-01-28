@@ -977,6 +977,7 @@ const apexDashboardChart = function (apex, $) {
                                 data: {
                                     x: xName,
                                     xFormat: xAxisTimeFormat,
+                                    order: null,
                                     columns: dataArr,
                                     types: typesJSON,
                                     groups: groupsArr,
